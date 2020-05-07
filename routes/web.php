@@ -1,7 +1,6 @@
 <?php
 
-use App\Delivery;
-use App\DetalleDelivery;
+
 use Illuminate\Support\Facades\Route;
 /*
 |--------------------------------------------------------------------------
@@ -14,4 +13,3 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', 'DeliveriesController@test');
