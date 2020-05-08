@@ -9,6 +9,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use PDF;
+use Carbon\Carbon;
 
 class DeliveriesController extends Controller
 {
@@ -23,7 +24,10 @@ class DeliveriesController extends Controller
             $nDelivery->nomCliente          =   $hDelivery['nomCliente'];
             $nDelivery->numIdentificacion   =   $hDelivery['numIdentificacion'];
             $nDelivery->numCelular          =   $hDelivery['numCelular'];
-            $nDelivery->fecha               =   $hDelivery['fecha'];
+            $date = date('Y-m-d', strtotime($hDelivery['fecha']));
+            $time = $hDelivery['hora'];
+            $datetime = $date.' '.$time;
+            $nDelivery->fecha               =   new Carbon($datetime);
             $nDelivery->dirRecogida         =   $hDelivery['dirRecogida'];
             $nDelivery->email               =   $hDelivery['email'];
             $nDelivery->idCategoria         =   $hDelivery['idCategoria'];
@@ -100,7 +104,7 @@ class DeliveriesController extends Controller
     }
 
 
-   /* public function test()
+    /* public function test()
     {
         $delivery = Delivery::where('idDelivery', 14)->get()->first();
         $orderDelivery = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
