@@ -45,17 +45,15 @@ class DeliveriesController extends Controller
 
             $receivers = $hDelivery['email'];
             $orderDelivery = DetalleDelivery::where('idDelivery', $nDelivery['idDelivery'])->get();
-            if ($this->sendmail($receivers, $nDelivery, $orderDelivery)) {
-                return response()->json(
-                    [
+            $this->sendmail($receivers, $nDelivery, $orderDelivery);
+
+            return response()->json([
                         'error' => 0,
                         'message' => 'Solicitud de Delivery enviada correctamente. Recibirás un email con los detalles de tu reserva. Nos pondremos en contacto contigo.',
                         'nDelivery' => $nDelivery->idDelivery
                     ],
                     200
-                );
-            }
-
+            );           
 
             /*return response()->json(
                 [
