@@ -56,7 +56,7 @@
       </h4>
     </div>
     <div class="column">
-      <h4>Fecha:</h4>
+      <h4>Fecha de recogida:</h4>
       <p> {{\Carbon\Carbon::parse($delivery->fecha)->format('j F, Y')}}</p>
     </div>
   </div>
@@ -65,22 +65,25 @@
 
   <div class="row">
     <div class="column">
-      <h4>Direccion de recogida:</h4>
-      <p> {{$delivery->dirRecogida}}</p>
+      <h4>Hora de recogida:</h4>
+      <p> {{\Carbon\Carbon::parse($delivery->fecha)->format('h:i a')}}</p>
     </div>
     <div class="column">
-      <h4>Correo Electrónico:</h4>
-      <p> {{$delivery->email}}</p>
-    </div>
+      <h4>Direccion de recogida:</h4>
+      <p> {{$delivery->dirRecogida}}</p>
+    </div> 
   </div>
 
 
   <div class="row">
     <div class="column">
+      <h4>Correo Electrónico:</h4>
+      <p> {{$delivery->email}}</p>
+    </div>
+    <div class="column">
       <h4>Categoría a reservar:</h4>
       <p>{{$delivery->category->descTipoVehiculo}}</p>
     </div>
-
   </div>
 
   <!--DELIVERY HEADER GROUP END-->
