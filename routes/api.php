@@ -24,4 +24,10 @@ Route::group(['prefix' => 'categories'], function () {
 
 Route::group(['prefix' => 'deliveries'], function () {
     Route::post('new', 'DeliveriesController@createDelivery');
+    Route::get('getTarifas', 'DeliveriesController@getTarifas');
+
+});
+
+Route::group(['prefix' => 'deliveries'], function () {
+    Route::post('new', 'DeliveriesController@createDelivery');
 });

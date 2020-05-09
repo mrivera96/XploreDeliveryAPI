@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use PDF;
 use Carbon\Carbon;
+use App\Tarifa;
 
 class DeliveriesController extends Controller
 {
@@ -98,6 +99,26 @@ class DeliveriesController extends Controller
             return false;
         } else {
             return true;
+        }
+    }
+
+    public function getTarifas(){
+        try{
+            $tarifas = Tarifa::all();
+            foreach($tarifas as $tarifa){
+                $tarifa->category;
+            }
+            return response()->json([
+                'error' => 0,
+                'data'=> $tarifas
+            ],
+            200);
+        }catch(Exception $ex){
+            return response()->json([
+                'error' => 1,
+                'message'=> $ex->getMessage()
+            ],
+            500);
         }
     }
 
