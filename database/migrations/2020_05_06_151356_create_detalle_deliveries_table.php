@@ -19,6 +19,10 @@ class CreateDetalleDeliveriesTable extends Migration
             $table->string('nomDestinatario');
             $table->string('numCel');
             $table->string('direccion');
+            $table->string('distancia')->nullable();
+            $table->boolean('entregado')->nullable();
+            $table->string('horaEntrega')->nullable();
+            $table->string('nomRecibio')->nullable();
         });
 
         Schema::table('tblDetalleDelivery', function (Blueprint $table) {
