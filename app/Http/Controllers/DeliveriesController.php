@@ -166,12 +166,12 @@ class DeliveriesController extends Controller
         $vehiculo= $request->motivoAnul;
 
         try {
-
+            $tarifa = Tarifa::all();
             $newContract = new ContratoDelivery();
             $currDelivery = Delivery::where('idDelivery', $idDelivery)->get();
             $ordersCount = $currDelivery->detalle()->count();
             $newContract->idDelivery = $idDelivery;
-            $newContract->idTarifaDelivery = ;
+            /*$newContract->idTarifaDelivery = ;
             $newContract->idDelivery = ;
             $newContract->idDelivery = ;
             $newContract->idDelivery = ;
@@ -179,11 +179,11 @@ class DeliveriesController extends Controller
 
 
 
-            
+
             $currDelivery->idEstado = 48;
             $currDelivery->numContrato = $motivoAnul;
-            $currDelivery->save();
-         
+            $currDelivery->save();*/
+
             /*$receivers = $hDelivery['email'];
             $orderDelivery = DetalleDelivery::where('idDelivery', $nDelivery['idDelivery'])->get();
             $this->sendmail($receivers, $nDelivery, $orderDelivery);
@@ -192,7 +192,7 @@ class DeliveriesController extends Controller
                 [
                     'error' => 0,
                     'message' => 'Delivery anulada correctamente.',
-                
+
                 ],
                 200
             );
@@ -221,7 +221,7 @@ class DeliveriesController extends Controller
             $currDelivery->fechaAnulado = Carbon::now();
             $currDelivery->motivoAnul = $motivoAnul;
             $currDelivery->save();
-         
+
             /*$receivers = $hDelivery['email'];
             $orderDelivery = DetalleDelivery::where('idDelivery', $nDelivery['idDelivery'])->get();
             $this->sendmail($receivers, $nDelivery, $orderDelivery);
@@ -230,7 +230,7 @@ class DeliveriesController extends Controller
                 [
                     'error' => 0,
                     'message' => 'Delivery anulada correctamente.',
-                
+
                 ],
                 200
             );
@@ -246,7 +246,7 @@ class DeliveriesController extends Controller
         }
     }
 
-    
+
 
     /* public function test()
     {
@@ -271,9 +271,9 @@ class DeliveriesController extends Controller
             return response('OK');
         } catch (Exception $exception) {
             dd($exception->getMessage());
-            
+
         }
 
-        
+
     }*/
 }
