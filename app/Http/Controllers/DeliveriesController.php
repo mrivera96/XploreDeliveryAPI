@@ -18,7 +18,6 @@ class DeliveriesController extends Controller
 {
     public function createDelivery(Request $request)
     {
-        return response()->json([$request->all()],500);
         $request->validate(['deliveryForm' => 'required', 'orders' => 'required']);
         $hDelivery = $request->deliveryForm;
         $deliveryOrders = $request->orders;
