@@ -22,7 +22,7 @@ class CreateTblContratosDeliveryTable extends Migration
             $table->string('estado');
             $table->integer('idUsuario')->unsigned() ;
             $table->date('fechaContrato');
-            $table->integer('idVehiculo')->unsigned();   
+            $table->integer('idVehiculo')->unsigned();
         });
 
         Schema::table('tblContratosDelivery', function (Blueprint $table) {
@@ -55,6 +55,6 @@ class CreateTblContratosDeliveryTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tbl_contratos_delivery');
+        Schema::dropIfExists('tblContratosDelivery');
     }
 }
