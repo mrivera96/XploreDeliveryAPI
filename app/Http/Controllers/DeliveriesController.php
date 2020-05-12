@@ -34,7 +34,7 @@ class DeliveriesController extends Controller
             $nDelivery->dirRecogida         =   $hDelivery['dirRecogida'];
             $nDelivery->email               =   $hDelivery['email'];
             $nDelivery->idCategoria         =   $hDelivery['idCategoria'];
-            $nDelivery->idEstado         =   47;
+            $nDelivery->idEstado         =   36;
             $nDelivery->save();
 
             foreach ($deliveryOrders as $detalle) {
@@ -215,7 +215,7 @@ class DeliveriesController extends Controller
 
         try {
             $currDelivery = Delivery::where('idDelivery', $idDelivery)->get();
-            $currDelivery->idEstado = 49;
+            $currDelivery->idEstado = 38;
             $currDelivery->usrAnuloReserva = Auth::user()->idUsuario;
             $currDelivery->fechaAnulado = Carbon::now();
             $currDelivery->motivoAnul = $motivoAnul;
