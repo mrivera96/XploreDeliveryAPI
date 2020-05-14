@@ -18,7 +18,7 @@ class DeliveriesSeeder extends Seeder
             'nomCliente' => 'Ismael Alexander Gutierrez', 'numIdentificacion' => '07031994389462',
             'numCelular' => '94689230', 'fechaReserva' => \Carbon\Carbon::now(),
             'dirRecogida' => 'Aeropuerto Internacional Toncontín, Tegucigalpa, Col. 15 de Septiembre, Tegucigalpa, Honduras',
-            'email' => 'jylrivera96@gmail.com', 'idCategoria' => 1, 'idEstado' => 32,
+            'email' => 'jylrivera96@gmail.com', 'idCategoria' => 1, 'idEstado' => 33,
             'tarifaBase' => '120.00', 'recargos' => '50.00', 'total' => '170.00'
         ]);
 
@@ -36,7 +36,7 @@ class DeliveriesSeeder extends Seeder
             'nomCliente' => 'Carlos Daniel Almendares', 'numIdentificacion' => '0801199001632',
             'numCelular' => '33946384', 'fechaReserva' => \Carbon\Carbon::now(),
             'dirRecogida' => 'Centro Comercial Los Castaños, Boulevard Morazán, Tegucigalpa, Honduras',
-            'email' => 'jylrivera96@gmail.com', 'idCategoria' => 3, 'idEstado' => 32,
+            'email' => 'jylrivera96@gmail.com', 'idCategoria' => 3, 'idEstado' => 33,
             'tarifaBase' => '145.00', 'recargos' => '50.00', 'total' => '195.00', 'isPagada' => 1
         ]);
         \Illuminate\Support\Facades\DB::unprepared('SET IDENTITY_INSERT tblDeliveries OFF');
