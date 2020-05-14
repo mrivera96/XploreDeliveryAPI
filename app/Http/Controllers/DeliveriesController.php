@@ -35,7 +35,7 @@ class DeliveriesController extends Controller
             $nDelivery->dirRecogida         =   $hDelivery['dirRecogida'];
             $nDelivery->email               =   $hDelivery['email'];
             $nDelivery->idCategoria         =   $hDelivery['idCategoria'];
-            $nDelivery->idEstado            =   32;
+            $nDelivery->idEstado            =   33;
             $nDelivery->tarifaBase          =   $pago['baseRate'];
             $nDelivery->recargos            =   $pago['recargos'];
             $nDelivery->total            =   $pago['total'];
