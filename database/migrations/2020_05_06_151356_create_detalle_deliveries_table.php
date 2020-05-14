@@ -20,7 +20,7 @@ class CreateDetalleDeliveriesTable extends Migration
             $table->string('numCel');
             $table->string('direccion');
             $table->string('distancia')->nullable();
-            $table->boolean('entregado')->nullable();
+            $table->boolean('entregado')->default(0);
             $table->string('horaEntrega')->nullable();
             $table->string('nomRecibio')->nullable();
         });

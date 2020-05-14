@@ -11,10 +11,14 @@ class clsEstados extends Seeder
      */
     public function run()
     {
+        \Illuminate\Support\Facades\DB::unprepared('SET IDENTITY_INSERT clsEstados ON');
         \Illuminate\Support\Facades\DB::table('clsEstados')->insert([
-            ['idTipoEstado' => 9, 'descEstado' => 'Reserva', 'isActivo' => 1, 'fechaAlta' => \Carbon\Carbon::now()] ,
-            ['idTipoEstado' => 9,'descEstado' => 'Contrato', 'isActivo' => 1, 'fechaAlta' => \Carbon\Carbon::now()],
-            ['idTipoEstado' => 9,'descEstado' => 'Anulada', 'isActivo' => 1, 'fechaAlta' => \Carbon\Carbon::now()]
+            ['idEstado' => 32,'idTipoEstado' => 8, 'descEstado' => 'Reservación', 'isActivo' => 1, 'fechaAlta' => \Carbon\Carbon::now()] ,
+            ['idEstado' => 33,'idTipoEstado' => 8,'descEstado' => 'Contrato', 'isActivo' => 1, 'fechaAlta' => \Carbon\Carbon::now()],
+            ['idEstado' => 34,'idTipoEstado' => 8,'descEstado' => 'Anulada', 'isActivo' => 1, 'fechaAlta' => \Carbon\Carbon::now()]
         ]);
+
+        \Illuminate\Support\Facades\DB::unprepared('SET IDENTITY_INSERT clsEstados OFF');
+
     }
 }

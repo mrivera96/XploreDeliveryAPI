@@ -18,9 +18,10 @@ class DeliveriesController extends Controller
 {
     public function createDelivery(Request $request)
     {
-        $request->validate(['deliveryForm' => 'required', 'orders' => 'required']);
+        $request->validate(['deliveryForm' => 'required', 'orders' => 'required', 'pago' => 'required']);
         $hDelivery = $request->deliveryForm;
         $deliveryOrders = $request->orders;
+        $pago = $request->pago;
 
         try {
             $nDelivery = new Delivery();
@@ -34,7 +35,10 @@ class DeliveriesController extends Controller
             $nDelivery->dirRecogida         =   $hDelivery['dirRecogida'];
             $nDelivery->email               =   $hDelivery['email'];
             $nDelivery->idCategoria         =   $hDelivery['idCategoria'];
-            $nDelivery->idEstado         =   36;
+            $nDelivery->idEstado            =   32;
+            $nDelivery->tarifaBase          =   $pago['baseRate'];
+            $nDelivery->recargos            =   $pago['recargos'];
+            $nDelivery->total            =   $pago['total'];
             $nDelivery->save();
 
             foreach ($deliveryOrders as $detalle) {
@@ -73,7 +77,8 @@ class DeliveriesController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getMessage()
+                    'message' => $ex->getMessage(),
+                    'stackTrace' => $ex->getTrace()
                 ],
                 500
             );
@@ -139,11 +144,38 @@ class DeliveriesController extends Controller
             foreach ($deliveries as $delivery) {
                 $delivery->category;
                 $delivery->detalle;
+                $delivery->estado;
             }
             return response()->json(
                 [
                     'error' => 0,
                     'data' => $deliveries
+                ],
+                200
+            );
+        } catch (Exception $ex) {
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => $ex->getMessage()
+                ],
+                500
+            );
+        }
+    }
+
+    public function getById(Request $request){
+        try {
+            $delivery = Delivery::where('idDelivery', $request->id)->get()->first();
+
+                $delivery->category;
+                $delivery->detalle;
+                $delivery->estado;
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => $delivery
                 ],
                 200
             );

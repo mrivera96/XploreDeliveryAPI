@@ -14,5 +14,6 @@ class DatabaseSeeder extends Seeder
         $this->call(clsTipoEstados::class);
         $this->call(clsEstados::class);
         $this->call(clsTarifasDelivery::class);
+        $this->call(DeliveriesSeeder::class);
     }
 }

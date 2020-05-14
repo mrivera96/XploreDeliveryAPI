@@ -11,8 +11,13 @@ class clsTipoEstados extends Seeder
      */
     public function run()
     {
+        \Illuminate\Support\Facades\DB::unprepared('SET IDENTITY_INSERT clsTipoEstados ON');
+
         \Illuminate\Support\Facades\DB::table('clsTipoEstados')->insert([
+        'idTipoEstado'=>8,
             'descTipoEstado' => 'XploreDelivery'
         ]);
+        \Illuminate\Support\Facades\DB::unprepared('SET IDENTITY_INSERT clsTipoEstados OFF');
+
     }
 }

@@ -14,16 +14,20 @@ class Delivery extends Model
         'nomCliente',
         'numIdentificacion',
         'numCelular',
-        'fecha',
+        'fechaReserva',
         'dirRecogida',
         'email',
-        'idCategoria'
+        'idCategoria',
+        'idEstado',
+        'tarifaBase',
+        'recargos',
+        'total'
     ];
 
 
     public function detalle()
     {
-        return $this->hasOne('App\DetalleDelivery', 'idDelivery', 'idDelivery');
+        return $this->hasMany('App\DetalleDelivery', 'idDelivery', 'idDelivery');
     }
 
     public function category(){
@@ -32,5 +36,9 @@ class Delivery extends Model
 
     public function contrato(){
         return $this->belongsTo('App\ContratoDelivery', 'idDelivery', 'idDelivery');
+    }
+
+    public function estado(){
+        return $this->hasOne('App\Estado', 'idEstado', 'idEstado');
     }
 }

@@ -30,9 +30,8 @@ Route::group(['prefix' => 'auth'], function () {
 Route::group(['prefix' => 'deliveries'], function () {
     Route::post('new', 'DeliveriesController@createDelivery');
     Route::get('getTarifas', 'DeliveriesController@getTarifas');
-    Route::group(['middleware' => 'auth:api'], function () {
-        Route::get('list', 'DeliveriesController@list');
-    });
+    Route::get('list', 'DeliveriesController@list');
+    Route::get('getById', 'DeliveriesController@getById');
 
 });
 
