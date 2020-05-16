@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 
 <head>
   <meta charset="UTF-8">
@@ -34,7 +34,7 @@
   </div>
 
   <div class="row">
-    <h3>Solicitud No. {{$delivery->idDelivery}}</h4> 
+    <h3>Solicitud No. {{$delivery->idDelivery}}</h3>
   </div>
 
   <div class=" row">
@@ -57,7 +57,7 @@
     </div>
     <div class="column">
       <h4>Fecha de recogida:</h4>
-      <p> {{\Carbon\Carbon::parse($delivery->fecha)->format('j F, Y')}}</p>
+      <p> {{\Carbon\Carbon::parse($delivery->fechaReserva)->format('j F, Y')}}</p>
     </div>
   </div>
 
@@ -66,12 +66,12 @@
   <div class="row">
     <div class="column">
       <h4>Hora de recogida:</h4>
-      <p> {{\Carbon\Carbon::parse($delivery->fecha)->format('h:i a')}}</p>
+      <p> {{\Carbon\Carbon::parse($delivery->fechaReserva)->format('h:i a')}}</p>
     </div>
     <div class="column">
       <h4>Direccion de recogida:</h4>
       <p> {{$delivery->dirRecogida}}</p>
-    </div> 
+    </div>
   </div>
 
 

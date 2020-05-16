@@ -25,30 +25,30 @@ class DeliveriesController extends Controller
 
         try {
             $nDelivery = new Delivery();
-            $nDelivery->nomCliente          =   $hDelivery['nomCliente'];
-            $nDelivery->numIdentificacion   =   $hDelivery['numIdentificacion'];
-            $nDelivery->numCelular          =   $hDelivery['numCelular'];
+            $nDelivery->nomCliente = $hDelivery['nomCliente'];
+            $nDelivery->numIdentificacion = $hDelivery['numIdentificacion'];
+            $nDelivery->numCelular = $hDelivery['numCelular'];
             $date = date('Y-m-d', strtotime($hDelivery['fecha']));
             $time = $hDelivery['hora'];
             $datetime = $date . ' ' . $time;
-            $nDelivery->fechaReserva               =   new Carbon($datetime);
-            $nDelivery->dirRecogida         =   $hDelivery['dirRecogida'];
-            $nDelivery->email               =   $hDelivery['email'];
-            $nDelivery->idCategoria         =   $hDelivery['idCategoria'];
-            $nDelivery->idEstado            =   33;
-            $nDelivery->tarifaBase          =   $pago['baseRate'];
-            $nDelivery->recargos            =   $pago['recargos'];
-            $nDelivery->total            =   $pago['total'];
+            $nDelivery->fechaReserva = new Carbon($datetime);
+            $nDelivery->dirRecogida = $hDelivery['dirRecogida'];
+            $nDelivery->email = $hDelivery['email'];
+            $nDelivery->idCategoria = $hDelivery['idCategoria'];
+            $nDelivery->idEstado = 33;
+            $nDelivery->tarifaBase = $pago['baseRate'];
+            $nDelivery->recargos = $pago['recargos'];
+            $nDelivery->total = $pago['total'];
             $nDelivery->save();
 
             foreach ($deliveryOrders as $detalle) {
                 $nDetalle = new DetalleDelivery();
-                $nDetalle->idDelivery       = $nDelivery['idDelivery'];
-                $nDetalle->nFactura         = $detalle['nFactura'];
-                $nDetalle->nomDestinatario  = $detalle['nomDestinatario'];
-                $nDetalle->numCel           = $detalle['numCel'];
-                $nDetalle->direccion        = $detalle['direccion'];
-                $nDetalle->distancia        = $detalle['distancia'];
+                $nDetalle->idDelivery = $nDelivery['idDelivery'];
+                $nDetalle->nFactura = $detalle['nFactura'];
+                $nDetalle->nomDestinatario = $detalle['nomDestinatario'];
+                $nDetalle->numCel = $detalle['numCel'];
+                $nDetalle->direccion = $detalle['direccion'];
+                $nDetalle->distancia = $detalle['distancia'];
                 $nDetalle->save();
             }
 
@@ -138,7 +138,8 @@ class DeliveriesController extends Controller
     }
 
 
-    public function list(){
+    public function list()
+    {
         try {
             $deliveries = Delivery::all();
             foreach ($deliveries as $delivery) {
@@ -164,13 +165,14 @@ class DeliveriesController extends Controller
         }
     }
 
-    public function getById(Request $request){
+    public function getById(Request $request)
+    {
         try {
             $delivery = Delivery::where('idDelivery', $request->id)->get()->first();
 
-                $delivery->category;
-                $delivery->detalle;
-                $delivery->estado;
+            $delivery->category;
+            $delivery->detalle;
+            $delivery->estado;
 
             return response()->json(
                 [
@@ -191,10 +193,11 @@ class DeliveriesController extends Controller
     }
 
 
-    public function generateContract(Request $request){
+    public function generateContract(Request $request)
+    {
         $request->validate(['idDelivery' => 'required', 'vehiculoAsignado' => 'required']);
         $idDelivery = $request->idDelivery;
-        $vehiculo= $request->motivoAnul;
+        $vehiculo = $request->motivoAnul;
 
         try {
             $tarifa = Tarifa::all();
@@ -240,10 +243,11 @@ class DeliveriesController extends Controller
 
     }
 
-    public function cancelDelivery(Request $request){
+    public function cancelDelivery(Request $request)
+    {
         $request->validate(['idDelivery' => 'required', 'motivoAnul' => 'required']);
         $idDelivery = $request->idDelivery;
-        $motivoAnul= $request->motivoAnul;
+        $motivoAnul = $request->motivoAnul;
 
         try {
             $currDelivery = Delivery::where('idDelivery', $idDelivery)->get();
@@ -277,6 +281,44 @@ class DeliveriesController extends Controller
         }
     }
 
+    public function updateDeliveried(Request $request)
+    {
+        $request->validate([
+
+            'idDetalle' => 'required',
+            'idConductor' => ' required',
+            'nomRecibio' => 'required',
+            'fechaEntrega' => 'required']);
+        $idDetalle = $request->idDetalle;
+        $idConductor = $request->idConductor;
+        $nomRecibio = $request->nomRecibio;
+        $fechaEntrega = new Carbon($request->fechaEntrega);
+        try {
+            $detail = DetalleDelivery::where('idDetalle', $idDetalle);
+            $detail->update(['idConductor' => $idConductor,
+                'nomRecibio' => $nomRecibio,
+                'fechaEntrega' => $fechaEntrega,
+                'entregado' => true]);
+
+            return response()->json([
+                'codError' => 0,
+                'messageError' => null,
+                'message' => 'la entrega se registró correctamente'
+            ],
+                200);
+        } catch (Exception $ex) {
+            return response()->json(['codError' => 1, 'messageError' => $ex->getMessage()], 500);
+        }
+
+    }
+
+    public function testReserveFormat(Request $request){
+        $delivery = Delivery::where('idDelivery', $request->idDelivery)->get()->first();
+        $orderDelivery = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
+
+        return view('deliveryContract', compact('delivery','orderDelivery'));
+
+    }
 
 
     /* public function test()

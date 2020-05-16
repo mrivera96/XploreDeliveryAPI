@@ -32,7 +32,7 @@ Route::group(['prefix' => 'deliveries'], function () {
     Route::get('getTarifas', 'DeliveriesController@getTarifas');
     Route::get('list', 'DeliveriesController@list');
     Route::get('getById', 'DeliveriesController@getById');
-
+    Route::post('entregar','DeliveriesController@updateDeliveried');
 });
 
 Route::group(['prefix' => 'deliveries'], function () {

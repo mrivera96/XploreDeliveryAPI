@@ -14,6 +14,7 @@ class CreateDetalleDeliveriesTable extends Migration
     public function up()
     {
         Schema::create('tblDetalleDelivery', function (Blueprint $table) {
+            $table->increments('idDetalle');
             $table->integer('idDelivery')->unsigned();
             $table->string('nFactura');
             $table->string('nomDestinatario');
@@ -21,12 +22,14 @@ class CreateDetalleDeliveriesTable extends Migration
             $table->string('direccion');
             $table->string('distancia')->nullable();
             $table->boolean('entregado')->default(0);
-            $table->string('horaEntrega')->nullable();
+            $table->dateTime('fechaEntrega')->nullable();
             $table->string('nomRecibio')->nullable();
+            $table->integer('idConductor')->unsigned()->nullable();
         });
 
         Schema::table('tblDetalleDelivery', function (Blueprint $table) {
             $table->foreign('idDelivery')->references('idDelivery')->on('tblDeliveries')->onUpdate('cascade')->onDelete('cascade');
+            $table->foreign('idConductor')->references('idUsuario')->on('tblUsuarios');
         });
     }
 

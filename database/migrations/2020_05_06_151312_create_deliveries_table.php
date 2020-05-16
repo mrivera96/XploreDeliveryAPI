@@ -30,11 +30,13 @@ class CreateDeliveriesTable extends Migration
             $table->double('recargos')->nullable();
             $table->double('total')->nullable();
             $table->boolean('isPagada')->default(0);
+
         });
 
         Schema::table('tblDeliveries', function (Blueprint $table) {
             $table->foreign('idCategoria')->references('idTipoVehiculo')->on('clsTipoVehiculo');
             $table->foreign('idEstado')->references('idEstado')->on('clsEstados');
+
         });
     }
 

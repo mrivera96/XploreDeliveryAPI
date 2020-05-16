@@ -13,3 +13,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('viewTest/{idDelivery}', 'DeliveriesController@testReserveFormat');
+
