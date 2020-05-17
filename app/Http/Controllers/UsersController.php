@@ -22,4 +22,15 @@ class UsersController extends Controller
 
         return $activo->count();
     }
+
+    public function list()
+    {
+        try {
+            $users = User::where('isActivo',1)->get();
+            return response()->json(['error'=>0, 'data'=>$users],200);
+
+        }catch (\Exception $ex){
+            return response()->json(['error'=>1, 'message'=>$ex->getMessage()],500);
+        }
+    }
 }

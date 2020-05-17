@@ -6,6 +6,7 @@ use App\ContratoDelivery;
 use App\Delivery;
 use App\DetalleDelivery;
 use App\Mail\ApplicationReceived;
+use App\User;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -172,6 +173,9 @@ class DeliveriesController extends Controller
 
             $delivery->category;
             $delivery->detalle;
+            foreach ($delivery->detalle as $detail){
+                $detail->conductor = $detail->conductor;
+            }
             $delivery->estado;
 
             return response()->json(
@@ -284,7 +288,6 @@ class DeliveriesController extends Controller
     public function updateDeliveried(Request $request)
     {
         $request->validate([
-
             'idDetalle' => 'required',
             'idConductor' => ' required',
             'nomRecibio' => 'required',
@@ -318,6 +321,32 @@ class DeliveriesController extends Controller
 
         return view('deliveryContract', compact('delivery','orderDelivery'));
 
+    }
+
+    public function assignDelivery(Request $request)
+    {
+        $idConductor = $request->assignForm['idConductor'];
+        //$idVehiculo = $request->asignForm['idVehiculo'];
+        $idDelivery = $request->idDelivery;
+        try {
+            $delivery = Delivery::where('idDelivery', $idDelivery);
+            $delivery->update(['idEstado'=>37]);
+
+            $details = DetalleDelivery::where('idDelivery',$idDelivery);
+            $details->update(['idEstado'=>37, 'idConductor'=> $idConductor]);
+            $conductor = User::where('idUsuario', $idConductor)->get()->first();
+
+            return response()->json([
+                'error' => 0,
+                'data' => 'Reserva asignada correctamente a: '.$conductor->nomUsuario],
+                200);
+
+        }catch (Exception $ex){
+            return response()->json([
+                'error' => 1,
+                'message' => $ex->getMessage()],
+                500);
+        }
     }
 
 

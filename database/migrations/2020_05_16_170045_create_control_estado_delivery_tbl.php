@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateClsRecargosDeliveryTable extends Migration
+class CreateControlEstadoDeliveryTbl extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,9 @@ class CreateClsRecargosDeliveryTable extends Migration
      */
     public function up()
     {
-        Schema::create('clsRecargosDelivery', function (Blueprint $table) {
-            $table->increments('idRecargoDelivery');
-            $table->double('distMinima');
-            $table->double('distMaxima');
-            $table->double('monto');
+        Schema::create('control_estado_delivery_tbl', function (Blueprint $table) {
+            $table->id();
+            $table->timestamps();
         });
     }
 
@@ -28,6 +26,6 @@ class CreateClsRecargosDeliveryTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('clsRecargosDelivery');
+        Schema::dropIfExists('control_estado_delivery_tbl');
     }
 }

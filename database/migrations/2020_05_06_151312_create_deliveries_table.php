@@ -15,12 +15,12 @@ class CreateDeliveriesTable extends Migration
     {
         Schema::create('tblDeliveries', function (Blueprint $table) {
             $table->increments('idDelivery');
-            $table->string('nomCliente');
-            $table->string('numIdentificacion');
-            $table->string('numCelular');
+            $table->string('nomCliente', 60);
+            $table->string('numIdentificacion',14);
+            $table->string('numCelular',9);
             $table->dateTime('fechaReserva');
             $table->string('dirRecogida');
-            $table->string('email');
+            $table->string('email',100);
             $table->integer('idCategoria')->unsigned();
             $table->integer('idEstado')->unsigned();
             $table->dateTime('fechaAnulado')->nullable();
@@ -30,13 +30,26 @@ class CreateDeliveriesTable extends Migration
             $table->double('recargos')->nullable();
             $table->double('total')->nullable();
             $table->boolean('isPagada')->default(0);
+            $table->integer('idCliente')->default(1);
 
         });
 
         Schema::table('tblDeliveries', function (Blueprint $table) {
-            $table->foreign('idCategoria')->references('idTipoVehiculo')->on('clsTipoVehiculo');
-            $table->foreign('idEstado')->references('idEstado')->on('clsEstados');
-
+            $table->foreign('idCategoria')
+                ->references('idTipoVehiculo')
+                ->on('clsTipoVehiculo')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+            $table->foreign('idEstado')
+                ->references('idEstado')
+                ->on('clsEstados')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+            $table->foreign('idCliente')
+                ->references('idCliente')
+                ->on('tblClientesDelivery')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
         });
     }
 

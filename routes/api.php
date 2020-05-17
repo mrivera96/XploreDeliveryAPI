@@ -33,8 +33,12 @@ Route::group(['prefix' => 'deliveries'], function () {
     Route::get('list', 'DeliveriesController@list');
     Route::get('getById', 'DeliveriesController@getById');
     Route::post('entregar','DeliveriesController@updateDeliveried');
+    Route::post('assign','DeliveriesController@assignDelivery');
 });
 
-Route::group(['prefix' => 'deliveries'], function () {
-    Route::post('new', 'DeliveriesController@createDelivery');
+Route::group(['prefix' => 'vehicles'], function () {
+    Route::get('list', 'VehiclesController@list');
+});
+Route::group(['prefix' => 'users'], function () {
+    Route::get('list', 'UsersController@list');
 });

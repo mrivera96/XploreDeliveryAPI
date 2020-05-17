@@ -38,4 +38,8 @@ class User extends Authenticatable
     {
         return $this->passUsuario;
     }
+
+    public function details(){
+        return $this->belongsToMany('App\DetalleDelivery', 'idUsuario', 'idConductor');
+    }
 }

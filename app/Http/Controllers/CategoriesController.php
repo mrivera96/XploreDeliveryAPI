@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Category;
 use Exception;
 
@@ -23,4 +22,6 @@ class CategoriesController extends Controller
             ], 500);
         }
     }
+
+
 }

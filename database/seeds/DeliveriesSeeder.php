@@ -19,7 +19,7 @@ class DeliveriesSeeder extends Seeder
             'numCelular' => '94689230', 'fechaReserva' => \Carbon\Carbon::now(),
             'dirRecogida' => 'Aeropuerto Internacional Toncontín, Tegucigalpa, Col. 15 de Septiembre, Tegucigalpa, Honduras',
             'email' => 'jylrivera96@gmail.com', 'idCategoria' => 1, 'idEstado' => 33,
-            'tarifaBase' => '120.00', 'recargos' => '50.00', 'total' => '170.00'
+            'tarifaBase' => '120.00', 'recargos' => '50.00', 'total' => '170.00',
         ]);
 
         \Illuminate\Support\Facades\DB::table('tblDetalleDelivery')->insert([
@@ -27,7 +27,7 @@ class DeliveriesSeeder extends Seeder
             'nFactura' => 'N32975',
             'nomDestinatario' => 'Karla Marisol Izaguirre',
             'numCel' => '9463-6597',
-            'direccion'=> 'Colonia El Sitio, Tegucigalpa',
+            'direccion' => 'Colonia El Sitio, Tegucigalpa',
             'distancia' => '19.1 Km'
         ]);
 
@@ -47,7 +47,7 @@ class DeliveriesSeeder extends Seeder
             'nFactura' => 'T-202006325',
             'nomDestinatario' => 'Pablo Alejandro Pineda Rodriguez',
             'numCel' => '9438-9785',
-            'direccion'=> 'Residencial Honduras, Tegucigalpa',
+            'direccion' => 'Residencial Honduras, Tegucigalpa',
             'distancia' => '10.5 Km'
         ]);
     }

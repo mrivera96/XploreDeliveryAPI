@@ -17,19 +17,31 @@ class CreateDetalleDeliveriesTable extends Migration
             $table->increments('idDetalle');
             $table->integer('idDelivery')->unsigned();
             $table->string('nFactura');
-            $table->string('nomDestinatario');
-            $table->string('numCel');
+            $table->string('nomDestinatario', 60);
+            $table->string('numCel', 9);
             $table->string('direccion');
-            $table->string('distancia')->nullable();
+            $table->string('distancia', 10)->nullable();
             $table->boolean('entregado')->default(0);
             $table->dateTime('fechaEntrega')->nullable();
-            $table->string('nomRecibio')->nullable();
+            $table->string('nomRecibio', 60)->nullable();
             $table->integer('idConductor')->unsigned()->nullable();
+            $table->integer('idEstado')->unsigned()->default(36);
         });
 
         Schema::table('tblDetalleDelivery', function (Blueprint $table) {
-            $table->foreign('idDelivery')->references('idDelivery')->on('tblDeliveries')->onUpdate('cascade')->onDelete('cascade');
-            $table->foreign('idConductor')->references('idUsuario')->on('tblUsuarios');
+            $table->foreign('idDelivery')
+                ->references('idDelivery')
+                ->on('tblDeliveries')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
+            $table->foreign('idConductor')
+                ->references('idUsuario')
+                ->on('tblUsuarios')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
+            $table->foreign('idEstado')
+                ->references('idEstado')
+                ->on('clsEstados');
         });
     }
 

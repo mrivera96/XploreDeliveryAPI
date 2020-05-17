@@ -15,8 +15,12 @@ class DetalleDelivery extends Model
         'numCel',
         'direccion'
     ];
-    
+
     public function delivery(){
         return $this->belongsTo('App\Delivery', 'idDelivery', 'idDelivery');
+    }
+
+    public function conductor(){
+        return $this->hasOne('App\User', 'idUsuario', 'idConductor');
     }
 }

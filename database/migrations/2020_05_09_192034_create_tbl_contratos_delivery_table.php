@@ -17,34 +17,29 @@ class CreateTblContratosDeliveryTable extends Migration
             $table->increments('idContratoDelivery');
             $table->string('numContrato');
             $table->integer('idDelivery')->unsigned();
-            $table->integer('idTarifaDelivery')->unsigned();
-            $table->integer('idRecargoDelivery')->unsigned();
-            $table->string('estado');
-            $table->integer('idUsuario')->unsigned() ;
+            $table->integer('idUsuario')->unsigned();
             $table->date('fechaContrato');
             $table->integer('idVehiculo')->unsigned();
         });
 
         Schema::table('tblContratosDelivery', function (Blueprint $table) {
             $table->foreign('idDelivery')
-            ->references('idDelivery')
-            ->on('tblDeliveries');
-
-            $table->foreign('idTarifaDelivery')
-            ->references('idTarifaDelivery')
-            ->on('clsTarifasDelivery');
-
-            $table->foreign('idRecargoDelivery')
-            ->references('idRecargoDelivery')
-            ->on('clsRecargosDelivery');
+                ->references('idDelivery')
+                ->on('tblDeliveries')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
 
             $table->foreign('idUsuario')
-            ->references('idUsuario')
-            ->on('tblUsuarios');
+                ->references('idUsuario')
+                ->on('tblUsuarios')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
 
             $table->foreign('idVehiculo')
-            ->references('idVehiculo')
-            ->on('tblVehiculos');
+                ->references('idVehiculo')
+                ->on('tblVehiculos')
+                ->onDelete('cascade')
+                ->onUpdate('cascade');
         });
     }
 
