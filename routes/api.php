@@ -33,8 +33,11 @@ Route::group(['prefix' => 'deliveries'], function () {
     Route::get('list', 'DeliveriesController@list');
     Route::get('getById', 'DeliveriesController@getById');
     Route::post('entregar','DeliveriesController@updateDeliveried');
-    Route::post('assign','DeliveriesController@assignDelivery');
-    Route::post('finish','DeliveriesController@finishDelivery');
+    Route::group(['middleware'=>'auth:api'], function (){
+        Route::post('assign','DeliveriesController@assignDelivery');
+        Route::post('finish','DeliveriesController@finishDelivery');
+    });
+
 });
 
 Route::group(['prefix' => 'vehicles'], function () {

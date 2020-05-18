@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\ContratoDelivery;
+use App\CtrlEstadoDelivery;
 use App\Delivery;
 use App\DetalleDelivery;
 use App\Mail\ApplicationReceived;
@@ -338,6 +339,15 @@ class DeliveriesController extends Controller
             $details->update(['idEstado'=>37, 'idConductor'=> $idConductor]);
             $conductor = User::where('idUsuario', $idConductor)->get()->first();
 
+            $nCtrl = new CtrlEstadoDelivery();
+            $nCtrl->idDelivery = $idDelivery;
+            $nCtrl->idEstado = 37;
+            $nCtrl->idUsuario = Auth::user()->idUsuario;
+            $nCtrl->fechaRegistro = Carbon::now();
+            $nCtrl->save();
+
+
+
             return response()->json([
                 'error' => 0,
                 'data' => 'Reserva asignada correctamente a: '.$conductor->nomUsuario],
@@ -361,6 +371,13 @@ class DeliveriesController extends Controller
 
             $details = DetalleDelivery::where('idDelivery', $idDelivery);
             $details->update(['idEstado'=>39]);
+
+            $nCtrl = new CtrlEstadoDelivery();
+            $nCtrl->idDelivery = $idDelivery;
+            $nCtrl->idEstado = 39;
+            $nCtrl->idUsuario = Auth::user()->idUsuario;
+            $nCtrl->fechaRegistro = Carbon::now();
+            $nCtrl->save();
 
             return response()->json([
                 'error' => 0,
