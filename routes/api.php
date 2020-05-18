@@ -34,6 +34,7 @@ Route::group(['prefix' => 'deliveries'], function () {
     Route::get('getById', 'DeliveriesController@getById');
     Route::post('entregar','DeliveriesController@updateDeliveried');
     Route::post('assign','DeliveriesController@assignDelivery');
+    Route::post('finish','DeliveriesController@finishDelivery');
 });
 
 Route::group(['prefix' => 'vehicles'], function () {

@@ -147,7 +147,9 @@ class DeliveriesController extends Controller
                 $delivery->category;
                 $delivery->detalle;
                 $delivery->estado;
+                $delivery->entregas = count($delivery->detalle);
             }
+
             return response()->json(
                 [
                     'error' => 0,
@@ -348,6 +350,31 @@ class DeliveriesController extends Controller
                 500);
         }
     }
+
+    public function finishDelivery(Request $request)
+    {
+
+        $idDelivery = $request->idDelivery;
+        try {
+            $delivery = Delivery::where('idDelivery', $idDelivery);
+            $delivery->update(['idEstado'=>39]);
+
+            $details = DetalleDelivery::where('idDelivery', $idDelivery);
+            $details->update(['idEstado'=>39]);
+
+            return response()->json([
+                'error' => 0,
+                'data' => 'Reserva finalizada correctamente.'],
+                200);
+
+        }catch (Exception $ex){
+            return response()->json([
+                'error' => 1,
+                'message' => $ex->getMessage()],
+                500);
+        }
+    }
+
 
 
     /* public function test()
