@@ -26,7 +26,7 @@ class UsersController extends Controller
     public function list()
     {
         try {
-            $users = User::where('isActivo',1)->get();
+            $users = User::where('isActivo',1)->where('idPerfil', 7)->get();
             return response()->json(['error'=>0, 'data'=>$users],200);
 
         }catch (\Exception $ex){
