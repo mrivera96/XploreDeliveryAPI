@@ -143,8 +143,17 @@ class DeliveriesController extends Controller
     public function list()
     {
         try {
-            $deliveries = Delivery::all();
-            foreach ($deliveries as $delivery) {
+            $deliveriesDia = Delivery::whereDate('fechaReserva',Carbon::today())->get();
+            $allDeliveries = Delivery::all();
+
+            foreach ($deliveriesDia as $delivery) {
+                $delivery->category;
+                $delivery->detalle;
+                $delivery->estado;
+                $delivery->entregas = count($delivery->detalle);
+            }
+
+            foreach ($allDeliveries as $delivery) {
                 $delivery->category;
                 $delivery->detalle;
                 $delivery->estado;
@@ -154,7 +163,7 @@ class DeliveriesController extends Controller
             return response()->json(
                 [
                     'error' => 0,
-                    'data' => $deliveries
+                    'data' => array('deliveriesDia' => $deliveriesDia, 'todas' => $allDeliveries)
                 ],
                 200
             );
