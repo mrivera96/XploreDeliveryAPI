@@ -143,10 +143,18 @@ class DeliveriesController extends Controller
     public function list()
     {
         try {
-            $deliveriesDia = Delivery::whereDate('fechaReserva',Carbon::today())->get();
+            $deliveriesDia = Delivery::whereDate('fechaReserva', Carbon::today())->get();
+            $deliveriesTomorrow = Delivery::whereDate('fechaReserva', Carbon::tomorrow())->get();
             $allDeliveries = Delivery::all();
 
             foreach ($deliveriesDia as $delivery) {
+                $delivery->category;
+                $delivery->detalle;
+                $delivery->estado;
+                $delivery->entregas = count($delivery->detalle);
+            }
+
+            foreach ($deliveriesTomorrow as $delivery) {
                 $delivery->category;
                 $delivery->detalle;
                 $delivery->estado;
@@ -163,7 +171,8 @@ class DeliveriesController extends Controller
             return response()->json(
                 [
                     'error' => 0,
-                    'data' => array('deliveriesDia' => $deliveriesDia, 'todas' => $allDeliveries)
+                    'data' => array('deliveriesDia' => $deliveriesDia, 'todas' => $allDeliveries,
+                        'deliveriesManiana' => $deliveriesTomorrow)
                 ],
                 200
             );
@@ -185,7 +194,7 @@ class DeliveriesController extends Controller
 
             $delivery->category;
             $delivery->detalle;
-            foreach ($delivery->detalle as $detail){
+            foreach ($delivery->detalle as $detail) {
                 $detail->conductor = $detail->conductor;
             }
             $delivery->estado;
@@ -327,11 +336,12 @@ class DeliveriesController extends Controller
 
     }
 
-    public function testReserveFormat(Request $request){
+    public function testReserveFormat(Request $request)
+    {
         $delivery = Delivery::where('idDelivery', $request->idDelivery)->get()->first();
         $orderDelivery = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
 
-        return view('deliveryContract', compact('delivery','orderDelivery'));
+        return view('deliveryContract', compact('delivery', 'orderDelivery'));
 
     }
 
@@ -342,10 +352,10 @@ class DeliveriesController extends Controller
         $idDelivery = $request->idDelivery;
         try {
             $delivery = Delivery::where('idDelivery', $idDelivery);
-            $delivery->update(['idEstado'=>37]);
+            $delivery->update(['idEstado' => 37]);
 
-            $details = DetalleDelivery::where('idDelivery',$idDelivery);
-            $details->update(['idEstado'=>37, 'idConductor'=> $idConductor]);
+            $details = DetalleDelivery::where('idDelivery', $idDelivery);
+            $details->update(['idEstado' => 37, 'idConductor' => $idConductor]);
             $conductor = User::where('idUsuario', $idConductor)->get()->first();
 
             $nCtrl = new CtrlEstadoDelivery();
@@ -356,13 +366,12 @@ class DeliveriesController extends Controller
             $nCtrl->save();
 
 
-
             return response()->json([
                 'error' => 0,
-                'data' => 'Reserva asignada correctamente a: '.$conductor->nomUsuario],
+                'data' => 'Reserva asignada correctamente a: ' . $conductor->nomUsuario],
                 200);
 
-        }catch (Exception $ex){
+        } catch (Exception $ex) {
             return response()->json([
                 'error' => 1,
                 'message' => $ex->getMessage()],
@@ -376,10 +385,10 @@ class DeliveriesController extends Controller
         $idDelivery = $request->idDelivery;
         try {
             $delivery = Delivery::where('idDelivery', $idDelivery);
-            $delivery->update(['idEstado'=>39]);
+            $delivery->update(['idEstado' => 39]);
 
             $details = DetalleDelivery::where('idDelivery', $idDelivery);
-            $details->update(['idEstado'=>39]);
+            $details->update(['idEstado' => 39]);
 
             $nCtrl = new CtrlEstadoDelivery();
             $nCtrl->idDelivery = $idDelivery;
@@ -393,14 +402,13 @@ class DeliveriesController extends Controller
                 'data' => 'Reserva finalizada correctamente.'],
                 200);
 
-        }catch (Exception $ex){
+        } catch (Exception $ex) {
             return response()->json([
                 'error' => 1,
                 'message' => $ex->getMessage()],
                 500);
         }
     }
-
 
 
     /* public function test()
