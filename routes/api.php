@@ -36,8 +36,12 @@ Route::group(['prefix' => 'deliveries'], function () {
     Route::group(['middleware'=>'auth:api'], function (){
         Route::post('assign','DeliveriesController@assignDelivery');
         Route::post('finish','DeliveriesController@finishDelivery');
+        Route::post('changeState','DeliveriesController@changeStateDelivery');
     });
 
+});
+Route::group(['prefix' => 'states'], function (){
+   Route::get('list', 'StatesController@list');
 });
 
 Route::group(['prefix' => 'vehicles'], function () {

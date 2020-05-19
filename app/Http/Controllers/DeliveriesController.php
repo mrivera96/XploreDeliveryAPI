@@ -6,6 +6,7 @@ use App\ContratoDelivery;
 use App\CtrlEstadoDelivery;
 use App\Delivery;
 use App\DetalleDelivery;
+use App\Estado;
 use App\Mail\ApplicationReceived;
 use App\User;
 use Exception;
@@ -369,6 +370,43 @@ class DeliveriesController extends Controller
             return response()->json([
                 'error' => 0,
                 'data' => 'Reserva asignada correctamente a: ' . $conductor->nomUsuario],
+                200);
+
+        } catch (Exception $ex) {
+            return response()->json([
+                'error' => 1,
+                'message' => $ex->getMessage()],
+                500);
+        }
+    }
+
+    public function changeStateDelivery(Request $request)
+    {
+        $idEstado = $request->idEstado['idEstado'];
+        $idDelivery = $request->idDelivery;
+        try {
+            $delivery = Delivery::where('idDelivery', $idDelivery);
+            if($idEstado == 37){
+                $idConductor = $request->idEstado['idConductor'];
+                $delivery->update(['idEstado' => $idEstado, 'idConductor'=>$idConductor]);
+            }
+            $delivery->update(['idEstado' => $idEstado]);
+
+            $details = DetalleDelivery::where('idDelivery', $idDelivery);
+            $details->update(['idEstado' => $idEstado]);
+            $estado = Estado::where('idEstado', $idEstado)->get()->first();
+
+            $nCtrl = new CtrlEstadoDelivery();
+            $nCtrl->idDelivery = $idDelivery;
+            $nCtrl->idEstado = $idEstado;
+            $nCtrl->idUsuario = Auth::user()->idUsuario;
+            $nCtrl->fechaRegistro = Carbon::now();
+            $nCtrl->save();
+
+
+            return response()->json([
+                'error' => 0,
+                'data' => 'Se cambió el estado de reserva a: ' . $estado->descEstado],
                 200);
 
         } catch (Exception $ex) {
