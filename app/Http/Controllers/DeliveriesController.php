@@ -152,6 +152,7 @@ class DeliveriesController extends Controller
                 $delivery->category;
                 $delivery->detalle;
                 $delivery->estado;
+                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y, h:i a');
                 $delivery->entregas = count($delivery->detalle);
             }
 
@@ -159,6 +160,7 @@ class DeliveriesController extends Controller
                 $delivery->category;
                 $delivery->detalle;
                 $delivery->estado;
+                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y, h:i a');
                 $delivery->entregas = count($delivery->detalle);
             }
 
@@ -166,6 +168,7 @@ class DeliveriesController extends Controller
                 $delivery->category;
                 $delivery->detalle;
                 $delivery->estado;
+                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y, h:i a');
                 $delivery->entregas = count($delivery->detalle);
             }
 
