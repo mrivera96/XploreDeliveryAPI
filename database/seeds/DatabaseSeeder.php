@@ -12,9 +12,11 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         //$this->call(clsTipoEstados::class);
-        $this->call(clsEstados::class);
+        //$this->call(clsEstados::class);
         $this->call(clsTarifasDelivery::class);
         $this->call(tblClientesDeliverySeeder::class);
+        $this->call(SucursalesClientesDelivery::class);
+        $this->call(UsuariosDeliverySeeder::class);
         $this->call(DeliveriesSeeder::class);
 
     }

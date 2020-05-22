@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateTblClientesDelivery extends Migration
+class CreateTblSucursalesClientesDelivery extends Migration
 {
     /**
      * Run the migrations.
@@ -13,17 +13,15 @@ class CreateTblClientesDelivery extends Migration
      */
     public function up()
     {
-        Schema::create('tblClientesDelivery', function (Blueprint $table) {
-            $table->increments('idCliente');
-            $table->string('nomEmpresa', 80);
-            $table->string('nomRepresentante', 80);
-            $table->string('numIdentificacion', 14);
-            $table->string('numTelefono', 9);
+        Schema::create('tblSucursalesClientesDelivery', function (Blueprint $table) {
+            $table->increments('idSucursal');
+            $table->string('nomSucursal', 80);
+            $table->string('numTelefono', 9)->nullable();
+            $table->integer('idCliente')->unsigned();
+            $table->string('direccion', 255);
             $table->dateTime('fechaAlta');
-            $table->string('email', 50);
             $table->boolean('isActivo')->default(1);
         });
-
     }
 
     /**
@@ -33,6 +31,6 @@ class CreateTblClientesDelivery extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tblClientesDelivery');
+        Schema::dropIfExists('tblSucursalesClientesDelivery');
     }
 }

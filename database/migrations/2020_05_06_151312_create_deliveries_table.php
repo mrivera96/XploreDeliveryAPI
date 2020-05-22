@@ -19,8 +19,8 @@ class CreateDeliveriesTable extends Migration
             $table->string('numIdentificacion',14);
             $table->string('numCelular',9);
             $table->dateTime('fechaReserva');
-            $table->string('dirRecogida');
-            $table->string('email',100);
+            $table->string('dirRecogida', 255);
+            $table->string('email',50);
             $table->integer('idCategoria')->unsigned();
             $table->integer('idEstado')->unsigned();
             $table->dateTime('fechaAnulado')->nullable();
@@ -37,9 +37,7 @@ class CreateDeliveriesTable extends Migration
         Schema::table('tblDeliveries', function (Blueprint $table) {
             $table->foreign('idCategoria')
                 ->references('idTipoVehiculo')
-                ->on('clsTipoVehiculo')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
+                ->on('clsTipoVehiculo');
             $table->foreign('idEstado')
                 ->references('idEstado')
                 ->on('clsEstados')

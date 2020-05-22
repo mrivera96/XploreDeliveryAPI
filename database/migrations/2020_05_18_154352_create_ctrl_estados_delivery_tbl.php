@@ -45,6 +45,6 @@ class CreateCtrlEstadosDeliveryTbl extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ctrl_estados_delivery_tbl');
+        Schema::dropIfExists('tblCtrlEstadosDelivery');
     }
 }

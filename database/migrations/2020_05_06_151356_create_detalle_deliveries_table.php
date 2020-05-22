@@ -16,10 +16,10 @@ class CreateDetalleDeliveriesTable extends Migration
         Schema::create('tblDetalleDelivery', function (Blueprint $table) {
             $table->increments('idDetalle');
             $table->integer('idDelivery')->unsigned();
-            $table->string('nFactura');
+            $table->string('nFactura',50);
             $table->string('nomDestinatario', 60);
             $table->string('numCel', 9);
-            $table->string('direccion');
+            $table->string('direccion', 255);
             $table->string('distancia', 10)->nullable();
             $table->boolean('entregado')->default(0);
             $table->dateTime('fechaEntrega')->nullable();

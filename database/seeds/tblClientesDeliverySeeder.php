@@ -13,7 +13,7 @@ class tblClientesDeliverySeeder extends Seeder
     {
         \Illuminate\Support\Facades\DB::table('tblClientesDelivery')->insert([
             'nomEmpresa' => 'Xplore Rent A Car',  'nomRepresentante' =>'Rony Pavón' ,'numIdentificacion' => '0000200711111',
-            'numTelefono' => '2276-7130', 'fechaAlta' => \Carbon\Carbon::now()
+            'numTelefono' => '2276-7130', 'fechaAlta' => \Carbon\Carbon::now(), 'email' => 'rony.pavon@xplorerentacar.com'
         ]);
     }
 }
