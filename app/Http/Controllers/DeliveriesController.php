@@ -38,7 +38,7 @@ class DeliveriesController extends Controller
             $nDelivery->dirRecogida = $hDelivery['dirRecogida'];
             $nDelivery->email = $hDelivery['email'];
             $nDelivery->idCategoria = $hDelivery['idCategoria'];
-            $nDelivery->idEstado = 33;
+            $nDelivery->idEstado = 34;
             $nDelivery->tarifaBase = $pago['baseRate'];
             $nDelivery->recargos = $pago['recargos'];
             $nDelivery->total = $pago['total'];
@@ -448,6 +448,58 @@ class DeliveriesController extends Controller
                 'error' => 1,
                 'message' => $ex->getMessage()],
                 500);
+        }
+    }
+
+
+    public function getCustomerDeliveries(){
+
+        try {
+            $user = Auth::user();
+            $deliveriesDia = Delivery::where('idCliente', $user->idCliente)->whereDate('fechaReserva', Carbon::today())->get();
+            $deliveriesTomorrow = Delivery::where('idCliente', $user->idCliente)->whereDate('fechaReserva', Carbon::tomorrow())->get();
+            $allDeliveries = Delivery::where('idCliente', $user->idCliente)->get();
+
+            foreach ($deliveriesDia as $delivery) {
+                $delivery->category;
+                $delivery->detalle;
+                $delivery->estado;
+                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y, h:i a');
+                $delivery->entregas = count($delivery->detalle);
+            }
+
+            foreach ($deliveriesTomorrow as $delivery) {
+                $delivery->category;
+                $delivery->detalle;
+                $delivery->estado;
+                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y, h:i a');
+                $delivery->entregas = count($delivery->detalle);
+            }
+
+            foreach ($allDeliveries as $delivery) {
+                $delivery->category;
+                $delivery->detalle;
+                $delivery->estado;
+                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y, h:i a');
+                $delivery->entregas = count($delivery->detalle);
+            }
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => array('deliveriesDia' => $deliveriesDia, 'todas' => $allDeliveries,
+                        'deliveriesManiana' => $deliveriesTomorrow)
+                ],
+                200
+            );
+        } catch (Exception $ex) {
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => $ex->getMessage()
+                ],
+                500
+            );
         }
     }
 

@@ -32,4 +32,8 @@ class DeliveryUser extends Authenticatable
     {
         return $this->passUsuario;
     }
+
+    public function cliente(){
+        return $this->belongsTo('App\DeliveryClient', 'idCliente', 'idCliente');
+    }
 }

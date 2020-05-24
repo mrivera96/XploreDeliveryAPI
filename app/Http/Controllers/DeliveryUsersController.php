@@ -30,6 +30,7 @@ class DeliveryUsersController extends Controller
                     $user = Auth::user();
                     $tkn = $user->createToken('XploreInspApi')->accessToken;
                     $user->access_token = $tkn;
+                    $user->cliente;
 
                     return response()->json(
                         [
