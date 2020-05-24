@@ -11,13 +11,14 @@ class UsuariosDeliverySeeder extends Seeder
      */
     public function run()
     {
-        $pass = $this->encriptar("uXPlore20");
+        $pass = utf8_encode($this->encriptar("uXPlore20"));
 
         \Illuminate\Support\Facades\DB::table('tblUsuariosDelivery')->insert([
-            'nomUsuario' => 'Usuario Xplore',  'passUsuario' => utf8_encode($pass) ,'nickUsuario' => 'uXplore',
-           'fechaAlta' => \Carbon\Carbon::now(), 'idSucursal' => 1
+            'nomUsuario' => 'Usuario Xplore', 'passUsuario' => 'NÏÂÒµÍÉÌÏÂÒµÍÉº', 'nickUsuario' => 'uXplore',
+            'fechaAlta' => \Carbon\Carbon::now(), 'idCliente' => 1
         ]);
     }
+
     private Function encriptar($iString)
     {
         $pwd = "";

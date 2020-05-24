@@ -2,32 +2,33 @@
 
 namespace App\Http\Controllers;
 
-use App\User;
+use App\DeliveryUser;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
-class AuthController extends Controller
+class DeliveryUsersController extends Controller
 {
     public function login(Request $request)
     {
         $request->validate([
-            'nickname'       => 'required|string',
-            'password'    => 'required|string',
+            'nickname' => 'required|string',
+            'password' => 'required|string',
         ]);
 
         $nickname = $request->nickname;
         $password = $request->password;
 
-        if(UsersController::existeUsuario($nickname) != 0){
-            if(UsersController::usuarioActivo($nickname)>0){
+        if ($this->existeUsuario($nickname) != 0) {
+            if ($this->usuarioActivo($nickname) > 0) {
                 $cripPass = utf8_encode($this->encriptar($password));
-                $auth = User::where('nickUsuario', $nickname)->where('passUsuario', $cripPass)->first();
+                $auth = DeliveryUser::where('nickUsuario', $nickname)->where('passUsuario', $cripPass)->first();
 
                 if ($auth) {
                     Auth::login($auth);
                     $user = Auth::user();
-                    $tkn =  $user->createToken('XploreInspApi')->accessToken;
+                    $tkn = $user->createToken('XploreInspApi')->accessToken;
                     $user->access_token = $tkn;
 
                     return response()->json(
@@ -40,10 +41,11 @@ class AuthController extends Controller
                 } else {
                     return response()->json([
                         'error' => 1,
-                        'message' => 'Las credenciales que ha ingresado no son correctas.'
+                        'message' => 'Las credenciales que ha ingresado no son correctas.',
+                        'pass' => $cripPass
                     ], 401);
                 }
-            }else{
+            } else {
                 return response()->json([
                     'error' => 1,
                     'message' => 'Su usuario se encuentra inactivo. Comuníquese con el departamento de IT para resolver el conflicto.'
@@ -51,7 +53,7 @@ class AuthController extends Controller
             }
 
 
-        }else{
+        } else {
             return response()->json([
                 'error' => 1,
                 'message' => 'Autenticación no encontrada.'
@@ -94,18 +96,34 @@ class AuthController extends Controller
     public function logout(Request $request)
     {
         try {
-            Auth::user()->token()->revoke();
+
+            $request->user()->token()->revoke();
 
             return response()->json([
                 'error' => 0,
                 'message' => 'Successfully logged out'],
                 200);
-        }catch (Exception $ex){
+        } catch (Exception $ex) {
             return response()->json([
                 'error' => 1,
                 'message' => $ex->getMessage()],
                 500);
         }
 
+    }
+
+    public function existeUsuario($nickName)
+    {
+
+        $existeUsuario = DeliveryUser::where('nickUsuario', $nickName)->count();
+
+        return $existeUsuario;
+    }
+
+    public function usuarioActivo($nickName)
+    {
+        $activo = DeliveryUser::where('nickUsuario', $nickName)->where('isActivo', 1)->get();
+
+        return $activo->count();
     }
 }

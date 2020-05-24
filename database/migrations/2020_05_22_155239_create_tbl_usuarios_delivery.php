@@ -20,16 +20,16 @@ class CreateTblUsuariosDelivery extends Migration
             $table->string('nickUsuario', 40)->unique();
             $table->boolean('isActivo')->default(1);
             $table->dateTime('fechaAlta');
-            $table->integer('idSucursal')->unsigned();
+            $table->integer('idCliente')->unsigned();
 
         });
 
-        Schema::table('tblUsuariosDelivery', function (Blueprint $table){
-           $table->foreign('idSucursal')
-           ->references('idSucursal')
-           ->on('tblSucursalesClientesDelivery')
-           ->onUpdate('cascade')
-           ->onDelete('cascade');
+        Schema::table('tblUsuariosDelivery', function (Blueprint $table) {
+            $table->foreign('idCliente')
+                ->references('idCliente')
+                ->on('tblClientesDelivery')
+                ->onUpdate('cascade')
+                ->onDelete('cascade');
         });
     }
 

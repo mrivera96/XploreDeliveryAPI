@@ -50,3 +50,8 @@ Route::group(['prefix' => 'vehicles'], function () {
 Route::group(['prefix' => 'users'], function () {
     Route::get('list', 'UsersController@list');
 });
+
+Route::group(['prefix' => 'customers'], function (){
+    Route::post('login', 'DeliveryUsersController@login');
+    Route::get('logout', 'DeliveryUsersController@logout');
+});
