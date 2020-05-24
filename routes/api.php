@@ -24,7 +24,10 @@ Route::group(['prefix' => 'categories'], function () {
 
 Route::group(['prefix' => 'auth'], function () {
     Route::post('login', 'AuthController@login');
-    Route::get('logout', 'AuthController@logout');
+    Route::group(['middleware' => 'auth:api'], function (){
+        Route::post('logout', 'AuthController@logout');
+    });
+
 });
 
 Route::group(['prefix' => 'deliveries'], function () {
