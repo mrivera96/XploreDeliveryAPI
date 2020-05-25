@@ -23,10 +23,10 @@ class UsersController extends Controller
         return $activo->count();
     }
 
-    public function list()
+    public function listDrivers()
     {
         try {
-            $users = User::where('isActivo',1)->where('idPerfil', 5)->get();
+            $users = User::where('isActivo',1)->where('idPerfil', 7)->get();
             return response()->json(['error'=>0, 'data'=>$users],200);
 
         }catch (\Exception $ex){

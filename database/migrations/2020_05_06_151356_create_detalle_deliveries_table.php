@@ -25,7 +25,7 @@ class CreateDetalleDeliveriesTable extends Migration
             $table->dateTime('fechaEntrega')->nullable();
             $table->string('nomRecibio', 60)->nullable();
             $table->integer('idConductor')->unsigned()->nullable();
-            $table->integer('idEstado')->unsigned()->default(36);
+            $table->integer('idEstado')->unsigned()->default(34);
         });
 
         Schema::table('tblDetalleDelivery', function (Blueprint $table) {
