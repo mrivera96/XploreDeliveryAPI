@@ -58,7 +58,8 @@ Route::group(['prefix' => 'customers'], function (){
     Route::post('login', 'DeliveryUsersController@login');
     Route::group(['middleware' => 'auth:customers'], function (){
         Route::post('logout', 'DeliveryUsersController@logout');
-        Route::post('getDeliveries', 'DeliveriesController@getCustomerDeliveries');
+        Route::post('getMyDeliveries', 'DeliveriesController@getCustomerDeliveries');
+        Route::post('getMyBranchOffices', 'BranchOfficesController@getCustomerBranchOffices');
+        Route::post('newCustomerDelivery', 'DeliveriesController@createCustomerDelivery');
     });
-
 });

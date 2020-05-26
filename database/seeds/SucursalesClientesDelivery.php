@@ -13,7 +13,13 @@ class SucursalesClientesDelivery extends Seeder
     {
         \Illuminate\Support\Facades\DB::table('tblSucursalesClientesDelivery')->insert([
             'nomSucursal' => 'Oficina Principal Tres Caminos', 'idCliente' => 1,
-            'direccion' => 'Col. Tres Caminos, Calle Principal Contiguo a Cooperativa Mixta Médica Tegucigalpa, Francisco Morazán',
+            'direccion' => 'Xplore Rent-A-Car, Col. Tres Caminos, Calle principal, contiguo a oficinas del IHCAFE, Tegucigalpa',
+            'fechaAlta' => \Carbon\Carbon::now(),
+        ]);
+
+        \Illuminate\Support\Facades\DB::table('tblSucursalesClientesDelivery')->insert([
+            'nomSucursal' => 'Oficina Anillo Periférico', 'idCliente' => 1,
+            'direccion' => 'Xplore Rent a Car, Anillo periférico, desvío a Colonia San Miguel, contiguo a Honduautos',
             'fechaAlta' => \Carbon\Carbon::now(),
         ]);
     }

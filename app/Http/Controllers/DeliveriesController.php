@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\ContratoDelivery;
 use App\CtrlEstadoDelivery;
 use App\Delivery;
+use App\DeliveryClient;
 use App\DetalleDelivery;
 use App\Estado;
 use App\Mail\ApplicationReceived;
@@ -86,6 +87,78 @@ class DeliveriesController extends Controller
                 500
             );
         }
+    }
+
+    public function createCustomerDelivery(Request $request){
+        $request->validate(['deliveryForm' => 'required', 'orders' => 'required', 'pago' => 'required']);
+        $hDelivery = $request->deliveryForm;
+        $deliveryOrders = $request->orders;
+        $pago = $request->pago;
+
+        try {
+            $customerDetails = DeliveryClient::where('idCliente', Auth::user()->idCliente)->get()->first();
+
+            $nDelivery = new Delivery();
+            $nDelivery->nomCliente = $customerDetails->nomEmpresa;
+            $nDelivery->numIdentificacion = $customerDetails->numIdentificacion;
+            $nDelivery->numCelular = $customerDetails->numTelefono;
+            $date = date('Y-m-d', strtotime($hDelivery['fecha']));
+            $time = $hDelivery['hora'];
+            $datetime = $date . ' ' . $time;
+            $nDelivery->fechaReserva = new Carbon($datetime);
+            $nDelivery->dirRecogida = $hDelivery['dirRecogida'];
+            $nDelivery->email = $customerDetails->email;
+            $nDelivery->idCategoria = $hDelivery['idCategoria'];
+            $nDelivery->idEstado = 34;
+            $nDelivery->tarifaBase = $pago['baseRate'];
+            $nDelivery->recargos = $pago['recargos'];
+            $nDelivery->total = $pago['total'];
+            $nDelivery->idCliente = Auth::user()->idCliente;
+            $nDelivery->save();
+
+            foreach ($deliveryOrders as $detalle) {
+                $nDetalle = new DetalleDelivery();
+                $nDetalle->idDelivery = $nDelivery['idDelivery'];
+                $nDetalle->nFactura = $detalle['nFactura'];
+                $nDetalle->nomDestinatario = $detalle['nomDestinatario'];
+                $nDetalle->numCel = $detalle['numCel'];
+                $nDetalle->direccion = $detalle['direccion'];
+                $nDetalle->distancia = $detalle['distancia'];
+                $nDetalle->save();
+            }
+
+            $receivers = $customerDetails->email;
+            $orderDelivery = DetalleDelivery::where('idDelivery', $nDelivery['idDelivery'])->get();
+            $this->sendmail($receivers, $nDelivery, $orderDelivery);
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'message' => 'Solicitud de Delivery enviada correctamente. Recibirás un email con los detalles de tu reserva. Nos pondremos en contacto contigo.',
+                    'nDelivery' => $nDelivery->idDelivery
+                ],
+                200
+            );
+
+            /*return response()->json(
+                [
+                    'error' => 0,
+                    'message' => 'Solicitud de Delivery enviada correctamente. Recibirás un email con los detalles de tu reserva. Nos pondremos en contacto contigo.',
+                    'nDelivery'=>$nDelivery->idDelivery
+                ],
+                200
+            );*/
+        } catch (Exception $ex) {
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => $ex->getMessage(),
+                    'stackTrace' => $ex->getTrace()
+                ],
+                500
+            );
+        }
+
     }
 
     public function sendmail($mail, $delivery, $orders)
@@ -280,7 +353,7 @@ class DeliveriesController extends Controller
 
         try {
             $currDelivery = Delivery::where('idDelivery', $idDelivery)->get();
-            $currDelivery->idEstado = 38;
+            $currDelivery->idEstado = 36;
             $currDelivery->usrAnuloReserva = Auth::user()->idUsuario;
             $currDelivery->fechaAnulado = Carbon::now();
             $currDelivery->motivoAnul = $motivoAnul;
