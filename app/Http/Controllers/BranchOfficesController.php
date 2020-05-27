@@ -10,7 +10,7 @@ class BranchOfficesController extends Controller
 {
     public function getCustomerBranchOffices(){
         try {
-            $myBranchOffices = Branch::where('idCliente', Auth::user()->idCliente)->where('isActivo', 1)->get();
+            $myBranchOffices = Branch::where('isActivo', 1)->where('idCliente', Auth::user()->idCliente)->get();
             return response()->json([
                 'error' => 0,
                 'data' => $myBranchOffices

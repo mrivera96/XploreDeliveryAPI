@@ -41,4 +41,8 @@ class User extends Authenticatable
     public function details(){
         return $this->belongsToMany('App\DetalleDelivery', 'idUsuario', 'idConductor');
     }
+
+    public function cliente(){
+        return $this->belongsTo('App\DeliveryClient', 'idCliente', 'idCliente');
+    }
 }

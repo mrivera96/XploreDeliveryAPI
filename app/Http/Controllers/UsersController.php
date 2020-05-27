@@ -11,9 +11,9 @@ class UsersController extends Controller
     public static function existeUsuario($nickName)
     {
 
-        $existeUsuario = DB::select('exec Seg_ExisteUsuario ?', array($nickName));
+        $existeUsuario = User::where('nickUsuario', $nickName)->whereIn('idPerfil', [1,8])->count();
 
-        return $existeUsuario[0]->Registros;
+        return $existeUsuario;
     }
 
     public static function usuarioActivo($nickName)
@@ -26,7 +26,7 @@ class UsersController extends Controller
     public function listDrivers()
     {
         try {
-            $users = User::where('isActivo',1)->where('idPerfil', 7)->get();
+            $users = User::where('isActivo', 1)->where('idPerfil', 7)->get();
             return response()->json(['error'=>0, 'data'=>$users],200);
 
         }catch (\Exception $ex){

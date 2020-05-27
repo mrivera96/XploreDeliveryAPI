@@ -27,20 +27,23 @@ class AuthController extends Controller
                 if ($auth) {
                     Auth::login($auth);
                     $user = Auth::user();
-                    $tkn =  $user->createToken('XploreInspApi')->accessToken;
+                    $tkn =  $user->createToken('XploreDeliverypApi')->accessToken;
                     $user->access_token = $tkn;
+                    $user->cliente;
 
                     return response()->json(
                         [
                             'error' => 0,
                             'user' => $user,
+                            'status' => 200
                         ],
                         200
                     );
                 } else {
                     return response()->json([
                         'error' => 1,
-                        'message' => 'Las credenciales que ha ingresado no son correctas.'
+                        'message' => 'Las credenciales que ha ingresado no son correctas.',
+                        'status' => 401
                     ], 401);
                 }
             }else{
@@ -54,7 +57,8 @@ class AuthController extends Controller
         }else{
             return response()->json([
                 'error' => 1,
-                'message' => 'Autenticación no encontrada.'
+                'message' => 'Autenticación no encontrada.',
+                'status' => 401
             ], 401);
         }
 
