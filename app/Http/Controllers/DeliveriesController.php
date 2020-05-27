@@ -267,7 +267,11 @@ class DeliveriesController extends Controller
     public function getById(Request $request)
     {
         try {
-            $delivery = Delivery::where('idDelivery', $request->id)->get()->first();
+            if(Auth::user()->idPerfil == 1){
+                $delivery = Delivery::where('idDelivery', $request->id)->get()->first();
+            }else{
+                $delivery = Delivery::where('idCliente', Auth::user()->idCliente)->where('idDelivery', $request->id)->get()->first();
+            }
 
             $delivery->category;
             $delivery->detalle;
