@@ -23,4 +23,8 @@ class DetalleDelivery extends Model
     public function conductor(){
         return $this->hasOne('App\User', 'idUsuario', 'idConductor');
     }
+
+    public function estado(){
+        return $this->hasOne('App\Estado', 'idEstado', 'idEstado');
+    }
 }

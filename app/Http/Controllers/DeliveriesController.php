@@ -89,7 +89,8 @@ class DeliveriesController extends Controller
         }
     }
 
-    public function createCustomerDelivery(Request $request){
+    public function createCustomerDelivery(Request $request)
+    {
         $request->validate(['deliveryForm' => 'required', 'orders' => 'required', 'pago' => 'required']);
         $hDelivery = $request->deliveryForm;
         $deliveryOrders = $request->orders;
@@ -189,8 +190,6 @@ class DeliveriesController extends Controller
     }
 
 
-
-
     public function list()
     {
         try {
@@ -244,9 +243,9 @@ class DeliveriesController extends Controller
     public function getById(Request $request)
     {
         try {
-            if(Auth::user()->idPerfil == 1){
+            if (Auth::user()->idPerfil == 1) {
                 $delivery = Delivery::where('idDelivery', $request->id)->get()->first();
-            }else{
+            } else {
                 $delivery = Delivery::where('idCliente', Auth::user()->idCliente)->where('idDelivery', $request->id)->get()->first();
             }
 
@@ -444,9 +443,9 @@ class DeliveriesController extends Controller
         $idDelivery = $request->idDelivery;
         try {
             $delivery = Delivery::where('idDelivery', $idDelivery);
-            if($idEstado == 37){
+            if ($idEstado == 37) {
                 $idConductor = $request->idEstado['idConductor'];
-                $delivery->update(['idEstado' => $idEstado, 'idConductor'=>$idConductor]);
+                $delivery->update(['idEstado' => $idEstado, 'idConductor' => $idConductor]);
             }
             $delivery->update(['idEstado' => $idEstado]);
 
@@ -507,7 +506,8 @@ class DeliveriesController extends Controller
     }
 
 
-    public function getCustomerDeliveries(){
+    public function getCustomerDeliveries()
+    {
 
         try {
             $user = Auth::user();
@@ -556,6 +556,50 @@ class DeliveriesController extends Controller
                 500
             );
         }
+    }
+
+    public function getCustomerOders()
+    {
+        try {
+            $user = Auth::user();
+            $deliveriesDia = Delivery::where('idCliente', $user->idCliente)->whereDate('fechaReserva', Carbon::today())->get();
+            $allDeliveries = Delivery::where('idCliente', $user->idCliente)->get();
+            $pedidosDia = [];
+            $todosPedidos = [];
+
+            foreach ($deliveriesDia as $delivery) {
+                $detail = $delivery->detalle;
+                foreach ($detail as $dtl) {
+                    $dtl->estado;
+                }
+                array_push($pedidosDia, $detail->first());
+            }
+
+            foreach ($allDeliveries as $delivery) {
+                $detail = $delivery->detalle;
+                foreach ($detail as $dtl) {
+                    $dtl->estado;
+                }
+                array_push($todosPedidos, $detail->first());
+            }
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => array('pedidosDia' => $pedidosDia, 'todos' => $todosPedidos)
+                ],
+                200
+            );
+        } catch (Exception $ex) {
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => $ex->getMessage()
+                ],
+                500
+            );
+        }
+
     }
 
 
