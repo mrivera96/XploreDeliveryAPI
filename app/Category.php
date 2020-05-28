@@ -10,6 +10,8 @@ class Category extends Model
     public $timestamps = false;
     protected $primaryKey = 'idTipoVehiculo';
 
+    protected $fillable = ['descTipoVehiculo', 'isActivo', 'delivery'];
+
 
     public function delivery(){
         return $this->belongsTo('App\Delivery', 'idTipoVehiculo', 'idTipoVehiculo');

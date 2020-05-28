@@ -10,6 +10,8 @@ class Tarifa extends Model
     public $timestamps = false;
     protected $primaryKey = 'idTarifaDelivery';
 
+    protected $fillable = ['idCategoria', 'entregasMinimas', 'entregasMaximas', 'precio'];
+
     public function category(){
         return $this->hasOne('App\Category', 'idTipoVehiculo', 'idCategoria');
     }

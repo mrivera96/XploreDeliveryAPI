@@ -20,6 +20,11 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::group(['prefix' => 'categories'], function () {
     Route::get('list', 'CategoriesController@listCategories');
+    Route::group(['middleware' => 'auth:api'], function (){
+        Route::post('showAll', 'CategoriesController@showAllCategories');
+        Route::post('update', 'CategoriesController@updateCategory');
+    });
+
 });
 
 Route::group(['prefix' => 'auth'], function () {
@@ -32,7 +37,7 @@ Route::group(['prefix' => 'auth'], function () {
 
 Route::group(['prefix' => 'deliveries'], function () {
     Route::post('new', 'DeliveriesController@createDelivery');
-    Route::get('getTarifas', 'DeliveriesController@getTarifas');
+    Route::get('getTarifas', 'RatesController@getRates');
 
     Route::post('entregar','DeliveriesController@updateDeliveried');
     Route::group(['middleware'=>'auth:api'], function (){
@@ -44,6 +49,11 @@ Route::group(['prefix' => 'deliveries'], function () {
     });
 
 });
+
+Route::group(['prefix' => 'rates'], function (){
+    Route::post('update', 'RatesController@updateRate');
+});
+
 Route::group(['prefix' => 'states'], function (){
    Route::get('list', 'StatesController@list');
 });

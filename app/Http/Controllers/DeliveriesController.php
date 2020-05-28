@@ -188,30 +188,7 @@ class DeliveriesController extends Controller
         }
     }
 
-    public function getTarifas()
-    {
-        try {
-            $tarifas = Tarifa::all();
-            foreach ($tarifas as $tarifa) {
-                $tarifa->category;
-            }
-            return response()->json(
-                [
-                    'error' => 0,
-                    'data' => $tarifas
-                ],
-                200
-            );
-        } catch (Exception $ex) {
-            return response()->json(
-                [
-                    'error' => 1,
-                    'message' => $ex->getMessage()
-                ],
-                500
-            );
-        }
-    }
+
 
 
     public function list()
@@ -275,6 +252,7 @@ class DeliveriesController extends Controller
 
             $delivery->category;
             $delivery->detalle;
+            $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y, h:i a');
             foreach ($delivery->detalle as $detail) {
                 $detail->conductor = $detail->conductor;
             }
