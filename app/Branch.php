@@ -9,4 +9,6 @@ class Branch extends Model
     protected $table = 'tblSucursalesClientesDelivery';
     public $timestamps = false;
     protected $primaryKey = 'idSucursal';
+
+    protected $fillable = ['nomSucursal', 'numTelefono', 'idCliente', 'direccion', 'fechAlta', 'isActivo'];
 }
