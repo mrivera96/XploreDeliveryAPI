@@ -24,16 +24,12 @@
 <body>
 
 <div class="row">
-    <img src="{{asset('img/LOGO-XPLORE_01-ColorPrimario.png')}}" width="35%">
+    <img src="{{asset('img/logo_resized.png')}}" width="15%">
 </div>
 
 <div class="row">
     <h4>Es un placer saludarte, {{$cliente->nomRepresentante}}</h4>
     <p>A continuación te proporcionamos los detalles de acceso a Xplore Delivery.</p>
-</div>
-
-<div class="row">
-    <a href="http://190.4.56.14/GestionesDelivery">Puedes acceder haciendo clic aquí</a>
 </div>
 
 <div class="row">
@@ -48,6 +44,9 @@
     <h4>Por favor, cambia tu contraseña al ingresar por primera vez</h4>
 </div>
 
+<div class="row">
+    <a href="http://190.4.56.14/GestionesDelivery">Puedes acceder haciendo clic aquí</a>
+</div>
 
 <!--DELIVERY HEADER GROUP END-->
 <hr>

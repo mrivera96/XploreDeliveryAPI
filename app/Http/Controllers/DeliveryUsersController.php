@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\DeliveryClient;
 use App\DeliveryUser;
+use App\User;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -42,15 +44,17 @@ class DeliveryUsersController extends Controller
                 $nCustomer->numTelefono = $rCustomer['numTelefono'];
                 $nCustomer->email = $rCustomer['email'];
                 $nCustomer->isActivo = 1;
+                $nCustomer->fechaAlta = Carbon::now();
                 $nCustomer->save();
 
-                $nUser = new DeliveryUser();
+                $nUser = new User();
                 $nUser->idPerfil = 8;
                 $nUser->nomUsuario = $rCustomer['nomRepresentante'];
                 $nUser->nickUsuario = $rCustomer['email'];
                 $nUser->passUsuario = utf8_encode($this->encriptar($rCustomer['numIdentificacion']));
                 $nUser->isActivo = 1;
                 $nUser->idCliente = $nCustomer->idCliente;
+                $nUser->fechaCreacion = Carbon::now();
                 $nUser->save();
 
                 $receivers = $nCustomer->email;
@@ -66,13 +70,6 @@ class DeliveryUsersController extends Controller
                     'message' => 'ya existe este usuario.'
                 ],500);
             }
-
-
-
-
-
-
-
 
         }catch (Exception $exception){
             return response()->json([
@@ -90,14 +87,10 @@ class DeliveryUsersController extends Controller
         $data["subject"] = 'Detalles de Acceso Xplore Delivery';
         $data["cliente"] = $cliente;
 
-
-        $pdf = PDF::loadView('userCredentials', $data);
-
         try {
-            Mail::send('mails.view', $data, function ($message) use ($data, $pdf) {
+            Mail::send('mails.userCredentials', $data, function ($message) use ($data) {
                 $message->to($data["email"], $data["client_name"])
-                    ->subject($data["subject"])
-                    ->attachData($pdf->output(), "Acceso_XploreDelivery.pdf");
+                    ->subject($data["subject"]);
             });
         } catch (Exception $exception) {
             $this->serverstatuscode = "0";
@@ -144,8 +137,7 @@ class DeliveryUsersController extends Controller
     public function testAccessDetails(Request $request)
     {
         $cliente = DeliveryClient::where('idCliente', $request->idCliente)->get()->first();
-
-        return view('userCredentials', compact('cliente'));
+        return view('mails.userCredentials', compact('cliente'));
 
     }
 }
