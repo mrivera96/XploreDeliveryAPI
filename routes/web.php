@@ -13,5 +13,6 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('viewTest/{idDelivery}', 'DeliveriesController@testReserveFormat');
+Route::get('viewTest/{idCliente}', 'DeliveryUsersController@testAccessDetails');
+Route::get('viewTesting/{idDelivery}', 'DeliveriesController@testReserveFormat');
 

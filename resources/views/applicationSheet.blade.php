@@ -24,7 +24,7 @@
 <body>
 
   <div class="row">
-    <img src="{{asset('img/LOGO-XPLORE_01-ColorPrimario.png')}}" width="40%">
+    <img src="{{asset('img/LOGO-XPLORE_01-ColorPrimario.png')}}" width="15%">
   </div>
 
   <div class="row">
