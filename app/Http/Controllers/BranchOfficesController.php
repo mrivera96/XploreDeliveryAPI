@@ -53,4 +53,46 @@ class BranchOfficesController extends Controller
                 ],500);
         }
     }
+
+    public function updateBranch(Request $request){
+        try{
+            $bId = $request->form['idSucursal'];
+            $form = $request->form;
+
+            $currBranch = Branch::where('idSucursal', $bId);
+            $currBranch->update([
+                'nomSucursal' => $form['nomSucursal'],
+                'numTelefono' => $form['numTelefono'],
+                'direccion' => $form['direccion']
+            ]);
+
+            return response()->json([
+                'error' => 0,
+                'message' => 'Dirección actualizada correctamente'
+            ]);
+        }catch (\Exception $exception){
+            return response()->json([
+                'error' => 1,
+                'message' => $exception->getMessage()
+            ]);
+        }
+    }
+
+    public function deleteBranch(Request $request){
+        try{
+            $bId = $request->id;
+
+            Branch::find($bId)->delete();
+
+            return response()->json([
+                'error' => 0,
+                'message' => 'Dirección eliminada correctamente'
+            ]);
+        }catch (\Exception $exception){
+            return response()->json([
+                'error' => 1,
+                'message' => $exception->getMessage()
+            ]);
+        }
+    }
 }

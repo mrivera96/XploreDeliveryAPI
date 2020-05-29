@@ -32,6 +32,39 @@ class DeliveryUsersController extends Controller
         }
     }
 
+    public function changePassword(Request $request){
+        $changePassForm = $request->form;
+        try {
+
+            $currUser = User::where('idUsuario', Auth::user()->idUsuario)->get()->first();
+
+            if(Auth::user()->passUsuario == utf8_encode($this->encriptar($changePassForm['oldPass']))){
+                $newPass = utf8_encode($this->encriptar($changePassForm['newPass']));
+                $currUser->passUsuario = $newPass;
+                $currUser->save();
+
+                return response()->json([
+                    'error' => 0,
+                    'message' => 'Contraseña actualizada correctamente.'
+                ],200);
+            }else{
+                return response()->json([
+                    'error' => 1,
+                    'message' => 'La contraseña actual ingresada no coincide con nuestros registros.'
+                ],500);
+            }
+
+
+
+        }catch (Exception $exception){
+            return response()->json([
+                'error' => 1,
+                'message' => $exception->getMessage()
+            ],500);
+        }
+
+    }
+
     public function newCustomer(Request $request){
         try {
             $rCustomer = $request->form;
@@ -139,5 +172,33 @@ class DeliveryUsersController extends Controller
         $cliente = DeliveryClient::where('idCliente', $request->idCliente)->get()->first();
         return view('mails.userCredentials', compact('cliente'));
 
+    }
+
+    public function testEncryption(Request $request){
+        return response(utf8_encode($this->encriptar($request->myPass))) ;
+    }
+    public function testDecryption(Request $request){
+        return response($this->desencriptar($request->myPass));
+    }
+    public function desencriptar($iString)
+    {
+        $li_longi = 0;
+        $li_count = 0;
+        $li_base = 0;
+        $vl_cadena_conv = '';
+        $pwd = '';
+        $li_base = (int)(ord(substr($iString, -1)) / 2);
+        $vl_cadena_conv = substr($iString, 1, (strlen($iString) - 2));
+        $li_longi = (int)((strlen($vl_cadena_conv) / 4));
+        $vl_cadena_conv = substr($vl_cadena_conv, $li_longi - 1, strlen($vl_cadena_conv) - (2 * $li_longi));
+        $li_longi = strlen($vl_cadena_conv);
+        $li_count = 1;
+
+        do{
+            $pwd = $pwd . Chr(ord(substr($vl_cadena_conv, $li_count, 1)) + $li_base);
+            $li_count = $li_count + 1;
+        }while($li_count < $li_longi);
+
+        return $pwd;
     }
 }

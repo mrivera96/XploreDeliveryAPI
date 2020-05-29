@@ -20,7 +20,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::group(['prefix' => 'categories'], function () {
     Route::get('list', 'CategoriesController@listCategories');
-    Route::group(['middleware' => 'auth:api'], function (){
+    Route::group(['middleware' => 'auth:api'], function () {
         Route::post('showAll', 'CategoriesController@showAllCategories');
         Route::post('update', 'CategoriesController@updateCategory');
     });
@@ -29,7 +29,7 @@ Route::group(['prefix' => 'categories'], function () {
 
 Route::group(['prefix' => 'auth'], function () {
     Route::post('login', 'AuthController@login');
-    Route::group(['middleware' => 'auth:api'], function (){
+    Route::group(['middleware' => 'auth:api'], function () {
         Route::post('logout', 'AuthController@logout');
     });
 
@@ -39,23 +39,23 @@ Route::group(['prefix' => 'deliveries'], function () {
     Route::post('new', 'DeliveriesController@createDelivery');
     Route::get('getTarifas', 'RatesController@getRates');
 
-    Route::post('entregar','DeliveriesController@updateDeliveried');
-    Route::group(['middleware'=>'auth:api'], function (){
+    Route::post('entregar', 'DeliveriesController@updateDeliveried');
+    Route::group(['middleware' => 'auth:api'], function () {
         Route::post('getById', 'DeliveriesController@getById');
         Route::post('list', 'DeliveriesController@list');
-        Route::post('assign','DeliveriesController@assignDelivery');
-        Route::post('finish','DeliveriesController@finishDelivery');
-        Route::post('changeState','DeliveriesController@changeStateDelivery');
+        Route::post('assign', 'DeliveriesController@assignDelivery');
+        Route::post('finish', 'DeliveriesController@finishDelivery');
+        Route::post('changeState', 'DeliveriesController@changeStateDelivery');
     });
 
 });
 
-Route::group(['prefix' => 'rates'], function (){
+Route::group(['prefix' => 'rates'], function () {
     Route::post('update', 'RatesController@updateRate');
 });
 
-Route::group(['prefix' => 'states'], function (){
-   Route::get('list', 'StatesController@list');
+Route::group(['prefix' => 'states'], function () {
+    Route::get('list', 'StatesController@list');
 });
 
 Route::group(['prefix' => 'vehicles'], function () {
@@ -65,8 +65,8 @@ Route::group(['prefix' => 'drivers'], function () {
     Route::get('list', 'UsersController@listDrivers');
 });
 
-Route::group(['prefix' => 'customers'], function (){
-    Route::group(['middleware' => 'auth:api'], function (){
+Route::group(['prefix' => 'customers'], function () {
+    Route::group(['middleware' => 'auth:api'], function () {
         Route::post('getMyDeliveries', 'DeliveriesController@getCustomerDeliveries');
         Route::post('getMyBranchOffices', 'BranchOfficesController@getCustomerBranchOffices');
         Route::post('newCustomerDelivery', 'DeliveriesController@createCustomerDelivery');
@@ -74,5 +74,11 @@ Route::group(['prefix' => 'customers'], function (){
         Route::post('list', 'DeliveryUsersController@list');
         Route::post('new', 'DeliveryUsersController@newCustomer');
         Route::post('newBranch', 'BranchOfficesController@newBranch');
+        Route::post('changePassword', 'DeliveryUsersController@changePassword');
+        Route::post('updateBranch', 'BranchOfficesController@updateBranch');
+        Route::post('deleteBranch', 'BranchOfficesController@deleteBranch');
     });
 });
+
+Route::get('testCript', 'DeliveryUsersController@testEncryption');
+Route::get('testDeCript', 'DeliveryUsersController@testDecryption');
