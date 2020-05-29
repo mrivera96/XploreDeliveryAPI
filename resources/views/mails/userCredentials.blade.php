@@ -37,7 +37,7 @@
 </div>
 
 <div class="row">
-    <h4>contraseña: </h4> {{$cliente->numIdentificacion}}
+    <h4>Contraseña: </h4> {{$cliente->numIdentificacion}}
 </div>
 
 <div class="row">

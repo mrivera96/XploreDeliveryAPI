@@ -73,5 +73,6 @@ Route::group(['prefix' => 'customers'], function (){
         Route::post('getCustomerOrders', 'DeliveriesController@getCustomerOders');
         Route::post('list', 'DeliveryUsersController@list');
         Route::post('new', 'DeliveryUsersController@newCustomer');
+        Route::post('newBranch', 'BranchOfficesController@newCustomer');
     });
 });

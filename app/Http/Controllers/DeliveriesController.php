@@ -578,19 +578,21 @@ class DeliveriesController extends Controller
             $todosPedidos = [];
 
             foreach ($deliveriesDia as $delivery) {
-                $detail = $delivery->detalle;
+                $detail = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
                 foreach ($detail as $dtl) {
                     $dtl->estado;
+                    array_push($pedidosDia, $dtl);
                 }
-                array_push($pedidosDia, $detail->first());
+
             }
 
             foreach ($allDeliveries as $delivery) {
-                $detail = $delivery->detalle;
+                $detail = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
                 foreach ($detail as $dtl) {
                     $dtl->estado;
+                    array_push($todosPedidos, $dtl);
                 }
-                array_push($todosPedidos, $detail->first());
+
             }
 
             return response()->json(
