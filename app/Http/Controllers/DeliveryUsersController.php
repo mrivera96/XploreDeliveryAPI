@@ -10,6 +10,7 @@ use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
 class DeliveryUsersController extends Controller
@@ -38,8 +39,8 @@ class DeliveryUsersController extends Controller
 
             $currUser = User::where('idUsuario', Auth::user()->idUsuario)->get()->first();
 
-            if(Auth::user()->passUsuario == utf8_encode($this->encriptar($changePassForm['oldPass']))){
-                $newPass = utf8_encode($this->encriptar($changePassForm['newPass']));
+            if(Auth::user()->passUsuario == utf8_encode($this->encriptar($changePassForm['oldPass'])) || Hash::check($changePassForm['oldPass'], Auth::user()->passUsuario)){
+                $newPass =  Hash::make($changePassForm['newPass']);
                 $currUser->passUsuario = $newPass;
                 $currUser->save();
 
@@ -84,7 +85,7 @@ class DeliveryUsersController extends Controller
                 $nUser->idPerfil = 8;
                 $nUser->nomUsuario = $rCustomer['nomRepresentante'];
                 $nUser->nickUsuario = $rCustomer['email'];
-                $nUser->passUsuario = utf8_encode($this->encriptar($rCustomer['numIdentificacion']));
+                $nUser->passUsuario = Hash::make($rCustomer['numIdentificacion']);
                 $nUser->isActivo = 1;
                 $nUser->idCliente = $nCustomer->idCliente;
                 $nUser->fechaCreacion = Carbon::now();
@@ -136,7 +137,7 @@ class DeliveryUsersController extends Controller
         }
     }
 
-    public Function encriptar($iString)
+    public function encriptar($iString)
     {
         $pwd = "";
 
@@ -175,27 +176,68 @@ class DeliveryUsersController extends Controller
     }
 
     public function testEncryption(Request $request){
-        return response(utf8_encode($this->encriptar($request->myPass))) ;
+        $myPass = Hash::make($request->myPasss);
+        return response($myPass) ;
     }
     public function testDecryption(Request $request){
-        return response($this->desencriptar($request->myPass));
+        $hashed = Hash::make('uXplore2020%');
+        if(Hash::check($request->myPass,$hashed)){
+            return response(1);
+        }else{
+            return response(0);
+        }
+
     }
+/*
+    public function encriptarTTT($iString)
+    {
+        $pwd = '';
+
+        $IL_LONGI = (int)(strlen($iString) / 2);
+
+        $vl_cadena_conv = substr($iString, -$IL_LONGI) . $iString . substr($iString, 0, $IL_LONGI);
+
+        $IL_LONGI = strlen($vl_cadena_conv);
+
+        $IL_COUNT = 0;
+        $IL_SUMA = 0;
+
+        Do {
+            $IL_SUMA = $IL_SUMA + ord(substr($vl_cadena_conv, $IL_COUNT, 1));
+            $IL_COUNT = $IL_COUNT + 1;
+
+        } While ($IL_COUNT < $IL_LONGI);
+
+
+        $IL_BASE = (int)(intval($IL_SUMA / $IL_LONGI) );
+        $IL_COUNT = 0;
+
+
+        Do {
+            $pwd = $pwd . Chr(ord(substr($vl_cadena_conv, $IL_COUNT, 1)) + $IL_BASE);
+            $IL_COUNT = $IL_COUNT + 1;
+        } While ($IL_COUNT < $IL_LONGI);
+
+
+        $pwd = Chr($IL_BASE - 15) . $pwd . Chr(2 * $IL_BASE);
+
+        return $pwd;
+    }*/
     public function desencriptar($iString)
     {
-        $li_longi = 0;
-        $li_count = 0;
-        $li_base = 0;
-        $vl_cadena_conv = '';
+
         $pwd = '';
         $li_base = (int)(ord(substr($iString, -1)) / 2);
-        $vl_cadena_conv = substr($iString, 1, (strlen($iString) - 2));
-        $li_longi = (int)((strlen($vl_cadena_conv) / 4));
-        $vl_cadena_conv = substr($vl_cadena_conv, $li_longi - 1, strlen($vl_cadena_conv) - (2 * $li_longi));
+        $vl_cadena_conv = substr($iString, 1, (strlen($iString) - 3));
+
+        $li_longi = (int)((strlen(utf8_decode($vl_cadena_conv)) / 4));
+        $vl_cadena_conv = mb_substr($vl_cadena_conv,  $li_longi  ,  strlen(utf8_decode($vl_cadena_conv)) - (2 * $li_longi) );
         $li_longi = strlen($vl_cadena_conv);
-        $li_count = 1;
+
+        $li_count = 0;
 
         do{
-            $pwd = $pwd . Chr(ord(substr($vl_cadena_conv, $li_count, 1)) + $li_base);
+            $pwd = $pwd . Chr(ord(substr($vl_cadena_conv, $li_count , 1)) - $li_base);
             $li_count = $li_count + 1;
         }while($li_count < $li_longi);
 

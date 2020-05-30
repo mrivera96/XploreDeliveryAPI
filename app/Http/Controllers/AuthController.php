@@ -26,10 +26,11 @@ class AuthController extends Controller
             if (UsersController::usuarioActivo($nickname) > 0) {
                 $cripPass = utf8_encode($this->encriptar($password));
 
-                $auth = User::where('nickUsuario', $nickname)->where('passUsuario', $cripPass)->first();
+                $auth = User::where('nickUsuario', $nickname)->get();
 
-                if ($auth) {
-                    Auth::login($auth);
+                if ($auth->where('passUsuario', $cripPass)->count() > 0 || Hash::check($password, User::where('nickUsuario', $nickname)->get()->first()->getAuthPassword())) {
+
+                    Auth::login($auth->first());
                     $user = Auth::user();
                     $tkn = $user->createToken('XploreDeliverypApi')->accessToken;
                     $user->access_token = $tkn;
@@ -43,7 +44,7 @@ class AuthController extends Controller
                         ],
                         200
                     );
-                } else {
+                }else {
                     return response()->json([
                         'error' => 1,
                         'message' => 'Las credenciales que ha ingresado no son correctas.',
@@ -95,28 +96,6 @@ class AuthController extends Controller
 
 
         $pwd = Chr($IL_BASE - 15) . $pwd . Chr(2 * $IL_BASE);
-
-        return $pwd;
-    }
-
-    public function desencriptar($iString)
-    {
-        $li_longi = 0;
-        $li_count = 0;
-        $li_base = 0;
-        $vl_cadena_conv = '';
-        $pwd = '';
-        $li_base = (int)(ord(substr($iString, 1)) / 2);
-        $vl_cadena_conv = substr($iString, 2, (strlen($iString) - 2));
-        $li_longi = (int)(intval((strlen($vl_cadena_conv) / 4)));
-        $vl_cadena_conv = substr($vl_cadena_conv, $li_longi + 1, strlen($vl_cadena_conv) - (2 * $li_longi));
-        $li_longi = strlen($vl_cadena_conv);
-        $li_count = 1;
-
-        do{
-            $pwd = $pwd . Chr(ord(substr($vl_cadena_conv, $li_count, 1)) + $li);
-            $IL_COUNT = $IL_COUNT + 1;
-        }while($li_count <= $li_longi);
 
         return $pwd;
     }
