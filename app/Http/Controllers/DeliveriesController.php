@@ -53,6 +53,9 @@ class DeliveriesController extends Controller
                 $nDetalle->numCel = $detalle['numCel'];
                 $nDetalle->direccion = $detalle['direccion'];
                 $nDetalle->distancia = $detalle['distancia'];
+                $nDetalle->tarifaBase = $detalle['tarifaBase'];
+                $nDetalle->recargo = $detalle['recargo'];
+                $nDetalle->cTotal = $detalle['cTotal'];
                 $nDetalle->save();
             }
 
@@ -125,6 +128,9 @@ class DeliveriesController extends Controller
                 $nDetalle->numCel = $detalle['numCel'];
                 $nDetalle->direccion = $detalle['direccion'];
                 $nDetalle->distancia = $detalle['distancia'];
+                $nDetalle->tarifaBase = $detalle['tarifaBase'];
+                $nDetalle->recargo = $detalle['recargo'];
+                $nDetalle->cTotal = $detalle['cTotal'];
                 $nDetalle->save();
             }
 
@@ -203,6 +209,9 @@ class DeliveriesController extends Controller
                 $delivery->detalle;
                 $delivery->estado;
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y, h:i a');
+                $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
+                $delivery->recargos = number_format($delivery->recargos, 2);
+                $delivery->total = number_format($delivery->total, 2);
                 $delivery->entregas = count($delivery->detalle);
             }
 
@@ -211,6 +220,9 @@ class DeliveriesController extends Controller
                 $delivery->detalle;
                 $delivery->estado;
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y, h:i a');
+                $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
+                $delivery->recargos = number_format($delivery->recargos, 2);
+                $delivery->total = number_format($delivery->total, 2);
                 $delivery->entregas = count($delivery->detalle);
             }
 
@@ -219,6 +231,9 @@ class DeliveriesController extends Controller
                 $delivery->detalle;
                 $delivery->estado;
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y, h:i a');
+                $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
+                $delivery->recargos = number_format($delivery->recargos, 2);
+                $delivery->total = number_format($delivery->total, 2);
                 $delivery->entregas = count($delivery->detalle);
             }
 
@@ -253,8 +268,14 @@ class DeliveriesController extends Controller
             $delivery->category;
             $delivery->detalle;
             $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y, h:i a');
+            $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
+            $delivery->recargos = number_format($delivery->recargos, 2);
+            $delivery->total = number_format($delivery->total, 2);
             foreach ($delivery->detalle as $detail) {
                 $detail->conductor = $detail->conductor;
+                $detail->tarifaBase = number_format($detail->tarifaBase, 2);
+                $detail->recargo = number_format($detail->recargo, 2);
+                $detail->cTotal = number_format($detail->cTotal, 2);
             }
             $delivery->estado;
 
@@ -530,6 +551,9 @@ class DeliveriesController extends Controller
                 $delivery->detalle;
                 $delivery->estado;
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y, h:i a');
+                $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
+                $delivery->recargos = number_format($delivery->recargos, 2);
+                $delivery->total = number_format($delivery->total, 2);
                 $delivery->entregas = count($delivery->detalle);
             }
 
@@ -538,6 +562,9 @@ class DeliveriesController extends Controller
                 $delivery->detalle;
                 $delivery->estado;
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y, h:i a');
+                $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
+                $delivery->recargos = number_format($delivery->recargos, 2);
+                $delivery->total = number_format($delivery->total, 2);
                 $delivery->entregas = count($delivery->detalle);
             }
 
@@ -546,6 +573,9 @@ class DeliveriesController extends Controller
                 $delivery->detalle;
                 $delivery->estado;
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y, h:i a');
+                $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
+                $delivery->recargos = number_format($delivery->recargos, 2);
+                $delivery->total = number_format($delivery->total, 2);
                 $delivery->entregas = count($delivery->detalle);
             }
 
@@ -581,6 +611,9 @@ class DeliveriesController extends Controller
                 $detail = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
                 foreach ($detail as $dtl) {
                     $dtl->estado;
+                    $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
+                    $dtl->recargo = number_format($dtl->recargo, 2);
+                    $dtl->cTotal = number_format($dtl->cTotal, 2);
                     array_push($pedidosDia, $dtl);
                 }
 
@@ -590,6 +623,9 @@ class DeliveriesController extends Controller
                 $detail = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
                 foreach ($detail as $dtl) {
                     $dtl->estado;
+                    $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
+                    $dtl->recargo = number_format($dtl->recargo, 2);
+                    $dtl->cTotal = number_format($dtl->cTotal, 2);
                     array_push($todosPedidos, $dtl);
                 }
 
