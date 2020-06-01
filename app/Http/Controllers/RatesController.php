@@ -13,6 +13,7 @@ class RatesController extends Controller
             $tarifas = Tarifa::all();
             foreach ($tarifas as $tarifa) {
                 $tarifa->category;
+                $tarifa->precio = number_format($tarifa->precio, 2);
             }
             return response()->json(
                 [

@@ -99,6 +99,7 @@ class DeliveriesController extends Controller
         $deliveryOrders = $request->orders;
         $pago = $request->pago;
 
+
         try {
             $customerDetails = DeliveryClient::where('idCliente', Auth::user()->idCliente)->get()->first();
 
@@ -173,15 +174,18 @@ class DeliveriesController extends Controller
     {
         $data["email"] = $mail;
         $data["client_name"] = $delivery->nomCliente;
-        $data["subject"] = 'Solicitud de servicio Xplore Delivery';
+        $data["subject"] = 'Solicitud de Xplore Delivery';
         $data["delivery"] = $delivery;
         $data["orderDelivery"] = $orders;
+        $data["from"] = 'Xplore Delivery - No. de Reserva '.$delivery->idDelivery;
 
         $pdf = PDF::loadView('applicationSheet', $data);
 
         try {
             Mail::send('mails.view', $data, function ($message) use ($data, $pdf) {
-                $message->to($data["email"], $data["client_name"])
+                $message
+                    ->from('melvin.rivera@xplorerentacar.com', $data["from"])
+                    ->to($data["email"], $data["client_name"])
                     ->subject($data["subject"])
                     ->attachData($pdf->output(), "Solicitud_XploreDelivery.pdf");
             });

@@ -24,7 +24,7 @@ class DeliveryUsersController extends Controller
                     'error' => 0,
                     'data' => $customers
                 ], 200);
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             return response()
                 ->json([
                     'error' => 1,
@@ -33,44 +33,45 @@ class DeliveryUsersController extends Controller
         }
     }
 
-    public function changePassword(Request $request){
+    public function changePassword(Request $request)
+    {
         $changePassForm = $request->form;
         try {
 
             $currUser = User::where('idUsuario', Auth::user()->idUsuario)->get()->first();
 
-            if(Auth::user()->passUsuario == utf8_encode($this->encriptar($changePassForm['oldPass'])) || Hash::check($changePassForm['oldPass'], Auth::user()->passUsuario)){
-                $newPass =  Hash::make($changePassForm['newPass']);
+            if (Auth::user()->passUsuario == utf8_encode($this->encriptar($changePassForm['oldPass'])) || Hash::check($changePassForm['oldPass'], Auth::user()->passUsuario)) {
+                $newPass = Hash::make($changePassForm['newPass']);
                 $currUser->passUsuario = $newPass;
                 $currUser->save();
 
                 return response()->json([
                     'error' => 0,
                     'message' => 'Contraseña actualizada correctamente.'
-                ],200);
-            }else{
+                ], 200);
+            } else {
                 return response()->json([
                     'error' => 1,
                     'message' => 'La contraseña actual ingresada no coincide con nuestros registros.'
-                ],500);
+                ], 500);
             }
 
 
-
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             return response()->json([
                 'error' => 1,
                 'message' => $exception->getMessage()
-            ],500);
+            ], 500);
         }
 
     }
 
-    public function newCustomer(Request $request){
+    public function newCustomer(Request $request)
+    {
         try {
             $rCustomer = $request->form;
 
-            if(UsersController::existeUsuario($rCustomer['email']) == 0){
+            if (UsersController::existeUsuario($rCustomer['email']) == 0) {
                 $nCustomer = new DeliveryClient();
                 $nCustomer->nomEmpresa = $rCustomer['nomEmpresa'];
                 $nCustomer->nomRepresentante = $rCustomer['nomRepresentante'];
@@ -97,19 +98,19 @@ class DeliveryUsersController extends Controller
                 return response()->json([
                     'error' => 0,
                     'message' => 'Cliente agregado correctamente.'
-                ],200);
-            }else{
+                ], 200);
+            } else {
                 return response()->json([
                     'error' => 1,
-                    'message' => 'ya existe este usuario.'
-                ],500);
+                    'message' => 'Ya existe este usuario.'
+                ], 500);
             }
 
-        }catch (Exception $exception){
+        } catch (Exception $exception) {
             return response()->json([
                 'error' => 1,
                 'message' => $exception->getMessage()
-            ],500);
+            ], 500);
         }
 
     }
@@ -148,19 +149,19 @@ class DeliveryUsersController extends Controller
         $IL_COUNT = 0;
         $IL_SUMA = 0;
 
-        Do {
+        do {
             $IL_SUMA = $IL_SUMA + ord(substr($vl_cadena_conv, $IL_COUNT, 1));
             $IL_COUNT = $IL_COUNT + 1;
 
-        } While ($IL_COUNT <= $IL_LONGI);
+        } while ($IL_COUNT <= $IL_LONGI);
 
         $IL_BASE = intval($IL_SUMA / $IL_LONGI);
         $IL_COUNT = 0;
 
-        Do {
+        do {
             $pwd = $pwd . Chr(ord(substr($vl_cadena_conv, $IL_COUNT, 1)) + $IL_BASE);
             $IL_COUNT = $IL_COUNT + 1;
-        } While ($IL_COUNT < $IL_LONGI);
+        } while ($IL_COUNT < $IL_LONGI);
 
 
         $pwd = Chr($IL_BASE - 15) . $pwd . Chr(2 * $IL_BASE);
@@ -175,54 +176,58 @@ class DeliveryUsersController extends Controller
 
     }
 
-    public function testEncryption(Request $request){
+    public function testEncryption(Request $request)
+    {
         $myPass = Hash::make($request->myPasss);
-        return response($myPass) ;
+        return response($myPass);
     }
-    public function testDecryption(Request $request){
+
+    public function testDecryption(Request $request)
+    {
         $hashed = Hash::make('uXplore2020%');
-        if(Hash::check($request->myPass,$hashed)){
+        if (Hash::check($request->myPass, $hashed)) {
             return response(1);
-        }else{
+        } else {
             return response(0);
         }
 
     }
-/*
-    public function encriptarTTT($iString)
-    {
-        $pwd = '';
 
-        $IL_LONGI = (int)(strlen($iString) / 2);
+    /*
+        public function encriptarTTT($iString)
+        {
+            $pwd = '';
 
-        $vl_cadena_conv = substr($iString, -$IL_LONGI) . $iString . substr($iString, 0, $IL_LONGI);
+            $IL_LONGI = (int)(strlen($iString) / 2);
 
-        $IL_LONGI = strlen($vl_cadena_conv);
+            $vl_cadena_conv = substr($iString, -$IL_LONGI) . $iString . substr($iString, 0, $IL_LONGI);
 
-        $IL_COUNT = 0;
-        $IL_SUMA = 0;
+            $IL_LONGI = strlen($vl_cadena_conv);
 
-        Do {
-            $IL_SUMA = $IL_SUMA + ord(substr($vl_cadena_conv, $IL_COUNT, 1));
-            $IL_COUNT = $IL_COUNT + 1;
+            $IL_COUNT = 0;
+            $IL_SUMA = 0;
 
-        } While ($IL_COUNT < $IL_LONGI);
+            Do {
+                $IL_SUMA = $IL_SUMA + ord(substr($vl_cadena_conv, $IL_COUNT, 1));
+                $IL_COUNT = $IL_COUNT + 1;
 
-
-        $IL_BASE = (int)(intval($IL_SUMA / $IL_LONGI) );
-        $IL_COUNT = 0;
+            } While ($IL_COUNT < $IL_LONGI);
 
 
-        Do {
-            $pwd = $pwd . Chr(ord(substr($vl_cadena_conv, $IL_COUNT, 1)) + $IL_BASE);
-            $IL_COUNT = $IL_COUNT + 1;
-        } While ($IL_COUNT < $IL_LONGI);
+            $IL_BASE = (int)(intval($IL_SUMA / $IL_LONGI) );
+            $IL_COUNT = 0;
 
 
-        $pwd = Chr($IL_BASE - 15) . $pwd . Chr(2 * $IL_BASE);
+            Do {
+                $pwd = $pwd . Chr(ord(substr($vl_cadena_conv, $IL_COUNT, 1)) + $IL_BASE);
+                $IL_COUNT = $IL_COUNT + 1;
+            } While ($IL_COUNT < $IL_LONGI);
 
-        return $pwd;
-    }*/
+
+            $pwd = Chr($IL_BASE - 15) . $pwd . Chr(2 * $IL_BASE);
+
+            return $pwd;
+        }*/
     public function desencriptar($iString)
     {
 
@@ -231,15 +236,15 @@ class DeliveryUsersController extends Controller
         $vl_cadena_conv = substr($iString, 1, (strlen($iString) - 3));
 
         $li_longi = (int)((strlen(utf8_decode($vl_cadena_conv)) / 4));
-        $vl_cadena_conv = mb_substr($vl_cadena_conv,  $li_longi  ,  strlen(utf8_decode($vl_cadena_conv)) - (2 * $li_longi) );
+        $vl_cadena_conv = mb_substr($vl_cadena_conv, $li_longi, strlen(utf8_decode($vl_cadena_conv)) - (2 * $li_longi));
         $li_longi = strlen($vl_cadena_conv);
 
         $li_count = 0;
 
-        do{
-            $pwd = $pwd . Chr(ord(substr($vl_cadena_conv, $li_count , 1)) - $li_base);
+        do {
+            $pwd = $pwd . Chr(ord(substr($vl_cadena_conv, $li_count, 1)) - $li_base);
             $li_count = $li_count + 1;
-        }while($li_count < $li_longi);
+        } while ($li_count < $li_longi);
 
         return $pwd;
     }
