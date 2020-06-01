@@ -31,7 +31,7 @@ class Delivery extends Model
     }
 
     public function category(){
-        return $this->hasOne('App\Category', 'idTipoVehiculo', 'idCategoria');
+        return $this->hasOne('App\Category', 'idCategoria', 'idCategoria');
     }
 
     public function contrato(){

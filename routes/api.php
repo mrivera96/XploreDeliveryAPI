@@ -23,6 +23,7 @@ Route::group(['prefix' => 'categories'], function () {
     Route::group(['middleware' => 'auth:api'], function () {
         Route::post('showAll', 'CategoriesController@showAllCategories');
         Route::post('update', 'CategoriesController@updateCategory');
+        Route::post('create', 'CategoriesController@createCategory');
     });
 
 });
@@ -53,6 +54,7 @@ Route::group(['prefix' => 'deliveries'], function () {
 
 Route::group(['prefix' => 'rates'], function () {
     Route::post('update', 'RatesController@updateRate');
+    Route::post('create', 'RatesController@createRate');
 });
 
 Route::group(['prefix' => 'states'], function () {

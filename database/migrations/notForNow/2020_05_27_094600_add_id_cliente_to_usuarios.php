@@ -28,13 +28,13 @@ class AddIdClienteToUsuarios extends Migration
      */
     public function down()
     {
-        if (Schema::hasColumn('tblUsuarios', 'idCliente'))
+        /*if (Schema::hasColumn('tblUsuarios', 'idCliente'))
         {
             Schema::table('tblUsuarios', function (Blueprint $table)
 
             {
                 $table->dropColumn('idCliente');
             });
-        }
+        }*/
     }
 }

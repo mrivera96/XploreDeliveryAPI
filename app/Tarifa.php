@@ -13,7 +13,7 @@ class Tarifa extends Model
     protected $fillable = ['idCategoria', 'entregasMinimas', 'entregasMaximas', 'precio'];
 
     public function category(){
-        return $this->hasOne('App\Category', 'idTipoVehiculo', 'idCategoria');
+        return $this->hasOne('App\Category', 'idCategoria', 'idCategoria');
     }
 
     public function contrato(){

@@ -33,6 +33,6 @@ class CreateTblClientesDelivery extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tblClientesDelivery');
+        //Schema::dropIfExists('tblClientesDelivery');
     }
 }

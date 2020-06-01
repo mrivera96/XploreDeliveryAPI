@@ -36,7 +36,7 @@ class DeliveriesSeeder extends Seeder
             'nomCliente' => 'Carlos Daniel Almendares', 'numIdentificacion' => '0801199001632',
             'numCelular' => '33946384', 'fechaReserva' => \Carbon\Carbon::now(),
             'dirRecogida' => 'Centro Comercial Los Castaños, Boulevard Morazán, Tegucigalpa, Honduras',
-            'email' => 'jylrivera96@gmail.com', 'idCategoria' => 3, 'idEstado' => 36,
+            'email' => 'jylrivera96@gmail.com', 'idCategoria' => 2, 'idEstado' => 36,
             'tarifaBase' => '145.00', 'recargos' => '50.00', 'total' => '195.00'
         ]);
 

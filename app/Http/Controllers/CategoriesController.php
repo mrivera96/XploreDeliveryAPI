@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Category;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 
@@ -11,7 +12,7 @@ class CategoriesController extends Controller
     public function listCategories()
     {
         try {
-            $categories = Category::where('delivery', 1)->get(['idTipoVehiculo', 'descTipoVehiculo', 'delivery']);
+            $categories = Category::where('isActivo', 1)->get();
             return response()->json([
                 'error' => 0,
                 'data' => $categories
@@ -27,7 +28,7 @@ class CategoriesController extends Controller
     public function showAllCategories()
     {
         try {
-            $categories = Category::all(['idTipoVehiculo', 'descTipoVehiculo', 'delivery']);
+            $categories = Category::all();
             return response()->json([
                 'error' => 0,
                 'data' => $categories
@@ -40,12 +41,34 @@ class CategoriesController extends Controller
         }
     }
 
-    public function updateCategory(Request $request){
-        $idCat = $request->form["idTipoVehiculo"];
-        $permDelivery = $request->form["delivery"];
+    public function createCategory(Request $request){
+        $rCat = $request->form;
         try {
-            $currCat = Category::where('idTipoVehiculo', $idCat);
-            $currCat->update(['delivery' => $permDelivery]);
+            $nCategory = new Category();
+            $nCategory->descCategoria = $rCat['descCategoria'];
+            $nCategory->fechaAlta = Carbon::now();
+            $nCategory->save();
+            return response()->json([
+                'error' => 0,
+                'message' => 'Categoría agregada correctamente.'
+            ],200);
+
+        }catch (Exception $ex){
+            return response()->json([
+                'error' => 1,
+                'message' => 'Error al agregar la categoría.'
+            ],500);
+        }
+    }
+
+    public function updateCategory(Request $request){
+        $idCat = $request->form["idCategoria"];
+        try {
+            $currCat = Category::where('idCategoria', $idCat);
+            $currCat->update([
+                'descCategoria' => $request->form["descCategoria"],
+                'isActivo' => $request->form['isActivo']
+                ]);
             return response()->json([
                 'error' => 0,
                 'message' => 'Categoría actualizada correctamente.'
@@ -53,7 +76,7 @@ class CategoriesController extends Controller
         }catch (Exception $ex){
             return response()->json([
                 'error' => 1,
-                'message' => 'Error al actualizar la categoría. '.$ex->getMessage()
+                'message' => 'Error al actualizar la categoría.'
             ],500);
         }
     }

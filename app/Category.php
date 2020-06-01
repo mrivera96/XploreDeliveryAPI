@@ -6,14 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
 {
-    protected $table = 'clsTipoVehiculo';
+    protected $table = 'clsCategoriasDelivery';
     public $timestamps = false;
-    protected $primaryKey = 'idTipoVehiculo';
+    protected $primaryKey = 'idCategoria';
 
-    protected $fillable = ['descTipoVehiculo', 'isActivo', 'delivery'];
+    protected $fillable = ['descCategoria', 'isActivo', 'fechaAlta'];
 
 
     public function delivery(){
         return $this->belongsTo('App\Delivery', 'idTipoVehiculo', 'idTipoVehiculo');
     }
+
 }

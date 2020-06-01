@@ -33,7 +33,8 @@ class RatesController extends Controller
         }
     }
 
-    public function updateRate(Request $request){
+    public function updateRate(Request $request)
+    {
         $idRate = $request->form["idTarifaDelivery"];
         $idCategoria = $request->form["idCategoria"];
         $emin = $request->form["entregasMinimas"];
@@ -50,12 +51,38 @@ class RatesController extends Controller
             return response()->json([
                 'error' => 0,
                 'message' => 'Tarifa actualizada correctamente.'
-            ],200);
-        }catch (Exception $ex){
+            ], 200);
+        } catch (Exception $ex) {
             return response()->json([
                 'error' => 1,
-                'message' => 'Error al actualizar la tarifa. '.$ex->getMessage()
-            ],500);
+                'message' => 'Error al actualizar la tarifa. ' . $ex->getMessage()
+            ], 500);
+        }
+    }
+
+    public function createRate(Request $request)
+    {
+        $idCategoria = $request->form["idCategoria"];
+        $emin = $request->form["entregasMinimas"];
+        $emax = $request->form["entregasMaximas"];
+        $monto = $request->form["precio"];
+        try {
+            $currRate = new Tarifa();
+            $currRate->idCategoria = $idCategoria;
+            $currRate->entregasMinimas = $emin;
+            $currRate->entregasMaximas = $emax;
+            $currRate->precio = $monto;
+            $currRate->save();
+
+            return response()->json([
+                'error' => 0,
+                'message' => 'Tarifa agregada correctamente.'
+            ], 200);
+        } catch (Exception $ex) {
+            return response()->json([
+                'error' => 1,
+                'message' => 'Error al agregar la tarifa. ' . $ex->getMessage()
+            ], 500);
         }
     }
 }
