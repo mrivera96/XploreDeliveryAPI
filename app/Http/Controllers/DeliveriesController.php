@@ -177,7 +177,7 @@ class DeliveriesController extends Controller
         $data["subject"] = 'Solicitud de Xplore Delivery';
         $data["delivery"] = $delivery;
         $data["orderDelivery"] = $orders;
-        $data["from"] = 'Xplore Delivery - No. de Reserva '.$delivery->idDelivery;
+        $data["from"] = 'Xplore Delivery - No. de Reserva ' . $delivery->idDelivery;
 
         $pdf = PDF::loadView('applicationSheet', $data);
 
@@ -212,7 +212,7 @@ class DeliveriesController extends Controller
                 $delivery->category;
                 $delivery->detalle;
                 $delivery->estado;
-                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y, h:i a');
+                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y h:i a');
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
                 $delivery->recargos = number_format($delivery->recargos, 2);
                 $delivery->total = number_format($delivery->total, 2);
@@ -223,7 +223,7 @@ class DeliveriesController extends Controller
                 $delivery->category;
                 $delivery->detalle;
                 $delivery->estado;
-                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y, h:i a');
+                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y h:i a');
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
                 $delivery->recargos = number_format($delivery->recargos, 2);
                 $delivery->total = number_format($delivery->total, 2);
@@ -234,7 +234,7 @@ class DeliveriesController extends Controller
                 $delivery->category;
                 $delivery->detalle;
                 $delivery->estado;
-                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y, h:i a');
+                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y h:i a');
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
                 $delivery->recargos = number_format($delivery->recargos, 2);
                 $delivery->total = number_format($delivery->total, 2);
@@ -554,7 +554,8 @@ class DeliveriesController extends Controller
                 $delivery->category;
                 $delivery->detalle;
                 $delivery->estado;
-                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y, h:i a');
+                //$delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y h:i a');
+                $delivery->fechaReserva = date('d-m-Y h:i', strtotime($delivery->fechaReserva));
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
                 $delivery->recargos = number_format($delivery->recargos, 2);
                 $delivery->total = number_format($delivery->total, 2);
@@ -565,7 +566,8 @@ class DeliveriesController extends Controller
                 $delivery->category;
                 $delivery->detalle;
                 $delivery->estado;
-                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y, h:i a');
+                //$delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y h:i a');
+                $delivery->fechaReserva = date('d-m-Y h:i', strtotime($delivery->fechaReserva));
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
                 $delivery->recargos = number_format($delivery->recargos, 2);
                 $delivery->total = number_format($delivery->total, 2);
@@ -576,7 +578,8 @@ class DeliveriesController extends Controller
                 $delivery->category;
                 $delivery->detalle;
                 $delivery->estado;
-                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y, h:i a');
+                //$delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y h:i a');
+                $delivery->fechaReserva = date('d-m-Y h:i', strtotime($delivery->fechaReserva));
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
                 $delivery->recargos = number_format($delivery->recargos, 2);
                 $delivery->total = number_format($delivery->total, 2);
@@ -654,6 +657,56 @@ class DeliveriesController extends Controller
 
     }
 
+    public function getOrders()
+    {
+        try {
+            $user = Auth::user();
+            $deliveriesDia = Delivery::whereDate('fechaReserva', Carbon::today())->get();
+            $allDeliveries = Delivery::all();
+            $pedidosDia = [];
+            $todosPedidos = [];
+
+            foreach ($deliveriesDia as $delivery) {
+                $detail = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
+                foreach ($detail as $dtl) {
+                    $dtl->estado;
+                    $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
+                    $dtl->recargo = number_format($dtl->recargo, 2);
+                    $dtl->cTotal = number_format($dtl->cTotal, 2);
+                    array_push($pedidosDia, $dtl);
+                }
+
+            }
+
+            foreach ($allDeliveries as $delivery) {
+                $detail = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
+                foreach ($detail as $dtl) {
+                    $dtl->estado;
+                    $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
+                    $dtl->recargo = number_format($dtl->recargo, 2);
+                    $dtl->cTotal = number_format($dtl->cTotal, 2);
+                    array_push($todosPedidos, $dtl);
+                }
+
+            }
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => array('pedidosDia' => $pedidosDia, 'todos' => $todosPedidos)
+                ],
+                200
+            );
+        } catch (Exception $ex) {
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => $ex->getMessage()
+                ],
+                500
+            );
+        }
+    }
 
     /* public function test()
     {
