@@ -617,6 +617,7 @@ class DeliveriesController extends Controller
             foreach ($deliveriesDia as $delivery) {
                 $detail = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
                 foreach ($detail as $dtl) {
+                    $dtl->conductor;
                     $dtl->estado;
                     $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
                     $dtl->recargo = number_format($dtl->recargo, 2);
@@ -630,6 +631,7 @@ class DeliveriesController extends Controller
                 $detail = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
                 foreach ($detail as $dtl) {
                     $dtl->estado;
+                    $dtl->conductor;
                     $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
                     $dtl->recargo = number_format($dtl->recargo, 2);
                     $dtl->cTotal = number_format($dtl->cTotal, 2);
@@ -670,6 +672,7 @@ class DeliveriesController extends Controller
                 $detail = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
                 foreach ($detail as $dtl) {
                     $dtl->estado;
+                    $dtl->conductor;
                     $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
                     $dtl->recargo = number_format($dtl->recargo, 2);
                     $dtl->cTotal = number_format($dtl->cTotal, 2);
@@ -682,6 +685,7 @@ class DeliveriesController extends Controller
                 $detail = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
                 foreach ($detail as $dtl) {
                     $dtl->estado;
+                    $dtl->conductor;
                     $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
                     $dtl->recargo = number_format($dtl->recargo, 2);
                     $dtl->cTotal = number_format($dtl->cTotal, 2);
