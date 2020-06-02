@@ -212,7 +212,7 @@ class DeliveriesController extends Controller
                 $delivery->category;
                 $delivery->detalle;
                 $delivery->estado;
-                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y h:i a');
+                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d h:i a');
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
                 $delivery->recargos = number_format($delivery->recargos, 2);
                 $delivery->total = number_format($delivery->total, 2);
@@ -223,7 +223,7 @@ class DeliveriesController extends Controller
                 $delivery->category;
                 $delivery->detalle;
                 $delivery->estado;
-                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y h:i a');
+                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d h:i a');
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
                 $delivery->recargos = number_format($delivery->recargos, 2);
                 $delivery->total = number_format($delivery->total, 2);
@@ -234,7 +234,7 @@ class DeliveriesController extends Controller
                 $delivery->category;
                 $delivery->detalle;
                 $delivery->estado;
-                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y h:i a');
+                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d h:i a');
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
                 $delivery->recargos = number_format($delivery->recargos, 2);
                 $delivery->total = number_format($delivery->total, 2);
@@ -554,8 +554,8 @@ class DeliveriesController extends Controller
                 $delivery->category;
                 $delivery->detalle;
                 $delivery->estado;
-                //$delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y h:i a');
-                $delivery->fechaReserva = date('d-m-Y h:i', strtotime($delivery->fechaReserva));
+                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d h:i a');
+                //$delivery->fechaReserva = date('d-m-Y h:i', strtotime($delivery->fechaReserva));
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
                 $delivery->recargos = number_format($delivery->recargos, 2);
                 $delivery->total = number_format($delivery->total, 2);
@@ -566,8 +566,8 @@ class DeliveriesController extends Controller
                 $delivery->category;
                 $delivery->detalle;
                 $delivery->estado;
-                //$delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y h:i a');
-                $delivery->fechaReserva = date('d-m-Y h:i', strtotime($delivery->fechaReserva));
+                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d h:i a');
+                //$delivery->fechaReserva = date('d-m-Y h:i', strtotime($delivery->fechaReserva));
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
                 $delivery->recargos = number_format($delivery->recargos, 2);
                 $delivery->total = number_format($delivery->total, 2);
@@ -578,8 +578,8 @@ class DeliveriesController extends Controller
                 $delivery->category;
                 $delivery->detalle;
                 $delivery->estado;
-                //$delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y h:i a');
-                $delivery->fechaReserva = date('d-m-Y h:i', strtotime($delivery->fechaReserva));
+                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d h:i a');
+                //$delivery->fechaReserva = date('d-m-Y h:i', strtotime($delivery->fechaReserva));
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
                 $delivery->recargos = number_format($delivery->recargos, 2);
                 $delivery->total = number_format($delivery->total, 2);
