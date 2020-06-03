@@ -23,8 +23,8 @@ class CreateClsTarifasDeliveryTable extends Migration
 
         Schema::table('clsTarifasDelivery', function (Blueprint $table) {
             $table->foreign('idCategoria')
-                ->references('idTipoVehiculo')
-                ->on('clsTipoVehiculo')
+                ->references('idCategoria')
+                ->on('clsCategoriasDelivery')
                 ->onDelete('cascade')
                 ->onUpdate('cascade');
         });

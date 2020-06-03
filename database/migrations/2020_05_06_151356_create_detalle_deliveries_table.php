@@ -26,19 +26,18 @@ class CreateDetalleDeliveriesTable extends Migration
             $table->string('nomRecibio', 60)->nullable();
             $table->integer('idConductor')->unsigned()->nullable();
             $table->integer('idEstado')->unsigned()->default(34);
+            $table->double('tarifaBase')->nullable();
+            $table->double('recargo')->nullable();
+            $table->double('cTotal')->nullable();
         });
 
         Schema::table('tblDetalleDelivery', function (Blueprint $table) {
             $table->foreign('idDelivery')
                 ->references('idDelivery')
-                ->on('tblDeliveries')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
+                ->on('tblDeliveries');
             $table->foreign('idConductor')
                 ->references('idUsuario')
-                ->on('tblUsuarios')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
+                ->on('tblUsuarios');
             $table->foreign('idEstado')
                 ->references('idEstado')
                 ->on('clsEstados');

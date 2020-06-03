@@ -22,6 +22,11 @@ class CreateTblSucursalesClientesDelivery extends Migration
             $table->dateTime('fechaAlta');
             $table->boolean('isActivo')->default(1);
         });
+        Schema::table('tblSucursalesClientesDelivery', function (Blueprint $table) {
+            $table->foreign('idCliente')
+                ->references('idCliente')
+                ->on('tblClientesDelivery');
+        });
     }
 
     /**

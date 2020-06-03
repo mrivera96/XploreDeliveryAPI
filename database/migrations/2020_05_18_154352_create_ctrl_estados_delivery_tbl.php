@@ -25,8 +25,7 @@ class CreateCtrlEstadosDeliveryTbl extends Migration
         Schema::table('tblCtrlEstadosDelivery', function (Blueprint $table){
            $table->foreign('idDelivery')
            ->references('idDelivery')
-           ->on('tblDeliveries')
-           ->onDelete('cascade');
+           ->on('tblDeliveries');
 
             $table->foreign('idEstado')
                 ->references('idEstado')

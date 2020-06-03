@@ -36,18 +36,14 @@ class CreateDeliveriesTable extends Migration
 
         Schema::table('tblDeliveries', function (Blueprint $table) {
             $table->foreign('idCategoria')
-                ->references('idTipoVehiculo')
-                ->on('clsTipoVehiculo');
+                ->references('idCategoria')
+                ->on('clsCategoriasDelivery');
             $table->foreign('idEstado')
                 ->references('idEstado')
-                ->on('clsEstados')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
+                ->on('clsEstados');
             $table->foreign('idCliente')
                 ->references('idCliente')
-                ->on('tblClientesDelivery')
-                ->onDelete('cascade')
-                ->onUpdate('cascade');
+                ->on('tblClientesDelivery');
         });
     }
 
