@@ -45,9 +45,11 @@ class DeliveriesController extends Controller
             $nDelivery->total = $pago['total'];
             $nDelivery->save();
 
+            $lastId = Delivery::query()->max('idDelivery');
+
             foreach ($deliveryOrders as $detalle) {
                 $nDetalle = new DetalleDelivery();
-                $nDetalle->idDelivery = $nDelivery->idDelivery;
+                $nDetalle->idDelivery = $lastId;
                 $nDetalle->nFactura = $detalle['nFactura'];
                 $nDetalle->nomDestinatario = $detalle['nomDestinatario'];
                 $nDetalle->numCel = $detalle['numCel'];
@@ -103,6 +105,7 @@ class DeliveriesController extends Controller
         try {
             $customerDetails = DeliveryClient::where('idCliente', Auth::user()->idCliente)->get()->first();
 
+
             $nDelivery = new Delivery();
             $nDelivery->nomCliente = $customerDetails->nomEmpresa;
             $nDelivery->numIdentificacion = $customerDetails->numIdentificacion;
@@ -121,9 +124,12 @@ class DeliveriesController extends Controller
             $nDelivery->idCliente = Auth::user()->idCliente;
             $nDelivery->save();
 
+
+            $lastId = Delivery::query()->max('idDelivery');
+
             foreach ($deliveryOrders as $detalle) {
                 $nDetalle = new DetalleDelivery();
-                $nDetalle->idDelivery = $nDelivery->idDelivery;
+                $nDetalle->idDelivery = $lastId;
                 $nDetalle->nFactura = $detalle['nFactura'];
                 $nDetalle->nomDestinatario = $detalle['nomDestinatario'];
                 $nDetalle->numCel = $detalle['numCel'];
@@ -132,6 +138,7 @@ class DeliveriesController extends Controller
                 $nDetalle->tarifaBase = $detalle['tarifaBase'];
                 $nDetalle->recargo = $detalle['recargo'];
                 $nDetalle->cTotal = $detalle['cTotal'];
+
                 $nDetalle->save();
             }
 
