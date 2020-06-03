@@ -63,7 +63,7 @@ class DeliveriesController extends Controller
 
             $receivers = $hDelivery['email'];
             $orderDelivery = DetalleDelivery::where('idDelivery', $lastId)->get();
-            $this->sendmail($receivers, $nDelivery, $orderDelivery);
+            $this->sendmail($receivers, $lastId);
 
             return response()->json(
                 [
@@ -144,7 +144,7 @@ class DeliveriesController extends Controller
 
             $receivers = $customerDetails->email;
             $orderDelivery = DetalleDelivery::where('idDelivery', $lastId)->get();
-            $this->sendmail($receivers, $nDelivery, $orderDelivery);
+            $this->sendmail($receivers, $lastId);
 
             return response()->json(
                 [
@@ -177,35 +177,6 @@ class DeliveriesController extends Controller
 
     }
 
-    public function sendmail($mail, $delivery, $orders)
-    {
-        $data["email"] = $mail;
-        $data["client_name"] = $delivery->nomCliente;
-        $data["subject"] = 'Xplore Delivery No. '.$delivery->idDelivery;
-        $data["delivery"] = $delivery;
-        $data["orderDelivery"] = $orders;
-        $data["from"] = 'Xplore Delivery';
-
-        $pdf = PDF::loadView('applicationSheet', $data);
-
-        try {
-            Mail::send('mails.view', $data, function ($message) use ($data, $pdf) {
-                $message
-                    ->from('noreply@xplorerentacar.com', $data["from"])
-                    ->to($data["email"], $data["client_name"])
-                    ->subject($data["subject"])
-                    ->attachData($pdf->output(), "Solicitud_XploreDelivery.pdf");
-            });
-        } catch (Exception $exception) {
-            $this->serverstatuscode = "0";
-            $this->serverstatusdes = $exception->getMessage();
-        }
-        if (Mail::failures()) {
-            return false;
-        } else {
-            return true;
-        }
-    }
 
 
     public function list()
@@ -719,42 +690,15 @@ class DeliveriesController extends Controller
         }
     }
 
-    /* public function test()
-    {
-        $delivery = Delivery::where('idDelivery', 14)->get()->first();
-        $orderDelivery = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
 
-        $data["email"] = 'jylrivera96@gmail.com';
-        $data["client_name"] = $delivery->nomCliente;
-        $data["subject"] = 'Solicitud de servicio Xplore Delivery';
-        $data["delivery"] = $delivery;
-        $data["orderDelivery"] = $orderDelivery;
-
-
-        $pdf = PDF::loadView('applicationSheet', $data);
-
-        try {
-            Mail::send('mails.view', $data, function ($message) use ($data, $pdf) {
-                $message->to($data["email"], $data["client_name"])
-                    ->subject($data["subject"])
-                    ->attachData($pdf->output(), "Solicitud_XploreDelivery.pdf");
-            });
-            return response('OK');
-        } catch (Exception $exception) {
-            dd($exception->getMessage());
-
-        }
-
-
-    }*/
 
     public function testSendMail(Request $request){
         $idDelivery = $request->idDelivery;
-        $this->sendmail1('jylrivera96@gmail.com', $idDelivery);
+        $this->sendmail('jylrivera96@gmail.com', $idDelivery);
 
     }
 
-    public function sendmail1($mail, $idDelivery)
+    public function sendmail($mail, $idDelivery)
     {
         $delivery = Delivery::where('idDelivery', $idDelivery)->get()->first();
         $data["email"] = $mail;
