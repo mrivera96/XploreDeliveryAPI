@@ -7,16 +7,15 @@
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
 
     <title>Hoja de Solicitud</title>
-    <link rel="stylesheet" href="{{asset('css/bootstrap.css')}}">
 </head>
 
 <body>
 
-<table style="width:100%">
+<table style="width: 100%;">
     <tbody>
     <tr>
         <td>
-            <img src="{{asset('img/logo_resized.png')}}" width="15%">
+            <img src="http://190.4.56.14/XploreDeliveryAPI/img/logo_resized.png" style="width: 20%; margin-bottom: 0px">
         </td>
     </tr>
 
@@ -33,7 +32,11 @@
             <h4>Solicitud No. {{$delivery->idDelivery}}</h4>
         </td>
     </tr>
-
+    </tbody>
+</table>
+<hr>
+<table style="width: 100%">
+    <tbody>
 
     <tr>
         <td style="width:33%">
@@ -80,39 +83,39 @@
     <tr>
         <td>
             <h4>Entregas programadas: </h4>
-            <hr>
+
         </td>
 
     </tr>
-
-    <tr style="width:100%">
-        <td>
-            <table border="1" style="width:100%">
-                <tr>
-                    <th scope="col">N°</th>
-                    <th scope="col">N° de Factura o Detalle de Envío</th>
-                    <th scope="col">Nombre del Destinatario</th>
-                    <th scope="col">Número Celular del Destinatario</th>
-                    <th scope="col">Dirección del Destinatario</th>
-                </tr>
-
-                @foreach($orderDelivery as $detail)
-                    <tr>
-                        <td scope="row">{{$loop->index + 1}}</td>
-                        <td>{{$detail->nFactura}}</td>
-                        <td>{{$detail->nomDestinatario}}</td>
-                        <td>{{$detail->numCel}}</td>
-                        <td>{{$detail->direccion}}</td>
-                    </tr>
-                @endforeach
-            </table>
-        </td>
-
-    </tr>
-
     </tbody>
 
 </table>
+<hr>
+<table border="1" style="width:100%">
+    <thead>
+    <tr>
+        <th scope="col">N°</th>
+        <th scope="col">N° de Factura o Detalle de Envío</th>
+        <th scope="col">Nombre del Destinatario</th>
+        <th scope="col">Número Celular del Destinatario</th>
+        <th scope="col">Dirección del Destinatario</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    @foreach($orderDelivery as $detail)
+        <tr>
+            <td scope="row">{{$loop->index + 1}}</td>
+            <td>{{$detail->nFactura}}</td>
+            <td>{{$detail->nomDestinatario}}</td>
+            <td>{{$detail->numCel}}</td>
+            <td>{{$detail->direccion}}</td>
+        </tr>
+    @endforeach
+    </tbody>
+
+</table>
+<br>
 
 </body>
 
