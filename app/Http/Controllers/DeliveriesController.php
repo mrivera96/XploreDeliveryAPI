@@ -191,7 +191,7 @@ class DeliveriesController extends Controller
         try {
             Mail::send('mails.view', $data, function ($message) use ($data, $pdf) {
                 $message
-                    ->from('melvin.rivera@xplorerentacar.com', $data["from"])
+                    ->from('noreply@xplorerentacar.com', $data["from"])
                     ->to($data["email"], $data["client_name"])
                     ->subject($data["subject"])
                     ->attachData($pdf->output(), "Solicitud_XploreDelivery.pdf");
