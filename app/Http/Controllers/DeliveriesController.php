@@ -181,10 +181,10 @@ class DeliveriesController extends Controller
     {
         $data["email"] = $mail;
         $data["client_name"] = $delivery->nomCliente;
-        $data["subject"] = 'Solicitud de Xplore Delivery';
+        $data["subject"] = 'Xplore Delivery No. '.$delivery->idDelivery;
         $data["delivery"] = $delivery;
         $data["orderDelivery"] = $orders;
-        $data["from"] = 'Xplore Delivery - No. de Reserva ' . $delivery->idDelivery;
+        $data["from"] = 'Xplore Delivery';
 
         $pdf = PDF::loadView('applicationSheet', $data);
 
