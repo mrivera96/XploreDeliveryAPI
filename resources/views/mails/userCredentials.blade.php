@@ -45,7 +45,7 @@
 </div>
 
 <div class="row">
-    <a href="http://190.4.56.14/GestionesDelivery">Puedes acceder haciendo clic aquí</a>
+    <a href="https://gestionesdelivery.xplorerentacar.com">Puedes acceder haciendo clic aquí</a>
 </div>
 
 <!--DELIVERY HEADER GROUP END-->
