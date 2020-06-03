@@ -62,14 +62,14 @@ class DeliveriesController extends Controller
             }
 
             $receivers = $hDelivery['email'];
-            $orderDelivery = DetalleDelivery::where('idDelivery', $nDelivery['idDelivery'])->get();
+            $orderDelivery = DetalleDelivery::where('idDelivery', $lastId)->get();
             $this->sendmail($receivers, $nDelivery, $orderDelivery);
 
             return response()->json(
                 [
                     'error' => 0,
                     'message' => 'Solicitud de Delivery enviada correctamente. Recibirás un email con los detalles de tu reserva. Nos pondremos en contacto contigo.',
-                    'nDelivery' => $nDelivery->idDelivery
+                    'nDelivery' => $lastId
                 ],
                 200
             );
@@ -143,14 +143,14 @@ class DeliveriesController extends Controller
             }
 
             $receivers = $customerDetails->email;
-            $orderDelivery = DetalleDelivery::where('idDelivery', $nDelivery['idDelivery'])->get();
+            $orderDelivery = DetalleDelivery::where('idDelivery', $lastId)->get();
             $this->sendmail($receivers, $nDelivery, $orderDelivery);
 
             return response()->json(
                 [
                     'error' => 0,
                     'message' => 'Solicitud de Delivery enviada correctamente. Recibirás un email con los detalles de tu reserva. Nos pondremos en contacto contigo.',
-                    'nDelivery' => $nDelivery->idDelivery
+                    'nDelivery' => $lastId
                 ],
                 200
             );
