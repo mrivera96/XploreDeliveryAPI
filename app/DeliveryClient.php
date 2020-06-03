@@ -14,4 +14,8 @@ class DeliveryClient extends Model
     public function cliente(){
         return $this->hasMany('App\DeliveryUser', 'idCliente', 'idCliente');
     }
+
+    public function direcciones(){
+        return $this->hasMany('App\Branch', 'idCliente', 'idCliente');
+    }
 }

@@ -15,4 +15,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('viewTest/{idCliente}', 'DeliveryUsersController@testAccessDetails');
 Route::get('viewTesting/{idDelivery}', 'DeliveriesController@testReserveFormat');
+Route::get('testSendMail/{idDelivery}', 'DeliveriesController@testSendMail');
 

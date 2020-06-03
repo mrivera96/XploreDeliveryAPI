@@ -11,4 +11,9 @@ class Branch extends Model
     protected $primaryKey = 'idSucursal';
 
     protected $fillable = ['nomSucursal', 'numTelefono', 'idCliente', 'direccion', 'fechAlta', 'isActivo'];
+
+
+    public function cliente(){
+        return $this->belongsTo('App\DeliveryClient', 'idCliente', 'idCliente');
+    }
 }

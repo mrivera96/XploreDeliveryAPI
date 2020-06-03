@@ -747,4 +747,40 @@ class DeliveriesController extends Controller
 
 
     }*/
+
+    public function testSendMail(Request $request){
+        $idDelivery = $request->idDelivery;
+        $this->sendmail1('jylrivera96@gmail.com', $idDelivery);
+
+    }
+
+    public function sendmail1($mail, $idDelivery)
+    {
+        $delivery = Delivery::where('idDelivery', $idDelivery)->get()->first();
+        $data["email"] = $mail;
+        $data["client_name"] = $delivery->nomCliente;
+        $data["subject"] = 'Xplore Delivery No. '.$delivery->idDelivery;
+        $data["delivery"] = $delivery;
+        $orders = DetalleDelivery::where('idDelivery', $idDelivery)->get();
+        $data["orderDelivery"] = $orders;
+        $data["from"] = 'Xplore Delivery';
+
+
+        try {
+            Mail::send('applicationSheet', $data, function ($message) use ($data) {
+                $message
+                    ->from('noreply@xplorerentacar.com', $data["from"])
+                    ->to($data["email"], $data["client_name"])
+                    ->subject($data["subject"]);
+            });
+        } catch (Exception $exception) {
+            $this->serverstatuscode = "0";
+            $this->serverstatusdes = $exception->getMessage();
+        }
+        if (Mail::failures()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 }
