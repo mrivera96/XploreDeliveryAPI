@@ -47,7 +47,7 @@ class DeliveriesController extends Controller
 
             foreach ($deliveryOrders as $detalle) {
                 $nDetalle = new DetalleDelivery();
-                $nDetalle->idDelivery = $nDelivery['idDelivery'];
+                $nDetalle->idDelivery = $nDelivery->idDelivery;
                 $nDetalle->nFactura = $detalle['nFactura'];
                 $nDetalle->nomDestinatario = $detalle['nomDestinatario'];
                 $nDetalle->numCel = $detalle['numCel'];
@@ -123,7 +123,7 @@ class DeliveriesController extends Controller
 
             foreach ($deliveryOrders as $detalle) {
                 $nDetalle = new DetalleDelivery();
-                $nDetalle->idDelivery = $nDelivery['idDelivery'];
+                $nDetalle->idDelivery = $nDelivery->idDelivery;
                 $nDetalle->nFactura = $detalle['nFactura'];
                 $nDetalle->nomDestinatario = $detalle['nomDestinatario'];
                 $nDetalle->numCel = $detalle['numCel'];
