@@ -45,7 +45,7 @@
     </section>
 
     <section class="details">
-        <p style="line-height: 1">Direccion de recogida: <strong> {{$delivery->dirRecogida}}</strong></p>
+        <p style="line-height: 1">Dirección de recogida: <strong> {{$delivery->dirRecogida}}</strong></p>
         <p>Correo Electrónico: <strong> {{$delivery->email}}</strong></p>
         <p>Categoría a reservar: <strong>{{$delivery->category->descCategoria}}</strong></p>
     </section>
