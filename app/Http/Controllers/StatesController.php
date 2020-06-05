@@ -10,11 +10,11 @@ class StatesController extends Controller
     public function list()
     {
         try {
-            $states = Estado::where('isActivo',1)->where('idTipoEstado', 8)->get();
-
+            $statesDelivery = Estado::where('isActivo',1)->where('idTipoEstado', 8)->get();
+            $statesDeliveryEntregas = Estado::where('isActivo',1)->where('idTipoEstado', 9)->get();
             return response()->json([
                 'error' => 0,
-                'data' => $states
+                'data' => array('xploreDelivery' => $statesDelivery, 'xploreDeliveryEntregas' =>$statesDeliveryEntregas)
             ],
                 200);
 

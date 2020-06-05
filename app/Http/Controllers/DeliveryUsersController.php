@@ -7,6 +7,7 @@ use App\DeliveryUser;
 use App\User;
 use Carbon\Carbon;
 use Exception;
+use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -40,7 +41,7 @@ class DeliveryUsersController extends Controller
 
             $currUser = User::where('idUsuario', Auth::user()->idUsuario)->get()->first();
 
-            if (Auth::user()->passUsuario == utf8_encode($this->encriptar($changePassForm['oldPass'])) || Hash::check($changePassForm['oldPass'], Auth::user()->passUsuario)) {
+            if (Auth::user()->passUsuario == utf8_encode($this->obtenerCifrado($changePassForm['oldPass'])) || Hash::check($changePassForm['oldPass'], Auth::user()->passUsuario)) {
                 $newPass = Hash::make($changePassForm['newPass']);
                 $currUser->passUsuario = $newPass;
                 $currUser->save();
@@ -138,35 +139,10 @@ class DeliveryUsersController extends Controller
         }
     }
 
-    public function encriptar($iString)
-    {
-        $pwd = "";
-
-        $IL_LONGI = (int)(strlen($iString) / 2);
-        $vl_cadena_conv = substr($iString, -$IL_LONGI) . $iString . substr($iString, 0, $IL_LONGI);
-
-        $IL_LONGI = strlen($vl_cadena_conv);
-        $IL_COUNT = 0;
-        $IL_SUMA = 0;
-
-        do {
-            $IL_SUMA = $IL_SUMA + ord(substr($vl_cadena_conv, $IL_COUNT, 1));
-            $IL_COUNT = $IL_COUNT + 1;
-
-        } while ($IL_COUNT <= $IL_LONGI);
-
-        $IL_BASE = intval($IL_SUMA / $IL_LONGI);
-        $IL_COUNT = 0;
-
-        do {
-            $pwd = $pwd . Chr(ord(substr($vl_cadena_conv, $IL_COUNT, 1)) + $IL_BASE);
-            $IL_COUNT = $IL_COUNT + 1;
-        } while ($IL_COUNT < $IL_LONGI);
-
-
-        $pwd = Chr($IL_BASE - 15) . $pwd . Chr(2 * $IL_BASE);
-
-        return $pwd;
+    private function obtenerCifrado($psswd){
+        $httpClient = new Client();
+        $res = $httpClient->get('https://appconductores.xplorerentacar.com/mod.ajax/encriptar.php?password='.$psswd);
+        return json_decode($res->getBody());
     }
 
     public function testAccessDetails(Request $request)
@@ -176,76 +152,7 @@ class DeliveryUsersController extends Controller
 
     }
 
-    public function testEncryption(Request $request)
-    {
-        $myPass = Hash::make($request->myPasss);
-        return response($myPass);
-    }
-
-    public function testDecryption(Request $request)
-    {
-        $hashed = Hash::make('uXplore2020%');
-        if (Hash::check($request->myPass, $hashed)) {
-            return response(1);
-        } else {
-            return response(0);
-        }
-
-    }
-
-    /*
-        public function encriptarTTT($iString)
-        {
-            $pwd = '';
-
-            $IL_LONGI = (int)(strlen($iString) / 2);
-
-            $vl_cadena_conv = substr($iString, -$IL_LONGI) . $iString . substr($iString, 0, $IL_LONGI);
-
-            $IL_LONGI = strlen($vl_cadena_conv);
-
-            $IL_COUNT = 0;
-            $IL_SUMA = 0;
-
-            Do {
-                $IL_SUMA = $IL_SUMA + ord(substr($vl_cadena_conv, $IL_COUNT, 1));
-                $IL_COUNT = $IL_COUNT + 1;
-
-            } While ($IL_COUNT < $IL_LONGI);
 
 
-            $IL_BASE = (int)(intval($IL_SUMA / $IL_LONGI) );
-            $IL_COUNT = 0;
 
-
-            Do {
-                $pwd = $pwd . Chr(ord(substr($vl_cadena_conv, $IL_COUNT, 1)) + $IL_BASE);
-                $IL_COUNT = $IL_COUNT + 1;
-            } While ($IL_COUNT < $IL_LONGI);
-
-
-            $pwd = Chr($IL_BASE - 15) . $pwd . Chr(2 * $IL_BASE);
-
-            return $pwd;
-        }*/
-    public function desencriptar($iString)
-    {
-
-        $pwd = '';
-        $li_base = (int)(ord(substr($iString, -1)) / 2);
-        $vl_cadena_conv = substr($iString, 1, (strlen($iString) - 3));
-
-        $li_longi = (int)((strlen(utf8_decode($vl_cadena_conv)) / 4));
-        $vl_cadena_conv = mb_substr($vl_cadena_conv, $li_longi, strlen(utf8_decode($vl_cadena_conv)) - (2 * $li_longi));
-        $li_longi = strlen($vl_cadena_conv);
-
-        $li_count = 0;
-
-        do {
-            $pwd = $pwd . Chr(ord(substr($vl_cadena_conv, $li_count, 1)) - $li_base);
-            $li_count = $li_count + 1;
-        } while ($li_count < $li_longi);
-
-        return $pwd;
-    }
 }

@@ -85,3 +85,4 @@ Route::group(['prefix' => 'customers'], function () {
 
 Route::get('testCript', 'DeliveryUsersController@testEncryption');
 Route::get('testDeCript', 'DeliveryUsersController@testDecryption');
+Route::get('testAuthCript', 'AuthController@testGettingCript');

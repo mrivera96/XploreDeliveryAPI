@@ -12,6 +12,7 @@ use App\Mail\ApplicationReceived;
 use App\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use PDF;
 use Carbon\Carbon;
@@ -82,11 +83,11 @@ class DeliveriesController extends Controller
                 200
             );*/
         } catch (Exception $ex) {
+            Log::error($ex->getMessage(),array('context' => $ex->getTrace()));
             return response()->json(
                 [
                     'error' => 1,
                     'message' => $ex->getMessage(),
-                    'stackTrace' => $ex->getTrace()
                 ],
                 500
             );
@@ -164,11 +165,11 @@ class DeliveriesController extends Controller
                 200
             );*/
         } catch (Exception $ex) {
+            Log::error($ex->getMessage(),array('context' => $ex->getTrace()));
             return response()->json(
                 [
                     'error' => 1,
                     'message' => $ex->getMessage(),
-                    'stackTrace' => $ex->getTrace()
                 ],
                 500
             );
