@@ -44,6 +44,7 @@ class DeliveriesController extends Controller
             $nDelivery->tarifaBase = $pago['baseRate'];
             $nDelivery->recargos = $pago['recargos'];
             $nDelivery->total = $pago['total'];
+            $nDelivery->instrucciones = $hDelivery['instrucciones'];
             $nDelivery->save();
 
             $lastId = Delivery::query()->max('idDelivery');
@@ -59,6 +60,7 @@ class DeliveriesController extends Controller
                 $nDetalle->tarifaBase = $detalle['tarifaBase'];
                 $nDetalle->recargo = $detalle['recargo'];
                 $nDetalle->cTotal = $detalle['cTotal'];
+                $nDetalle->instrucciones = $detalle['instrucciones'];
                 $nDetalle->save();
             }
 
@@ -74,14 +76,6 @@ class DeliveriesController extends Controller
                 200
             );
 
-            /*return response()->json(
-                [
-                    'error' => 0,
-                    'message' => 'Solicitud de Delivery enviada correctamente. Recibirás un email con los detalles de tu reserva. Nos pondremos en contacto contigo.',
-                    'nDelivery'=>$nDelivery->idDelivery
-                ],
-                200
-            );*/
         } catch (Exception $ex) {
             Log::error($ex->getMessage(),array('context' => $ex->getTrace()));
             return response()->json(
@@ -105,7 +99,6 @@ class DeliveriesController extends Controller
         try {
             $customerDetails = DeliveryClient::where('idCliente', Auth::user()->idCliente)->get()->first();
 
-
             $nDelivery = new Delivery();
             $nDelivery->nomCliente = $customerDetails->nomEmpresa;
             $nDelivery->numIdentificacion = $customerDetails->numIdentificacion;
@@ -122,6 +115,7 @@ class DeliveriesController extends Controller
             $nDelivery->recargos = $pago['recargos'];
             $nDelivery->total = $pago['total'];
             $nDelivery->idCliente = Auth::user()->idCliente;
+            $nDelivery->instrucciones = $hDelivery['instrucciones'];
             $nDelivery->save();
 
 
@@ -138,12 +132,12 @@ class DeliveriesController extends Controller
                 $nDetalle->tarifaBase = $detalle['tarifaBase'];
                 $nDetalle->recargo = $detalle['recargo'];
                 $nDetalle->cTotal = $detalle['cTotal'];
+                $nDetalle->instrucciones = $detalle['instrucciones'];
 
                 $nDetalle->save();
             }
 
             $receivers = $customerDetails->email;
-            $orderDelivery = DetalleDelivery::where('idDelivery', $lastId)->get();
             $this->sendmail($receivers, $lastId);
 
             return response()->json(
@@ -156,14 +150,6 @@ class DeliveriesController extends Controller
             );
 
 
-            /*return response()->json(
-                [
-                    'error' => 0,
-                    'message' => 'Solicitud de Delivery enviada correctamente. Recibirás un email con los detalles de tu reserva. Nos pondremos en contacto contigo.',
-                    'nDelivery'=>$nDelivery->idDelivery
-                ],
-                200
-            );*/
         } catch (Exception $ex) {
             Log::error($ex->getMessage(),array('context' => $ex->getTrace()));
             return response()->json(
