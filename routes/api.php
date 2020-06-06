@@ -39,6 +39,7 @@ Route::group(['prefix' => 'auth'], function () {
 Route::group(['prefix' => 'deliveries'], function () {
     Route::post('new', 'DeliveriesController@createDelivery');
     Route::get('getTarifas', 'RatesController@getRates');
+    Route::get('getRecargos', 'SurchargesController@getSurcharges');
 
     Route::post('entregar', 'DeliveriesController@updateDeliveried');
     Route::group(['middleware' => 'auth:api'], function () {
@@ -55,6 +56,11 @@ Route::group(['prefix' => 'deliveries'], function () {
 Route::group(['prefix' => 'rates'], function () {
     Route::post('update', 'RatesController@updateRate');
     Route::post('create', 'RatesController@createRate');
+});
+
+Route::group(['prefix' => 'surcharges'], function () {
+    Route::post('update', 'SurchargesController@updateSurcharge');
+    Route::post('create', 'SurchargesController@createSurcharge');
 });
 
 Route::group(['prefix' => 'states'], function () {
@@ -80,6 +86,7 @@ Route::group(['prefix' => 'customers'], function () {
         Route::post('changePassword', 'DeliveryUsersController@changePassword');
         Route::post('updateBranch', 'BranchOfficesController@updateBranch');
         Route::post('deleteBranch', 'BranchOfficesController@deleteBranch');
+        Route::post('getMyRates', 'RatesController@getCustomerRates');
     });
 });
 

@@ -18,4 +18,11 @@ class DeliveryClient extends Model
     public function direcciones(){
         return $this->hasMany('App\Branch', 'idCliente', 'idCliente');
     }
+
+    public function rates(){
+        return $this->hasMany('App\Tarifa','idCliente', 'idCliente');
+    }
+    public function surcharges(){
+        return $this->hasMany('App\RecargoDelivery','idCliente', 'idCliente');
+    }
 }

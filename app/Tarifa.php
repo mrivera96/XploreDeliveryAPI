@@ -19,4 +19,8 @@ class Tarifa extends Model
     public function contrato(){
         return $this->belongsTo('App\ContratoDelivery', 'idTarifaDelivery', 'idTarifaDelivery');
     }
+
+    public function customer(){
+        return $this->belongsTo('App\DeliveryClient', 'idCliente', 'idCliente');
+    }
 }
