@@ -47,6 +47,8 @@ class SurchargesController extends Controller
                 $recargos = RecargoDelivery::where('idCliente', 1)->get();
             }
             foreach ($recargos as $recargo) {
+                $recargo->kilomMinimo = number_format($recargo->kilomMinimo, 2);
+                $recargo->kilomMaximo = number_format($recargo->kilomMaximo, 2);
                 $recargo->monto = number_format($recargo->monto, 2);
             }
             return response()->json(
