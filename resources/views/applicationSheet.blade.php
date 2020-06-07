@@ -9,6 +9,13 @@
     <title>Hoja de Solicitud</title>
 
     <style>
+        thead{
+            background-color: #eee;
+        }
+        table{
+          width:100%;
+            border-collapse: collapse;
+        }
         .details p {
             line-height: 0.6;
         }
@@ -59,7 +66,7 @@
 </section>
 <h4>Entregas programadas: </h4>
 <hr>
-<table border="1" style="width:100%">
+<table border="1" >
     <thead>
     <tr>
         <th scope="col">N°</th>
