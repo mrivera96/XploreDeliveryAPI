@@ -88,6 +88,7 @@ Route::group(['prefix' => 'customers'], function () {
         Route::post('deleteBranch', 'BranchOfficesController@deleteBranch');
         Route::post('getMyRates', 'RatesController@getCustomerRates');
         Route::post('getMySurcharges', 'SurchargesController@getCustomerSurcharges');
+        Route::post('getMyCategories', 'CategoriesController@getCustomerCategories');
     });
 });
 
