@@ -51,6 +51,7 @@
 
     <section class="details">
         <p style="line-height: 1">Tarifa Base: <strong> L. {{number_format($delivery->tarifaBase, 2)}}</strong></p>
+        <p>Subtotal: <strong>L. {{ number_format($delivery->tarifaBase * $delivery->detalle->count() , 2)}}</strong></p>
         <p>Recargo(s) por distancia: <strong>L. {{number_format($delivery->recargos, 2)}}</strong></p>
         <p>Total: <strong>L. {{number_format($delivery->total, 2)}}</strong></p>
     </section>
