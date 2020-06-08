@@ -45,6 +45,7 @@ class DeliveriesController extends Controller
             $nDelivery->recargos = $pago['recargos'];
             $nDelivery->total = $pago['total'];
             $nDelivery->instrucciones = $hDelivery['instrucciones'];
+            $nDelivery->fechaRegistro = Carbon::now();
             $nDelivery->save();
 
             $lastId = Delivery::query()->max('idDelivery');
@@ -116,6 +117,7 @@ class DeliveriesController extends Controller
             $nDelivery->total = $pago['total'];
             $nDelivery->idCliente = Auth::user()->idCliente;
             $nDelivery->instrucciones = $hDelivery['instrucciones'];
+            $nDelivery->fechaRegistro = Carbon::now();
             $nDelivery->save();
 
 
