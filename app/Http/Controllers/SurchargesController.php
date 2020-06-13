@@ -27,6 +27,7 @@ class SurchargesController extends Controller
                 200
             );
         } catch (\Exception $ex) {
+            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
             return response()->json(
                 [
                     'error' => 1,
@@ -59,6 +60,7 @@ class SurchargesController extends Controller
                 200
             );
         } catch (\Exception $ex) {
+            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
             return response()->json(
                 [
                     'error' => 1,

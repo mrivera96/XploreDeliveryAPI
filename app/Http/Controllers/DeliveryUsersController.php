@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class DeliveryUsersController extends Controller
@@ -26,6 +27,7 @@ class DeliveryUsersController extends Controller
                     'data' => $customers
                 ], 200);
         } catch (Exception $exception) {
+            Log::error($exception->getMessage(),['context' => $exception->getTrace()]);
             return response()
                 ->json([
                     'error' => 1,
@@ -51,6 +53,7 @@ class DeliveryUsersController extends Controller
                     'message' => 'Contraseña actualizada correctamente.'
                 ], 200);
             } else {
+
                 return response()->json([
                     'error' => 1,
                     'message' => 'La contraseña actual ingresada no coincide con nuestros registros.'
@@ -59,6 +62,7 @@ class DeliveryUsersController extends Controller
 
 
         } catch (Exception $exception) {
+            Log::error($exception->getMessage(),['context' => $exception->getTrace()]);
             return response()->json([
                 'error' => 1,
                 'message' => $exception->getMessage()
@@ -94,12 +98,14 @@ class DeliveryUsersController extends Controller
                 $nUser->save();
 
                 $receivers = $nCustomer->email;
-                $this->sendmail($receivers, $nCustomer);
 
+                $this->sendmail($receivers, $nCustomer);
                 return response()->json([
                     'error' => 0,
                     'message' => 'Cliente agregado correctamente.'
                 ], 200);
+
+
             } else {
                 return response()->json([
                     'error' => 1,
@@ -108,6 +114,7 @@ class DeliveryUsersController extends Controller
             }
 
         } catch (Exception $exception) {
+            Log::error($exception->getMessage(),['context' =>  $exception->getTrace()]);
             return response()->json([
                 'error' => 1,
                 'message' => $exception->getMessage()
@@ -122,21 +129,21 @@ class DeliveryUsersController extends Controller
         $data["client_name"] = $cliente->Representante;
         $data["subject"] = 'Detalles de Acceso Xplore Delivery';
         $data["cliente"] = $cliente;
+        $data["from"] = 'Xplore Delivery';
 
         try {
             Mail::send('mails.userCredentials', $data, function ($message) use ($data) {
-                $message->to($data["email"], $data["client_name"])
+                $message
+                    ->from('noreply@xplorerentacar.com', $data["from"])
+                    ->to($data["email"], $data["client_name"])
                     ->subject($data["subject"]);
             });
         } catch (Exception $exception) {
+            Log::error($exception->getMessage(),['context' => $exception->getTrace()]);
             $this->serverstatuscode = "0";
             $this->serverstatusdes = $exception->getMessage();
         }
-        if (Mail::failures()) {
-            return false;
-        } else {
-            return true;
-        }
+
     }
 
     private function obtenerCifrado($psswd){

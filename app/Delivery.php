@@ -41,4 +41,6 @@ class Delivery extends Model
     public function estado(){
         return $this->hasOne('App\Estado', 'idEstado', 'idEstado');
     }
+
+
 }

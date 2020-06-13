@@ -15,7 +15,6 @@ class Estado extends Model
         'descEstado',
     ];
 
-
     public function detalle(){
         return $this->belongsToMany('App\DetalleDelivery', 'idEstado','idEstado');
     }

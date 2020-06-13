@@ -6,6 +6,7 @@ use App\Branch;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class BranchOfficesController extends Controller
 {
@@ -20,6 +21,7 @@ class BranchOfficesController extends Controller
                 'data' => $myBranchOffices
             ], 200);
         }catch (\Exception $ex){
+            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
                 'message' => $ex->getMessage()
@@ -49,6 +51,7 @@ class BranchOfficesController extends Controller
                 ],200);
 
         }catch (\Exception $ex){
+            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
             return response()
                 ->json([
                     'error' => 1,
@@ -74,6 +77,7 @@ class BranchOfficesController extends Controller
                 'message' => 'Dirección actualizada correctamente'
             ]);
         }catch (\Exception $exception){
+            Log::error($exception->getMessage(),['context' => $exception->getTrace()]);
             return response()->json([
                 'error' => 1,
                 'message' => $exception->getMessage()
@@ -92,6 +96,7 @@ class BranchOfficesController extends Controller
                 'message' => 'Dirección eliminada correctamente'
             ]);
         }catch (\Exception $exception){
+            Log::error($exception->getMessage(),['context' => $exception->getTrace()]);
             return response()->json([
                 'error' => 1,
                 'message' => $exception->getMessage()

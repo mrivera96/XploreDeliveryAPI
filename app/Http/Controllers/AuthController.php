@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -93,6 +94,7 @@ class AuthController extends Controller
                 'message' => 'Successfully logged out'],
                 200);
         } catch (Exception $ex) {
+            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
                 'message' => $ex->getMessage()],

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class UsersController extends Controller
 {
@@ -30,6 +31,7 @@ class UsersController extends Controller
             return response()->json(['error'=>0, 'data'=>$users],200);
 
         }catch (\Exception $ex){
+            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
             return response()->json(['error'=>1, 'message'=>$ex->getMessage()],500);
         }
     }

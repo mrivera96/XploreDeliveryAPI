@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class CategoriesController extends Controller
 {
@@ -21,6 +22,7 @@ class CategoriesController extends Controller
                 'data' => $categories
             ], 200);
         } catch (Exception $ex) {
+            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
                 'message' => $ex->getMessage()
@@ -37,6 +39,7 @@ class CategoriesController extends Controller
                 'data' => $categories
             ], 200);
         } catch (Exception $ex) {
+            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
                 'message' => $ex->getMessage()
@@ -65,6 +68,7 @@ class CategoriesController extends Controller
                 'data' => $categories
             ], 200);
         } catch (Exception $ex) {
+            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
                 'message' => $ex->getMessage()
@@ -85,6 +89,7 @@ class CategoriesController extends Controller
             ],200);
 
         }catch (Exception $ex){
+            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
                 'message' => 'Error al agregar la categoría.'
@@ -105,6 +110,7 @@ class CategoriesController extends Controller
                 'message' => 'Categoría actualizada correctamente.'
             ],200);
         }catch (Exception $ex){
+            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
                 'message' => 'Error al actualizar la categoría.'
