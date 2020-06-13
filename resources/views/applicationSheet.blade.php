@@ -30,7 +30,7 @@
 <body>
 
 <section>
-    <img src="http://190.4.56.14/XploreDeliveryAPIDesa/img/LOGO-XPLORE_01-ColorPrimario.png"
+    <img src="http://190.4.56.14/XploreDeliveryAPIDesa/img/logo-delivery.png"
          style="width: 20%; margin-left: 0">
     <p style="line-height: 0.8">Es un placer saludarte, <strong>{{$delivery->nomCliente}}</strong></p>
     <p style="line-height: 0.8">Hemos recibido tu solicitud de Delivery, y estamos para ayudarte. A continuación
