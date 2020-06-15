@@ -12,6 +12,7 @@ use App\Mail\ApplicationReceived;
 use App\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use PDF;
@@ -257,6 +258,28 @@ class DeliveriesController extends Controller
                 200
             );
         } catch (Exception $ex) {
+            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => $ex->getMessage()
+                ],
+                500
+            );
+        }
+    }
+
+    public function getPendingDeliveries(){
+        try {
+            $pendingDeliveries = DB::select('EXEC [Delivery].[ListadoEntregasPorAsignar]');
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => $pendingDeliveries
+                ],
+                500
+            );
+        }catch (Exception $ex){
             Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
             return response()->json(
                 [

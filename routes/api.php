@@ -49,6 +49,7 @@ Route::group(['prefix' => 'deliveries'], function () {
         Route::post('finish', 'DeliveriesController@finishDelivery');
         Route::post('changeState', 'DeliveriesController@changeStateDelivery');
         Route::post('getOrders', 'DeliveriesController@getOrders');
+        Route::post('getPendingDeliveries', 'DeliveriesController@getPendingDeliveries');
     });
 
 });
@@ -82,6 +83,7 @@ Route::group(['prefix' => 'customers'], function () {
         Route::post('getCustomerOrders', 'DeliveriesController@getCustomerOders');
         Route::post('list', 'DeliveryUsersController@list');
         Route::post('new', 'DeliveryUsersController@newCustomer');
+        Route::post('update', 'DeliveryUsersController@updateCustomer');
         Route::post('newBranch', 'BranchOfficesController@newBranch');
         Route::post('changePassword', 'DeliveryUsersController@changePassword');
         Route::post('updateBranch', 'BranchOfficesController@updateBranch');

@@ -11,18 +11,31 @@ class DeliveryClient extends Model
     protected $primaryKey = 'idCliente';
     public $timestamps = false;
 
-    public function cliente(){
+    protected $fillable = [
+        'nomEmpresa',
+        'nomRepresentante',
+        'numIdentificacion',
+        'numTelefono',
+        'email',
+    ];
+
+    public function cliente()
+    {
         return $this->hasMany('App\DeliveryUser', 'idCliente', 'idCliente');
     }
 
-    public function direcciones(){
+    public function direcciones()
+    {
         return $this->hasMany('App\Branch', 'idCliente', 'idCliente');
     }
 
-    public function rates(){
-        return $this->hasMany('App\Tarifa','idCliente', 'idCliente');
+    public function rates()
+    {
+        return $this->hasMany('App\Tarifa', 'idCliente', 'idCliente');
     }
-    public function surcharges(){
-        return $this->hasMany('App\RecargoDelivery','idCliente', 'idCliente');
+
+    public function surcharges()
+    {
+        return $this->hasMany('App\RecargoDelivery', 'idCliente', 'idCliente');
     }
 }

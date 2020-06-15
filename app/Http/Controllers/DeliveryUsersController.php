@@ -3,14 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\DeliveryClient;
-use App\DeliveryUser;
 use App\User;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -120,7 +118,66 @@ class DeliveryUsersController extends Controller
                 'message' => $exception->getMessage()
             ], 500);
         }
+    }
 
+    public function updateCustomer(Request $request){
+        try {
+            $rCustomer = $request->form;
+            $currCustomer = DeliveryClient::find($rCustomer['idCliente']);
+            $currUser = User::where('idCliente', $rCustomer['idCliente']);
+
+            if($rCustomer['email'] == $currCustomer->email){
+                $currCustomer->update([
+                    'nomEmpresa' => $rCustomer['nomEmpresa'],
+                    'nomRepresentante' => $rCustomer['nomRepresentante'],
+                    'numIdentificacion' => $rCustomer['numIdentificacion'],
+                    'numTelefono' => $rCustomer['numTelefono'],
+                ]);
+
+                $currUser->update([
+                    'nomUsuario' => $rCustomer['nomRepresentante'],
+                ]);
+
+                return response()->json([
+                    'error' => 0,
+                    'message' => 'Cliente actualizado correctamente.'
+                ], 200);
+
+            }else{
+                if (UsersController::existeUsuario($rCustomer['email']) == 0) {
+                    $currCustomer->update([
+                        'nomEmpresa' => $rCustomer['nomEmpresa'],
+                        'nomRepresentante' => $rCustomer['nomRepresentante'],
+                        'numIdentificacion' => $rCustomer['numIdentificacion'],
+                        'numTelefono' => $rCustomer['numTelefono'],
+                        'email' => $rCustomer['email'],
+                    ]);
+
+                    $currUser->update([
+                        'nomUsuario' => $rCustomer['nomRepresentante'],
+                        'nickUsuario' => $rCustomer['email'],
+                    ]);
+
+                    return response()->json([
+                        'error' => 0,
+                        'message' => 'Cliente actualizado correctamente.'
+                    ], 200);
+
+                } else {
+                    return response()->json([
+                        'error' => 1,
+                        'message' => 'Ya existe este usuario.'
+                    ], 500);
+                }
+            }
+
+        } catch (Exception $exception) {
+            Log::error($exception->getMessage(),['context' =>  $exception->getTrace()]);
+            return response()->json([
+                'error' => 1,
+                'message' => $exception->getMessage()
+            ], 500);
+        }
     }
 
     public function sendmail($mail, $cliente)
