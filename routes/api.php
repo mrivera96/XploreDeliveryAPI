@@ -71,8 +71,19 @@ Route::group(['prefix' => 'states'], function () {
 Route::group(['prefix' => 'vehicles'], function () {
     Route::get('list', 'VehiclesController@list');
 });
+
 Route::group(['prefix' => 'drivers'], function () {
-    Route::get('list', 'UsersController@listDrivers');
+    Route::group(['middleware' => 'auth:api'], function (){
+        Route::post('list', 'UsersController@listDrivers');
+        Route::post('create', 'UsersController@createDriver');
+        Route::post('update', 'UsersController@updateDriver');
+    });
+});
+
+Route::group(['prefix' => 'agencies'], function () {
+    Route::group(['middleware' => 'auth:api'], function (){
+        Route::post('list', 'AgenciesController@listAgencies');
+    });
 });
 
 Route::group(['prefix' => 'customers'], function () {

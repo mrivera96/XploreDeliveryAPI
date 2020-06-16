@@ -97,7 +97,12 @@ class DeliveriesController extends Controller
         $deliveryOrders = $request->orders;
         $pago = $request->pago;
 
+        return response()->json([
+            'error' => 1,
+            'form'=>$hDelivery
+        ],500);
 
+/*
         try {
             $customerDetails = DeliveryClient::where('idCliente', Auth::user()->idCliente)->get()->first();
 
@@ -161,6 +166,23 @@ class DeliveriesController extends Controller
                 ],
                 500
             );
+        }*/
+
+    }
+
+
+    public function changeDeliveryHour(Request $request){
+        $request->validate(['form' => 'required']);
+        $rDelivery = $request->form;
+        $currDelivery = Delivery::find($rDelivery['idDelivery']);
+        $diff = $currDelivery->fechaReserva - Carbon::now();
+        if($diff >= 30)
+
+        try {
+
+
+        }catch (Exception $ex){
+
         }
 
     }

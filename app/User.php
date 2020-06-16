@@ -22,7 +22,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'nomUsuario', 'nickUsuario', 'passUsuario', 'isActivo', 'lastLogin', 'fechaCreacion', 'idAgencia',
-        'passcodeUsuario', 'idCliente'
+        'passcodeUsuario', 'idCliente','numCelular'
     ];
 
     /**
@@ -31,7 +31,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'passUsuario', 'passcodeUsuario'
+        'passUsuario',
     ];
 
     public function getAuthPassword()
@@ -45,5 +45,9 @@ class User extends Authenticatable
 
     public function cliente(){
         return $this->belongsTo('App\DeliveryClient', 'idCliente', 'idCliente');
+    }
+
+    public function agency(){
+        return $this->belongsTo('App\Agency', 'idAgencia', 'idAgencia');
     }
 }
