@@ -12,6 +12,7 @@ use App\Mail\ApplicationReceived;
 use App\User;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -79,7 +80,7 @@ class DeliveriesController extends Controller
             );
 
         } catch (Exception $ex) {
-            Log::error($ex->getMessage(),array('context' => $ex->getTrace()));
+            Log::error($ex->getMessage(), array('context' => $ex->getTrace()));
             return response()->json(
                 [
                     'error' => 1,
@@ -96,13 +97,6 @@ class DeliveriesController extends Controller
         $hDelivery = $request->deliveryForm;
         $deliveryOrders = $request->orders;
         $pago = $request->pago;
-
-        return response()->json([
-            'error' => 1,
-            'form'=>$hDelivery
-        ],500);
-
-/*
         try {
             $customerDetails = DeliveryClient::where('idCliente', Auth::user()->idCliente)->get()->first();
 
@@ -158,7 +152,7 @@ class DeliveriesController extends Controller
             );
 
         } catch (Exception $ex) {
-            Log::error($ex->getMessage(),array('context' => $ex->getTrace()));
+            Log::error($ex->getMessage(), array('context' => $ex->getTrace()));
             return response()->json(
                 [
                     'error' => 1,
@@ -166,27 +160,42 @@ class DeliveriesController extends Controller
                 ],
                 500
             );
-        }*/
-
-    }
-
-
-    public function changeDeliveryHour(Request $request){
-        $request->validate(['form' => 'required']);
-        $rDelivery = $request->form;
-        $currDelivery = Delivery::find($rDelivery['idDelivery']);
-        $diff = $currDelivery->fechaReserva - Carbon::now();
-        if($diff >= 30)
-
-        try {
-
-
-        }catch (Exception $ex){
-
         }
 
     }
 
+
+    public function changeDeliveryHour(Request $request)
+    {
+        $request->validate(['form' => 'required']);
+        $rDelivery = $request->form;
+        $currDelivery = Delivery::find($rDelivery['idDelivery']);
+        try {
+            $date = date('Y-m-d', strtotime($currDelivery->fechaReserva));
+            $time = $rDelivery['hora'];
+            $datetime = $date . ' ' . $time;
+            $currDelivery->update([
+                'fechaReserva' => new Carbon($datetime)
+            ]);
+            return response()->json(
+                [
+                    'error' => 0,
+                    'message' => 'Hora de recogida actualizada correctamente'
+                ],
+                200
+            );
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => $ex->getTrace()
+                ],
+                500
+            );
+        }
+
+    }
 
 
     public function list()
@@ -238,7 +247,7 @@ class DeliveriesController extends Controller
                 200
             );
         } catch (Exception $ex) {
-            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json(
                 [
                     'error' => 1,
@@ -260,7 +269,6 @@ class DeliveriesController extends Controller
 
             $delivery->category;
             $delivery->detalle;
-            $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('j/m/Y, h:i a');
             $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
             $delivery->recargos = number_format($delivery->recargos, 2);
             $delivery->total = number_format($delivery->total, 2);
@@ -280,7 +288,7 @@ class DeliveriesController extends Controller
                 200
             );
         } catch (Exception $ex) {
-            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json(
                 [
                     'error' => 1,
@@ -291,7 +299,8 @@ class DeliveriesController extends Controller
         }
     }
 
-    public function getPendingDeliveries(){
+    public function getPendingDeliveries()
+    {
         try {
             $pendingDeliveries = DB::select('EXEC [Delivery].[ListadoEntregasPorAsignar]');
             return response()->json(
@@ -301,8 +310,8 @@ class DeliveriesController extends Controller
                 ],
                 500
             );
-        }catch (Exception $ex){
-            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json(
                 [
                     'error' => 1,
@@ -353,7 +362,7 @@ class DeliveriesController extends Controller
             );
 
         } catch (Exception $ex) {
-            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json(
                 [
                     'error' => 1,
@@ -389,7 +398,7 @@ class DeliveriesController extends Controller
             );
 
         } catch (Exception $ex) {
-            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json(
                 [
                     'error' => 1,
@@ -425,7 +434,7 @@ class DeliveriesController extends Controller
             ],
                 200);
         } catch (Exception $ex) {
-            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json(['codError' => 1, 'messageError' => $ex->getMessage()], 500);
         }
 
@@ -476,7 +485,7 @@ class DeliveriesController extends Controller
                 200);
 
         } catch (Exception $ex) {
-            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
                 'message' => $ex->getMessage()],
@@ -514,7 +523,7 @@ class DeliveriesController extends Controller
                 200);
 
         } catch (Exception $ex) {
-            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
                 'message' => $ex->getMessage()],
@@ -546,7 +555,7 @@ class DeliveriesController extends Controller
                 200);
 
         } catch (Exception $ex) {
-            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
                 'message' => $ex->getMessage()],
@@ -609,7 +618,7 @@ class DeliveriesController extends Controller
                 200
             );
         } catch (Exception $ex) {
-            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json(
                 [
                     'error' => 1,
@@ -634,7 +643,7 @@ class DeliveriesController extends Controller
                 foreach ($detail as $dtl) {
                     $dtl->conductor;
                     $dtl->estado;
-                    $dtl->fechaEntrega =  \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
+                    $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
                     $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
                     $dtl->recargo = number_format($dtl->recargo, 2);
                     $dtl->cTotal = number_format($dtl->cTotal, 2);
@@ -647,7 +656,7 @@ class DeliveriesController extends Controller
                 $detail = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
                 foreach ($detail as $dtl) {
                     $dtl->estado;
-                    $dtl->fechaEntrega =  \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
+                    $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
                     $dtl->conductor;
                     $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
                     $dtl->recargo = number_format($dtl->recargo, 2);
@@ -665,7 +674,7 @@ class DeliveriesController extends Controller
                 200
             );
         } catch (Exception $ex) {
-            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json(
                 [
                     'error' => 1,
@@ -691,7 +700,7 @@ class DeliveriesController extends Controller
                 foreach ($detail as $dtl) {
                     $dtl->estado;
                     $dtl->delivery;
-                    $dtl->fechaEntrega =  \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
+                    $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
                     $dtl->conductor;
                     $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
                     $dtl->recargo = number_format($dtl->recargo, 2);
@@ -706,7 +715,7 @@ class DeliveriesController extends Controller
                 foreach ($detail as $dtl) {
                     $dtl->estado;
                     $dtl->delivery;
-                    $dtl->fechaEntrega =  \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
+                    $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
                     $dtl->conductor;
                     $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
                     $dtl->recargo = number_format($dtl->recargo, 2);
@@ -724,7 +733,7 @@ class DeliveriesController extends Controller
                 200
             );
         } catch (Exception $ex) {
-            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json(
                 [
                     'error' => 1,
@@ -735,7 +744,8 @@ class DeliveriesController extends Controller
         }
     }
 
-    public function testSendMail(Request $request){
+    public function testSendMail(Request $request)
+    {
         $idDelivery = $request->idDelivery;
         $this->sendmail('jylrivera96@gmail.com', $idDelivery);
     }
@@ -745,7 +755,7 @@ class DeliveriesController extends Controller
         $delivery = Delivery::where('idDelivery', $idDelivery)->get()->first();
         $data["email"] = $mail;
         $data["client_name"] = $delivery->nomCliente;
-        $data["subject"] = 'Xplore Delivery No. '.$delivery->idDelivery;
+        $data["subject"] = 'Xplore Delivery No. ' . $delivery->idDelivery;
         $data["delivery"] = $delivery;
         $orders = DetalleDelivery::where('idDelivery', $idDelivery)->get();
         $data["orderDelivery"] = $orders;
