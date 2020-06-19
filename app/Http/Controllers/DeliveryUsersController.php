@@ -25,7 +25,7 @@ class DeliveryUsersController extends Controller
                     'data' => $customers
                 ], 200);
         } catch (Exception $exception) {
-            Log::error($exception->getMessage(),['context' => $exception->getTrace()]);
+            Log::error($exception->getMessage(), array('User' => Auth::user()->nomUsuario, 'context' => $exception->getTrace()));
             return response()
                 ->json([
                     'error' => 1,
@@ -60,7 +60,9 @@ class DeliveryUsersController extends Controller
 
 
         } catch (Exception $exception) {
-            Log::error($exception->getMessage(),['context' => $exception->getTrace()]);
+            Log::error($exception->getMessage(),
+                array('User' => Auth::user()->nomUsuario, 'context' => $exception->getTrace())
+            );
             return response()->json([
                 'error' => 1,
                 'message' => $exception->getMessage()
@@ -112,7 +114,9 @@ class DeliveryUsersController extends Controller
             }
 
         } catch (Exception $exception) {
-            Log::error($exception->getMessage(),['context' =>  $exception->getTrace()]);
+            Log::error($exception->getMessage(), array('User' => Auth::user()->nomUsuario,
+                    'context' => $exception->getTrace())
+            );
             return response()->json([
                 'error' => 1,
                 'message' => $exception->getMessage()
@@ -120,13 +124,14 @@ class DeliveryUsersController extends Controller
         }
     }
 
-    public function updateCustomer(Request $request){
+    public function updateCustomer(Request $request)
+    {
         try {
             $rCustomer = $request->form;
             $currCustomer = DeliveryClient::find($rCustomer['idCliente']);
             $currUser = User::where('idCliente', $rCustomer['idCliente']);
 
-            if($rCustomer['email'] == $currCustomer->email){
+            if ($rCustomer['email'] == $currCustomer->email) {
                 $currCustomer->update([
                     'nomEmpresa' => $rCustomer['nomEmpresa'],
                     'nomRepresentante' => $rCustomer['nomRepresentante'],
@@ -143,7 +148,7 @@ class DeliveryUsersController extends Controller
                     'message' => 'Cliente actualizado correctamente.'
                 ], 200);
 
-            }else{
+            } else {
                 if (UsersController::existeUsuario($rCustomer['email']) == 0) {
                     $currCustomer->update([
                         'nomEmpresa' => $rCustomer['nomEmpresa'],
@@ -172,7 +177,8 @@ class DeliveryUsersController extends Controller
             }
 
         } catch (Exception $exception) {
-            Log::error($exception->getMessage(),['context' =>  $exception->getTrace()]);
+            Log::error($exception->getMessage(), array('User' => Auth::user()->nomUsuario,
+                'context' => $exception->getTrace()));
             return response()->json([
                 'error' => 1,
                 'message' => $exception->getMessage()
@@ -196,16 +202,17 @@ class DeliveryUsersController extends Controller
                     ->subject($data["subject"]);
             });
         } catch (Exception $exception) {
-            Log::error($exception->getMessage(),['context' => $exception->getTrace()]);
+            Log::error($exception->getMessage(), ['context' => $exception->getTrace()]);
             $this->serverstatuscode = "0";
             $this->serverstatusdes = $exception->getMessage();
         }
 
     }
 
-    private function obtenerCifrado($psswd){
+    private function obtenerCifrado($psswd)
+    {
         $httpClient = new Client();
-        $res = $httpClient->get('https://appconductores.xplorerentacar.com/mod.ajax/encriptar.php?password='.$psswd);
+        $res = $httpClient->get('https://appconductores.xplorerentacar.com/mod.ajax/encriptar.php?password=' . $psswd);
         return json_decode($res->getBody());
     }
 
@@ -215,8 +222,6 @@ class DeliveryUsersController extends Controller
         return view('mails.userCredentials', compact('cliente'));
 
     }
-
-
 
 
 }

@@ -6,6 +6,7 @@ use App\DetalleDelivery;
 use App\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -47,7 +48,7 @@ class UsersController extends Controller
             return response()->json(['error' => 0, 'data' => $drivers], 200);
 
         } catch (\Exception $ex) {
-            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            Log::error($ex->getMessage(), array('User' => Auth::user()->nomUsuario,'context' => $ex->getTrace()));
             return response()->json(['error' => 1, 'message' => $ex->getMessage()], 500);
         }
     }
@@ -78,7 +79,8 @@ class UsersController extends Controller
             }
 
         } catch (\Exception $ex) {
-            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            Log::error($ex->getMessage(), array('User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()));
             return response()->json(['error' => 1, 'message' => $ex->getMessage()], 500);
         }
     }

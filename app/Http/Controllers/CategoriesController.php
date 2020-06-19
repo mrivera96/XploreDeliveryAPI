@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Category;
 use App\DeliveryClient;
-use App\Tarifa;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -17,16 +16,22 @@ class CategoriesController extends Controller
     {
         try {
             $categories = Category::where('isActivo', 1)->get();
-            return response()->json([
-                'error' => 0,
-                'data' => $categories
-            ], 200);
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => $categories
+                ],
+                200
+            );
         } catch (Exception $ex) {
-            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
-            return response()->json([
-                'error' => 1,
-                'message' => $ex->getMessage()
-            ], 500);
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => $ex->getMessage()
+                ],
+                500
+            );
         }
     }
 
@@ -39,7 +44,7 @@ class CategoriesController extends Controller
                 'data' => $categories
             ], 200);
         } catch (Exception $ex) {
-            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
                 'message' => $ex->getMessage()
@@ -47,19 +52,20 @@ class CategoriesController extends Controller
         }
     }
 
-    public function getCustomerCategories(){
+    public function getCustomerCategories()
+    {
         try {
             $currCust = Auth::user()->idCliente;
             $tarCust = DeliveryClient::find($currCust)->rates;
-            if($tarCust->count() > 0){
-                $idArray= [];
+            if ($tarCust->count() > 0) {
+                $idArray = [];
                 foreach ($tarCust as $item) {
-                    if(!in_array($item->idCategoria, $idArray)){
+                    if (!in_array($item->idCategoria, $idArray)) {
                         array_push($idArray, $item->idCategoria);
                     }
                 }
                 $categories = Category::where('isActivo', 1)->whereIn('idCategoria', $idArray)->get();
-            }else{
+            } else {
                 $categories = Category::where('isActivo', 1)->get();
             }
 
@@ -68,7 +74,7 @@ class CategoriesController extends Controller
                 'data' => $categories
             ], 200);
         } catch (Exception $ex) {
-            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
                 'message' => $ex->getMessage()
@@ -76,7 +82,14 @@ class CategoriesController extends Controller
         }
     }
 
-    public function createCategory(Request $request){
+    public function createCategory(Request $request)
+    {
+        $request->validate(
+            [
+                'form' => 'required',
+                'form.descCategoria' => 'required'
+            ]
+        );
         $rCat = $request->form;
         try {
             $nCategory = new Category();
@@ -86,35 +99,49 @@ class CategoriesController extends Controller
             return response()->json([
                 'error' => 0,
                 'message' => 'Categoría agregada correctamente.'
-            ],200);
+            ], 200);
 
-        }catch (Exception $ex){
-            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
                 'message' => 'Error al agregar la categoría.'
-            ],500);
+            ], 500);
         }
     }
 
-    public function updateCategory(Request $request){
+    public function updateCategory(Request $request)
+    {
+        $request->validate(
+            [
+                'form' => 'required',
+                'form.idCategoria' => 'required',
+                'form.descCategoria' => 'required'
+            ]
+        );
         $idCat = $request->form["idCategoria"];
         try {
             $currCat = Category::where('idCategoria', $idCat);
             $currCat->update([
                 'descCategoria' => $request->form["descCategoria"],
                 'isActivo' => $request->form['isActivo']
-                ]);
-            return response()->json([
-                'error' => 0,
-                'message' => 'Categoría actualizada correctamente.'
-            ],200);
-        }catch (Exception $ex){
-            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
-            return response()->json([
-                'error' => 1,
-                'message' => 'Error al actualizar la categoría.'
-            ],500);
+            ]);
+            return response()->json(
+                [
+                    'error' => 0,
+                    'message' => 'Categoría actualizada correctamente.'
+                ],
+                200
+            );
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => 'Error al actualizar la categoría.'
+                ],
+                500
+            );
         }
     }
 

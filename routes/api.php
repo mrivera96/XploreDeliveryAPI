@@ -106,6 +106,13 @@ Route::group(['prefix' => 'customers'], function () {
     });
 });
 
+Route::group(['prefix' => 'reports'], function () {
+    Route::group(['middleware' => 'auth:api'], function () {
+        Route::post('ordersByDriver', 'DeliveriesController@reportOrdersByDriver');
+    });
+});
+
 Route::get('testCript', 'DeliveryUsersController@testEncryption');
 Route::get('testDeCript', 'DeliveryUsersController@testDecryption');
 Route::get('testAuthCript', 'AuthController@testGettingCript');
+Route::post('testReport', 'DeliveriesController@reportOrdersByDriver');

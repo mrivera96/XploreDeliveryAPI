@@ -21,7 +21,7 @@ class BranchOfficesController extends Controller
                 'data' => $myBranchOffices
             ], 200);
         }catch (\Exception $ex){
-            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
+            Log::error($ex->getMessage(),array('User' => Auth::user()->nomUsuario,'context' => $ex->getTrace()));
             return response()->json([
                 'error' => 1,
                 'message' => $ex->getMessage()
@@ -51,7 +51,8 @@ class BranchOfficesController extends Controller
                 ],200);
 
         }catch (\Exception $ex){
-            Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
+            Log::error($ex->getMessage(),array('User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()));
             return response()
                 ->json([
                     'error' => 1,

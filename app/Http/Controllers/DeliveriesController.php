@@ -8,24 +8,37 @@ use App\Delivery;
 use App\DeliveryClient;
 use App\DetalleDelivery;
 use App\Estado;
-use App\Mail\ApplicationReceived;
 use App\User;
 use Exception;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use PDF;
 use Carbon\Carbon;
 use App\Tarifa;
 use Illuminate\Support\Facades\Auth;
 
 class DeliveriesController extends Controller
 {
+    /****
+     * CREATE DELIVERIES FUNCTIONS
+     ****/
+
     public function createDelivery(Request $request)
     {
-        $request->validate(['deliveryForm' => 'required', 'orders' => 'required', 'pago' => 'required']);
+        $request->validate([
+            'deliveryForm' => 'required',
+            'deliveryForm.nomCliente' => 'required',
+            'deliveryForm.numIdentificacion' => 'required',
+            'deliveryForm.numCelular' => 'required',
+            'deliveryForm.fecha' => 'required',
+            'deliveryForm.hora' => 'required',
+            'deliveryForm.dirRecogida' => 'required',
+            'deliveryForm.email' => 'required',
+            'deliveryForm.idCategoria' => 'required',
+            'orders' => 'required',
+            'pago' => 'required'
+        ]);
         $hDelivery = $request->deliveryForm;
         $deliveryOrders = $request->orders;
         $pago = $request->pago;
@@ -70,12 +83,11 @@ class DeliveriesController extends Controller
             $receivers = $hDelivery['email'];
             $this->sendmail($receivers, $lastId);
 
-            return response()->json(
-                [
-                    'error' => 0,
-                    'message' => 'Solicitud de Delivery enviada correctamente. Recibirás un email con los detalles de tu reserva. Nos pondremos en contacto contigo.',
-                    'nDelivery' => $lastId
-                ],
+            return response()->json([
+                'error' => 0,
+                'message' => 'Solicitud de Delivery enviada correctamente.
+                    Recibirás un email con los detalles de tu reserva. Nos pondremos en contacto contigo.',
+                'nDelivery' => $lastId],
                 200
             );
 
@@ -84,7 +96,7 @@ class DeliveriesController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getMessage(),
+                    'message' => $ex->getMessage()
                 ],
                 500
             );
@@ -93,7 +105,16 @@ class DeliveriesController extends Controller
 
     public function createCustomerDelivery(Request $request)
     {
-        $request->validate(['deliveryForm' => 'required', 'orders' => 'required', 'pago' => 'required']);
+        $request->validate([
+            'deliveryForm' => 'required',
+            'deliveryForm.fecha' => 'required',
+            'deliveryForm.hora' => 'required',
+            'deliveryForm.dirRecogida' => 'required',
+            'deliveryForm.idCategoria' => 'required',
+            'orders' => 'required',
+            'pago' => 'required'
+        ]);
+
         $hDelivery = $request->deliveryForm;
         $deliveryOrders = $request->orders;
         $pago = $request->pago;
@@ -120,7 +141,6 @@ class DeliveriesController extends Controller
             $nDelivery->fechaRegistro = Carbon::now();
             $nDelivery->save();
 
-
             $lastId = Delivery::query()->max('idDelivery');
 
             foreach ($deliveryOrders as $detalle) {
@@ -142,21 +162,21 @@ class DeliveriesController extends Controller
             $receivers = $customerDetails->email;
             $this->sendmail($receivers, $lastId);
 
-            return response()->json(
-                [
-                    'error' => 0,
-                    'message' => 'Solicitud de Delivery enviada correctamente. Recibirás un email con los detalles de tu reserva. Nos pondremos en contacto contigo.',
-                    'nDelivery' => $lastId
-                ],
+            return response()->json([
+                'error' => 0,
+                'message' => 'Solicitud de Delivery enviada correctamente.
+                    Recibirás un email con los detalles de tu reserva. Nos pondremos en contacto contigo.',
+                'nDelivery' => $lastId],
                 200
             );
 
         } catch (Exception $ex) {
-            Log::error($ex->getMessage(), array('context' => $ex->getTrace()));
+            Log::error($ex->getMessage(), array('User' => Auth::user()->cliente()->nomEmpresa,
+                'context' => $ex->getTrace()));
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getMessage(),
+                    'message' => $ex->getMessage()
                 ],
                 500
             );
@@ -164,12 +184,20 @@ class DeliveriesController extends Controller
 
     }
 
-
+    /****
+     * CHANGE DELIVERY HOUR
+     ****/
     public function changeDeliveryHour(Request $request)
     {
-        $request->validate(['form' => 'required']);
+        $request->validate([
+            'form' => 'required',
+            'form.hora' => 'required',
+            'form.idDelivery' => 'required'
+        ]);
+
         $rDelivery = $request->form;
         $currDelivery = Delivery::find($rDelivery['idDelivery']);
+
         try {
             $date = date('Y-m-d', strtotime($currDelivery->fechaReserva));
             $time = $rDelivery['hora'];
@@ -177,15 +205,14 @@ class DeliveriesController extends Controller
             $currDelivery->update([
                 'fechaReserva' => new Carbon($datetime)
             ]);
-            return response()->json(
-                [
-                    'error' => 0,
-                    'message' => 'Hora de recogida actualizada correctamente'
-                ],
+
+            return response()->json([
+                'error' => 0,
+                'message' => 'Hora de recogida actualizada correctamente'],
                 200
             );
         } catch (Exception $ex) {
-            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            Log::error($ex->getMessage(), array('User' => Auth::user()->nomUsuario,'context' => $ex->getTrace()));
             return response()->json(
                 [
                     'error' => 1,
@@ -197,7 +224,9 @@ class DeliveriesController extends Controller
 
     }
 
-
+    /****
+     * GET DELIVERIES FUNCTIONS
+     ****/
     public function list()
     {
         try {
@@ -238,12 +267,10 @@ class DeliveriesController extends Controller
                 $delivery->entregas = count($delivery->detalle);
             }
 
-            return response()->json(
-                [
-                    'error' => 0,
-                    'data' => array('deliveriesDia' => $deliveriesDia, 'todas' => $allDeliveries,
-                        'deliveriesManiana' => $deliveriesTomorrow)
-                ],
+            return response()->json([
+                'error' => 0,
+                'data' => array('deliveriesDia' => $deliveriesDia, 'todas' => $allDeliveries,
+                    'deliveriesManiana' => $deliveriesTomorrow)],
                 200
             );
         } catch (Exception $ex) {
@@ -273,18 +300,16 @@ class DeliveriesController extends Controller
             $delivery->recargos = number_format($delivery->recargos, 2);
             $delivery->total = number_format($delivery->total, 2);
             foreach ($delivery->detalle as $detail) {
-                $detail->conductor = $detail->conductor;
+                $detail->conductor;
                 $detail->tarifaBase = number_format($detail->tarifaBase, 2);
                 $detail->recargo = number_format($detail->recargo, 2);
                 $detail->cTotal = number_format($detail->cTotal, 2);
             }
             $delivery->estado;
 
-            return response()->json(
-                [
-                    'error' => 0,
-                    'data' => $delivery
-                ],
+            return response()->json([
+                'error' => 0,
+                'data' => $delivery],
                 200
             );
         } catch (Exception $ex) {
@@ -303,11 +328,9 @@ class DeliveriesController extends Controller
     {
         try {
             $pendingDeliveries = DB::select('EXEC [Delivery].[ListadoEntregasPorAsignar]');
-            return response()->json(
-                [
-                    'error' => 0,
-                    'data' => $pendingDeliveries
-                ],
+            return response()->json([
+                'error' => 0,
+                'data' => $pendingDeliveries],
                 500
             );
         } catch (Exception $ex) {
@@ -321,256 +344,15 @@ class DeliveriesController extends Controller
             );
         }
     }
-
-
-    public function generateContract(Request $request)
-    {
-        $request->validate(['idDelivery' => 'required', 'vehiculoAsignado' => 'required']);
-        $idDelivery = $request->idDelivery;
-        $vehiculo = $request->motivoAnul;
-
-        try {
-            $tarifa = Tarifa::all();
-            $newContract = new ContratoDelivery();
-            $currDelivery = Delivery::where('idDelivery', $idDelivery)->get();
-            $ordersCount = $currDelivery->detalle()->count();
-            $newContract->idDelivery = $idDelivery;
-            /*$newContract->idTarifaDelivery = ;
-            $newContract->idDelivery = ;
-            $newContract->idDelivery = ;
-            $newContract->idDelivery = ;
-            $newContract->idDelivery = ;
-
-
-
-
-            $currDelivery->idEstado = 48;
-            $currDelivery->numContrato = $motivoAnul;
-            $currDelivery->save();*/
-
-            /*$receivers = $hDelivery['email'];
-            $orderDelivery = DetalleDelivery::where('idDelivery', $nDelivery['idDelivery'])->get();
-            $this->sendmail($receivers, $nDelivery, $orderDelivery);
-*/
-            return response()->json(
-                [
-                    'error' => 0,
-                    'message' => 'Delivery anulada correctamente.',
-
-                ],
-                200
-            );
-
-        } catch (Exception $ex) {
-            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
-            return response()->json(
-                [
-                    'error' => 1,
-                    'message' => $ex->getMessage()
-                ],
-                500
-            );
-        }
-
-    }
-
-    public function cancelDelivery(Request $request)
-    {
-        $request->validate(['idDelivery' => 'required', 'motivoAnul' => 'required']);
-        $idDelivery = $request->idDelivery;
-        $motivoAnul = $request->motivoAnul;
-
-        try {
-            $currDelivery = Delivery::where('idDelivery', $idDelivery)->get();
-            $currDelivery->idEstado = 36;
-            $currDelivery->usrAnuloReserva = Auth::user()->idUsuario;
-            $currDelivery->fechaAnulado = Carbon::now();
-            $currDelivery->motivoAnul = $motivoAnul;
-            $currDelivery->save();
-
-            return response()->json(
-                [
-                    'error' => 0,
-                    'message' => 'Delivery anulada correctamente.',
-
-                ],
-                200
-            );
-
-        } catch (Exception $ex) {
-            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
-            return response()->json(
-                [
-                    'error' => 1,
-                    'message' => $ex->getMessage()
-                ],
-                500
-            );
-        }
-    }
-
-    public function updateDeliveried(Request $request)
-    {
-        $request->validate([
-            'idDetalle' => 'required',
-            'idConductor' => ' required',
-            'nomRecibio' => 'required',
-            'fechaEntrega' => 'required']);
-        $idDetalle = $request->idDetalle;
-        $idConductor = $request->idConductor;
-        $nomRecibio = $request->nomRecibio;
-        $fechaEntrega = new Carbon($request->fechaEntrega);
-        try {
-            $detail = DetalleDelivery::where('idDetalle', $idDetalle);
-            $detail->update(['idConductor' => $idConductor,
-                'nomRecibio' => $nomRecibio,
-                'fechaEntrega' => $fechaEntrega,
-                'entregado' => true]);
-
-            return response()->json([
-                'codError' => 0,
-                'messageError' => null,
-                'message' => 'la entrega se registró correctamente'
-            ],
-                200);
-        } catch (Exception $ex) {
-            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
-            return response()->json(['codError' => 1, 'messageError' => $ex->getMessage()], 500);
-        }
-
-    }
-
-    public function testContractFormat(Request $request)
-    {
-        $delivery = Delivery::where('idDelivery', $request->idDelivery)->get()->first();
-        $orderDelivery = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
-
-        return view('deliveryContract', compact('delivery', 'orderDelivery'));
-
-    }
-
-    public function testReserveFormat(Request $request)
-    {
-        $delivery = Delivery::where('idDelivery', $request->idDelivery)->get()->first();
-        $orderDelivery = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
-
-        return view('applicationSheet', compact('delivery', 'orderDelivery'));
-
-    }
-
-    public function assignDelivery(Request $request)
-    {
-        $idConductor = $request->assignForm['idConductor'];
-        //$idVehiculo = $request->asignForm['idVehiculo'];
-        $idDelivery = $request->idDelivery;
-        try {
-            $delivery = Delivery::where('idDelivery', $idDelivery);
-            $delivery->update(['idEstado' => 37]);
-
-            $details = DetalleDelivery::where('idDelivery', $idDelivery);
-            $details->update(['idEstado' => 37, 'idConductor' => $idConductor]);
-            $conductor = User::where('idUsuario', $idConductor)->get()->first();
-
-            $nCtrl = new CtrlEstadoDelivery();
-            $nCtrl->idDelivery = $idDelivery;
-            $nCtrl->idEstado = 37;
-            $nCtrl->idUsuario = Auth::user()->idUsuario;
-            $nCtrl->fechaRegistro = Carbon::now();
-            $nCtrl->save();
-
-
-            return response()->json([
-                'error' => 0,
-                'data' => 'Reserva asignada correctamente a: ' . $conductor->nomUsuario],
-                200);
-
-        } catch (Exception $ex) {
-            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
-            return response()->json([
-                'error' => 1,
-                'message' => $ex->getMessage()],
-                500);
-        }
-    }
-
-    public function changeStateDelivery(Request $request)
-    {
-        $idEstado = $request->idEstado['idEstado'];
-        $idDelivery = $request->idDelivery;
-        try {
-            $delivery = Delivery::where('idDelivery', $idDelivery);
-            if ($idEstado == 37) {
-                $idConductor = $request->idEstado['idConductor'];
-                $delivery->update(['idEstado' => $idEstado, 'idConductor' => $idConductor]);
-            }
-            $delivery->update(['idEstado' => $idEstado]);
-
-            $details = DetalleDelivery::where('idDelivery', $idDelivery);
-            $details->update(['idEstado' => $idEstado]);
-            $estado = Estado::where('idEstado', $idEstado)->get()->first();
-
-            $nCtrl = new CtrlEstadoDelivery();
-            $nCtrl->idDelivery = $idDelivery;
-            $nCtrl->idEstado = $idEstado;
-            $nCtrl->idUsuario = Auth::user()->idUsuario;
-            $nCtrl->fechaRegistro = Carbon::now();
-            $nCtrl->save();
-
-
-            return response()->json([
-                'error' => 0,
-                'data' => 'Se cambió el estado de reserva a: ' . $estado->descEstado],
-                200);
-
-        } catch (Exception $ex) {
-            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
-            return response()->json([
-                'error' => 1,
-                'message' => $ex->getMessage()],
-                500);
-        }
-    }
-
-    public function finishDelivery(Request $request)
-    {
-
-        $idDelivery = $request->idDelivery;
-        try {
-            $delivery = Delivery::where('idDelivery', $idDelivery);
-            $delivery->update(['idEstado' => 39]);
-
-            $details = DetalleDelivery::where('idDelivery', $idDelivery);
-            $details->update(['idEstado' => 39]);
-
-            $nCtrl = new CtrlEstadoDelivery();
-            $nCtrl->idDelivery = $idDelivery;
-            $nCtrl->idEstado = 39;
-            $nCtrl->idUsuario = Auth::user()->idUsuario;
-            $nCtrl->fechaRegistro = Carbon::now();
-            $nCtrl->save();
-
-            return response()->json([
-                'error' => 0,
-                'data' => 'Reserva finalizada correctamente.'],
-                200);
-
-        } catch (Exception $ex) {
-            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
-            return response()->json([
-                'error' => 1,
-                'message' => $ex->getMessage()],
-                500);
-        }
-    }
-
 
     public function getCustomerDeliveries()
     {
-
         try {
             $user = Auth::user();
-            $deliveriesDia = Delivery::where('idCliente', $user->idCliente)->whereDate('fechaReserva', Carbon::today())->get();
-            $deliveriesTomorrow = Delivery::where('idCliente', $user->idCliente)->whereDate('fechaReserva', Carbon::tomorrow())->get();
+            $deliveriesDia = Delivery::where('idCliente', $user->idCliente)
+                ->whereDate('fechaReserva', Carbon::today())->get();
+            $deliveriesTomorrow = Delivery::where('idCliente', $user->idCliente)
+                ->whereDate('fechaReserva', Carbon::tomorrow())->get();
             $allDeliveries = Delivery::where('idCliente', $user->idCliente)->get();
 
             foreach ($deliveriesDia as $delivery) {
@@ -609,12 +391,10 @@ class DeliveriesController extends Controller
                 $delivery->entregas = count($delivery->detalle);
             }
 
-            return response()->json(
-                [
-                    'error' => 0,
-                    'data' => array('deliveriesDia' => $deliveriesDia, 'todas' => $allDeliveries,
-                        'deliveriesManiana' => $deliveriesTomorrow)
-                ],
+            return response()->json([
+                'error' => 0,
+                'data' => array('deliveriesDia' => $deliveriesDia, 'todas' => $allDeliveries,
+                    'deliveriesManiana' => $deliveriesTomorrow)],
                 200
             );
         } catch (Exception $ex) {
@@ -633,7 +413,8 @@ class DeliveriesController extends Controller
     {
         try {
             $user = Auth::user();
-            $deliveriesDia = Delivery::where('idCliente', $user->idCliente)->whereDate('fechaReserva', Carbon::today())->get();
+            $deliveriesDia = Delivery::where('idCliente', $user->idCliente)
+                ->whereDate('fechaReserva', Carbon::today())->get();
             $allDeliveries = Delivery::where('idCliente', $user->idCliente)->get();
             $pedidosDia = [];
             $todosPedidos = [];
@@ -689,7 +470,6 @@ class DeliveriesController extends Controller
     public function getOrders()
     {
         try {
-            $user = Auth::user();
             $deliveriesDia = Delivery::whereDate('fechaReserva', Carbon::today())->get();
             $allDeliveries = Delivery::all();
             $pedidosDia = [];
@@ -707,7 +487,6 @@ class DeliveriesController extends Controller
                     $dtl->cTotal = number_format($dtl->cTotal, 2);
                     array_push($pedidosDia, $dtl);
                 }
-
             }
 
             foreach ($allDeliveries as $delivery) {
@@ -722,7 +501,6 @@ class DeliveriesController extends Controller
                     $dtl->cTotal = number_format($dtl->cTotal, 2);
                     array_push($todosPedidos, $dtl);
                 }
-
             }
 
             return response()->json(
@@ -744,11 +522,280 @@ class DeliveriesController extends Controller
         }
     }
 
+    /*
+        public function generateContract(Request $request)
+        {
+            $request->validate(['idDelivery' => 'required', 'vehiculoAsignado' => 'required']);
+            $idDelivery = $request->idDelivery;
+            $vehiculo = $request->motivoAnul;
+
+            try {
+                $tarifa = Tarifa::all();
+                $newContract = new ContratoDelivery();
+                $currDelivery = Delivery::where('idDelivery', $idDelivery)->get();
+                $ordersCount = $currDelivery->detalle()->count();
+                $newContract->idDelivery = $idDelivery;
+                $newContract->idTarifaDelivery = ;
+                $newContract->idDelivery = ;
+                $newContract->idDelivery = ;
+                $newContract->idDelivery = ;
+                $newContract->idDelivery = ;
+
+                $currDelivery->idEstado = 48;
+                $currDelivery->numContrato = $motivoAnul;
+                $currDelivery->save();*/
+
+    /*$receivers = $hDelivery['email'];
+    $orderDelivery = DetalleDelivery::where('idDelivery', $nDelivery['idDelivery'])->get();
+    $this->sendmail($receivers, $nDelivery, $orderDelivery);
+
+    return response()->json(
+        [
+            'error' => 0,
+            'message' => 'Delivery anulada correctamente.',
+
+        ],
+        200
+    );
+
+} catch (Exception $ex) {
+    Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+    return response()->json(
+        [
+            'error' => 1,
+            'message' => $ex->getMessage()
+        ],
+        500
+    );
+}
+
+}*/
+
+    /****
+     * UPDATE DELIVERIES FUNCTIONS
+     ****/
+    public function assignDelivery(Request $request)
+    {
+        $idConductor = $request->assignForm['idConductor'];
+        //$idVehiculo = $request->asignForm['idVehiculo'];
+        $idDelivery = $request->idDelivery;
+        try {
+            $delivery = Delivery::where('idDelivery', $idDelivery);
+            $delivery->update(['idEstado' => 37]);
+
+            $details = DetalleDelivery::where('idDelivery', $idDelivery);
+            $details->update(['idEstado' => 37, 'idConductor' => $idConductor]);
+            $conductor = User::where('idUsuario', $idConductor)->get()->first();
+
+            $nCtrl = new CtrlEstadoDelivery();
+            $nCtrl->idDelivery = $idDelivery;
+            $nCtrl->idEstado = 37;
+            $nCtrl->idUsuario = Auth::user()->idUsuario;
+            $nCtrl->fechaRegistro = Carbon::now();
+            $nCtrl->save();
+
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => 'Reserva asignada correctamente a: ' . $conductor->nomUsuario
+                ],
+                200
+            );
+
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => $ex->getMessage()
+                ],
+                500
+            );
+        }
+    }
+
+    public function changeStateDelivery(Request $request)
+    {
+        $idEstado = $request->idEstado['idEstado'];
+        $idDelivery = $request->idDelivery;
+        try {
+            $delivery = Delivery::where('idDelivery', $idDelivery);
+            if ($idEstado == 37) {
+                $idConductor = $request->idEstado['idConductor'];
+                $delivery->update(['idEstado' => $idEstado, 'idConductor' => $idConductor]);
+            }
+            $delivery->update(['idEstado' => $idEstado]);
+
+            $details = DetalleDelivery::where('idDelivery', $idDelivery);
+            $details->update(['idEstado' => $idEstado]);
+            $estado = Estado::where('idEstado', $idEstado)->get()->first();
+
+            $nCtrl = new CtrlEstadoDelivery();
+            $nCtrl->idDelivery = $idDelivery;
+            $nCtrl->idEstado = $idEstado;
+            $nCtrl->idUsuario = Auth::user()->idUsuario;
+            $nCtrl->fechaRegistro = Carbon::now();
+            $nCtrl->save();
+
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => 'Se cambió el estado de reserva a: ' . $estado->descEstado
+                ],
+                200
+            );
+
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => $ex->getMessage()
+                ],
+                500
+            );
+        }
+    }
+
+    public function finishDelivery(Request $request)
+    {
+
+        $idDelivery = $request->idDelivery;
+        try {
+            $delivery = Delivery::where('idDelivery', $idDelivery);
+            $delivery->update(['idEstado' => 39]);
+
+            $details = DetalleDelivery::where('idDelivery', $idDelivery);
+            $details->update(['idEstado' => 39]);
+
+            $nCtrl = new CtrlEstadoDelivery();
+            $nCtrl->idDelivery = $idDelivery;
+            $nCtrl->idEstado = 39;
+            $nCtrl->idUsuario = Auth::user()->idUsuario;
+            $nCtrl->fechaRegistro = Carbon::now();
+            $nCtrl->save();
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => 'Reserva finalizada correctamente.'
+                ],
+                200
+            );
+
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => $ex->getMessage()
+                ],
+                500
+            );
+        }
+    }
+
+    public function cancelDelivery(Request $request)
+    {
+        $request->validate(['idDelivery' => 'required', 'motivoAnul' => 'required']);
+        $idDelivery = $request->idDelivery;
+        $motivoAnul = $request->motivoAnul;
+
+        try {
+            $currDelivery = Delivery::where('idDelivery', $idDelivery)->get();
+            $currDelivery->idEstado = 36;
+            $currDelivery->usrAnuloReserva = Auth::user()->idUsuario;
+            $currDelivery->fechaAnulado = Carbon::now();
+            $currDelivery->motivoAnul = $motivoAnul;
+            $currDelivery->save();
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'message' => 'Delivery anulada correctamente.',
+
+                ],
+                200
+            );
+
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => $ex->getMessage()
+                ],
+                500
+            );
+        }
+    }
+
+    public function updateDeliveried(Request $request)
+    {
+        $request->validate([
+            'idDetalle' => 'required',
+            'idConductor' => ' required',
+            'nomRecibio' => 'required',
+            'fechaEntrega' => 'required']);
+        $idDetalle = $request->idDetalle;
+        $idConductor = $request->idConductor;
+        $nomRecibio = $request->nomRecibio;
+        $fechaEntrega = new Carbon($request->fechaEntrega);
+        try {
+            $detail = DetalleDelivery::where('idDetalle', $idDetalle);
+            $detail->update(['idConductor' => $idConductor,
+                'nomRecibio' => $nomRecibio,
+                'fechaEntrega' => $fechaEntrega,
+                'entregado' => true]);
+
+            return response()->json(
+                [
+                    'codError' => 0,
+                    'messageError' => null,
+                    'message' => 'la entrega se registró correctamente'
+                ],
+                200
+            );
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json(['codError' => 1, 'messageError' => $ex->getMessage()], 500);
+        }
+
+    }
+
+    /*****
+     * FOR TEST FUNCTIONS
+     *****/
+
+    public function testContractFormat(Request $request)
+    {
+        $delivery = Delivery::where('idDelivery', $request->idDelivery)->get()->first();
+        $orderDelivery = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
+
+        return view('deliveryContract', compact('delivery', 'orderDelivery'));
+
+    }
+
+    public function testReserveFormat(Request $request)
+    {
+        $delivery = Delivery::where('idDelivery', $request->idDelivery)->get()->first();
+        $orderDelivery = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
+
+        return view('applicationSheet', compact('delivery', 'orderDelivery'));
+
+    }
+
     public function testSendMail(Request $request)
     {
         $idDelivery = $request->idDelivery;
         $this->sendmail('jylrivera96@gmail.com', $idDelivery);
     }
+
+    /****
+     * FUNCTIONS FOR MAIL SENDING
+     ****/
 
     public function sendmail($mail, $idDelivery)
     {
@@ -779,4 +826,99 @@ class DeliveriesController extends Controller
             return true;
         }
     }
+
+    /****
+     * REPORTS ORDER BY DRIVER
+     ****/
+
+    public function reportOrdersByDriver(Request $request)
+    {
+        $request->validate([
+            'form' => 'required',
+            'form.driverId' => 'required',
+            'form.initDate' => 'required',
+            'form.finDate' => 'required'
+        ]);
+
+        $form = $request->form;
+        $driver = $form['driverId'];
+        $driverDetails = User::where('idUsuario',$driver)->get()->first();
+        $initDate = date('Y-m-d', strtotime($form['initDate']));
+        $finDate = date('Y-m-d', strtotime($form['finDate']));
+        $isSameDay = $initDate == $finDate;
+        $initDateTime = new Carbon(date('Y-m-d', strtotime($form['initDate'])) . ' 00:00:00');
+        $finDateTime = new Carbon(date('Y-m-d', strtotime($form['finDate'])) . ' 23:59:59');
+
+        try {
+
+            if ($driver == -1 && $isSameDay) {
+                $orders = DetalleDelivery::whereBetween('fechaEntrega', [$initDateTime,$finDateTime])->get();
+            } else if ($driver == -1 && !$isSameDay) {
+                $orders = DetalleDelivery::whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->get();
+            } else if ($driver != -1 && $isSameDay) {
+                $orders = DetalleDelivery::where('idConductor', $driver)->whereDate('fechaEntrega', $initDate)->count();
+            } else {
+                $orders = DetalleDelivery::where('idConductor', $driver)
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->count();
+            }
+
+
+            if($driver == -1){
+
+                $outputData = [];
+                $drivers = User::where('idPerfil', 7)->get();
+                foreach ($drivers as $driver){
+                    $driver->agency;
+                    $data = (object)array();
+                    $data->driver = $driver;
+                    $counter = 0;
+                    foreach ($orders as $order){
+                        if($order->idConductor == $driver->idUsuario){
+                            $counter ++;
+                        }
+                    }
+                    $data->orders = $counter;
+
+                    array_push($outputData, $data);
+                }
+
+                return response()->json(
+                    [
+                        'error' => 0,
+                        'data' => $outputData
+                    ],
+                    200
+                );
+
+
+            }else{
+                $data = (object)array();
+                $outputData = [];
+                $driverDetails->agency;
+                $data->driver = $driverDetails;
+                $data->orders = $orders;
+                array_push($outputData, $data);
+                return response()->json(
+                    [
+                        'error' => 0,
+                        'data' => $outputData
+                    ],
+                    200
+                );
+            }
+
+
+
+        } catch (Exception $ex) {
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => $ex->getMessage()
+                ],
+                500
+            );
+        }
+
+    }
+
 }
