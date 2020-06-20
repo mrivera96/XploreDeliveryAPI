@@ -38,4 +38,8 @@ class DeliveryClient extends Model
     {
         return $this->hasMany('App\RecargoDelivery', 'idCliente', 'idCliente');
     }
+
+    public function payments(){
+        return $this->hasMany('App\Payment', 'idCliente', 'idCliente');
+    }
 }

@@ -50,4 +50,10 @@ class User extends Authenticatable
     public function agency(){
         return $this->belongsTo('App\Agency', 'idAgencia', 'idAgencia');
     }
+
+    public function payments(){
+        return $this->hasMany('App\Payment', 'idUsuario', 'idUsuario');
+    }
+
+
 }

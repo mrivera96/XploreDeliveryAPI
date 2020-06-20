@@ -112,6 +112,14 @@ Route::group(['prefix' => 'reports'], function () {
     });
 });
 
+Route::group(['prefix' => 'payments'], function () {
+    Route::group(['middleware' => 'auth:api'], function () {
+        Route::post('create', 'PaymentController@createPayment');
+        Route::post('list', 'PaymentController@getPayments');
+        Route::post('listTypes', 'PaymentController@getPaymentTypes');
+    });
+});
+
 Route::get('testCript', 'DeliveryUsersController@testEncryption');
 Route::get('testDeCript', 'DeliveryUsersController@testDecryption');
 Route::get('testAuthCript', 'AuthController@testGettingCript');
