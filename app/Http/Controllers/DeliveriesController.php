@@ -354,6 +354,7 @@ class DeliveriesController extends Controller
             $deliveriesTomorrow = Delivery::where('idCliente', $user->idCliente)
                 ->whereDate('fechaReserva', Carbon::tomorrow())->get();
             $allDeliveries = Delivery::where('idCliente', $user->idCliente)->get();
+            $finishedDeliveries = Delivery::where('idCliente', $user->idCliente)->where('idEstado', 39)->get();
 
             foreach ($deliveriesDia as $delivery) {
                 $delivery->category;
@@ -391,10 +392,24 @@ class DeliveriesController extends Controller
                 $delivery->entregas = count($delivery->detalle);
             }
 
+            foreach ($finishedDeliveries as $delivery) {
+                $delivery->category;
+                $delivery->detalle;
+                $delivery->estado;
+                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d H:i');
+                $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
+                $delivery->recargos = number_format($delivery->recargos, 2);
+                $delivery->total = number_format($delivery->total, 2);
+                $delivery->entregas = count($delivery->detalle);
+            }
+
             return response()->json([
                 'error' => 0,
-                'data' => array('deliveriesDia' => $deliveriesDia, 'todas' => $allDeliveries,
-                    'deliveriesManiana' => $deliveriesTomorrow)],
+                'data' => array(
+                    'deliveriesDia' => $deliveriesDia,
+                    'todas' => $allDeliveries,
+                    'deliveriesManiana' => $deliveriesTomorrow,
+                    'deliveriesFinalizadas' => $finishedDeliveries)],
                 200
             );
         } catch (Exception $ex) {
