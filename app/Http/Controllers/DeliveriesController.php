@@ -126,7 +126,7 @@ class DeliveriesController extends Controller
             $nDelivery->numIdentificacion = $customerDetails->numIdentificacion;
             $nDelivery->numCelular = $customerDetails->numTelefono;
             $date = date('Y-m-d', strtotime($hDelivery['fecha']));
-            $time = $hDelivery['hora'];
+            $time = date('H:i', strtotime($hDelivery['hora']));
             $datetime = $date . ' ' . $time;
             $nDelivery->fechaReserva = new Carbon($datetime);
             $nDelivery->dirRecogida = $hDelivery['dirRecogida'];
@@ -200,7 +200,7 @@ class DeliveriesController extends Controller
 
         try {
             $date = date('Y-m-d', strtotime($currDelivery->fechaReserva));
-            $time = $rDelivery['hora'];
+            $time = date('H:i',strtotime($rDelivery['hora']));
             $datetime = $date . ' ' . $time;
             $currDelivery->update([
                 'fechaReserva' => new Carbon($datetime)
