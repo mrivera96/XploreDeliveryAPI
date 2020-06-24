@@ -23,9 +23,9 @@
 
 <body>
 
-<section>
+<div class="row">
     <img src="http://190.4.56.14/XploreDeliveryAPIDesa/img/DELIVERY-fullcolor.png" style="width: 20%; margin-left: 0">
-</section>
+</div>
 
 <div class="row">
     <h4>Es un placer saludarte, {{$client_name}}</h4>
