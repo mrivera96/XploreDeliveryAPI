@@ -19,7 +19,7 @@ class CreatePagosDeliveriesTable extends Migration
             $table->double('monto');
             $table->integer('tipoPago')->unsigned();
             $table->integer('idUsuario')->unsigned();
-            $table->dateTime('fechaRegistro')->default(\Carbon\Carbon::now());
+            $table->dateTime('fechaRegistro');
             $table->integer('idCliente')->unsigned();
             $table->string('referencia', 20);
             $table->string('banco', 50);

@@ -795,14 +795,14 @@ class DeliveriesController extends Controller
 
     }
 
-    public function testReserveFormat(Request $request)
+    /*public function testReserveFormat(Request $request)
     {
         $delivery = Delivery::where('idDelivery', $request->idDelivery)->get()->first();
         $orderDelivery = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
 
         return view('applicationSheet', compact('delivery', 'orderDelivery'));
 
-    }
+    }*/
 
     public function testSendMail(Request $request)
     {
