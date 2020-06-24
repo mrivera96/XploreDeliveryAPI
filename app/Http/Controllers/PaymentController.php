@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Delivery;
 use App\Payment;
 use App\PaymentType;
 use Carbon\Carbon;
@@ -25,6 +26,18 @@ class PaymentController extends Controller
         $rPayment = $request->form;
 
         try {
+            $finishedDeliveries = Delivery::where('idCliente', $rPayment['idCliente'])->where('idEstado', 39)->count();
+
+            if($finishedDeliveries == 0){
+                return response()->json(
+                    [
+                        'error' => 1,
+                        'message' => 'El cliente seleccionado no tiene entregas finalizadas'
+                    ],
+                    500
+                );
+            }
+
             $nPayment = new Payment();
             $nPayment->idUsuario = Auth::user()->idUsuario;
             $nPayment->fechaPago = $rPayment['fechaPago'];
