@@ -824,7 +824,7 @@ class DeliveriesController extends Controller
         $data["from"] = 'Xplore Delivery';
 
         try {
-            Mail::send('mails.changeNotification', $data, function ($message) use ($data) {
+            Mail::send('changeNotification', $data, function ($message) use ($data) {
                 $message
                     ->from('noreply@xplorerentacar.com', $data["from"])
                     ->to($data["email"], $data["client_name"])

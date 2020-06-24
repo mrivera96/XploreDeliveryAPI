@@ -195,7 +195,7 @@ class DeliveryUsersController extends Controller
         $data["from"] = 'Xplore Delivery';
 
         try {
-            Mail::send('mails.userCredentials', $data, function ($message) use ($data) {
+            Mail::send('userCredentials', $data, function ($message) use ($data) {
                 $message
                     ->from('noreply@xplorerentacar.com', $data["from"])
                     ->to($data["email"], $data["client_name"])
