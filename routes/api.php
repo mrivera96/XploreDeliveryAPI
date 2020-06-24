@@ -87,6 +87,12 @@ Route::group(['prefix' => 'cities'], function () {
     });
 });
 
+Route::group(['prefix' => 'agencies'], function () {
+    Route::group(['middleware' => 'auth:api'], function (){
+        Route::post('list', 'AgenciesController@listAgencies');
+    });
+});
+
 Route::group(['prefix' => 'customers'], function () {
     Route::group(['middleware' => 'auth:api'], function () {
         Route::post('getMyDeliveries', 'DeliveriesController@getCustomerDeliveries');
