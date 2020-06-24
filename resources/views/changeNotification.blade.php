@@ -24,7 +24,7 @@
 <body>
 
 <div class="row">
-    <img src="{{asset('img/DELIVERY-fullcolor.png')}}" width="15%">
+    <img src="{{asset('img/DELIVERY-fullcolor.png')}}" style="width: 20%; margin-left: 0">
 </div>
 
 <div class="row">
