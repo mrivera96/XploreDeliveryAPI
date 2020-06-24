@@ -26,9 +26,9 @@ class PaymentController extends Controller
         $rPayment = $request->form;
 
         try {
-            $finishedDeliveries = Delivery::where('idCliente', $rPayment['idCliente'])->where('idEstado', 39)->count();
+            $finishedDeliveries = Delivery::where('idCliente', $rPayment['idCliente'])->where('idEstado', 39)->get();
 
-            if($finishedDeliveries == 0){
+            if(sizeof($finishedDeliveries) == 0){
                 return response()->json(
                     [
                         'error' => 1,
@@ -37,6 +37,25 @@ class PaymentController extends Controller
                     500
                 );
             }
+
+            $subtotal = Delivery::where('idCliente', $rPayment['idCliente'])->where('idEstado', 39)->sum('total');
+
+            $paid = Payment::where('idCliente', $rPayment['idCliente'])->sum('monto');
+
+            $balance = doubleval($subtotal) - doubleval($paid);
+
+            $nBalance = $balance - $rPayment['monto'];
+            if($nBalance < 0){
+                return response()->json(
+                    [
+                        'error' => 1,
+                        'message' => 'El pago que intenta registrar produce un saldo negativo'
+                    ],
+                    500
+                );
+            }
+
+
 
             $nPayment = new Payment();
             $nPayment->idUsuario = Auth::user()->idUsuario;
