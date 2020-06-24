@@ -206,6 +206,8 @@ class DeliveriesController extends Controller
                 'fechaReserva' => new Carbon($datetime)
             ]);
 
+            $this->sendChangeNotification($currDelivery->email, $currDelivery->idDelivery);
+
             return response()->json([
                 'error' => 0,
                 'message' => 'Hora de recogida actualizada correctamente'],
@@ -811,6 +813,33 @@ class DeliveriesController extends Controller
     /****
      * FUNCTIONS FOR MAIL SENDING
      ****/
+
+    public function sendChangeNotification($mail, $idDelivery)
+    {
+        $delivery = Delivery::where('idDelivery', $idDelivery)->get()->first();
+        $data["email"] = $mail;
+        $data["client_name"] = $delivery->nomCliente;
+        $data["subject"] = 'Xplore Delivery - Cambio de Hora';
+        $data["delivery"] = $delivery;
+        $data["from"] = 'Xplore Delivery';
+
+        try {
+            Mail::send('mails.changeNotification', $data, function ($message) use ($data) {
+                $message
+                    ->from('noreply@xplorerentacar.com', $data["from"])
+                    ->to($data["email"], $data["client_name"])
+                    ->subject($data["subject"]);
+            });
+        } catch (Exception $exception) {
+            $this->serverstatuscode = "0";
+            $this->serverstatusdes = $exception->getMessage();
+        }
+        if (Mail::failures()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
 
     public function sendmail($mail, $idDelivery)
     {

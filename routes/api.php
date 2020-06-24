@@ -81,9 +81,9 @@ Route::group(['prefix' => 'drivers'], function () {
     });
 });
 
-Route::group(['prefix' => 'agencies'], function () {
+Route::group(['prefix' => 'cities'], function () {
     Route::group(['middleware' => 'auth:api'], function (){
-        Route::post('list', 'AgenciesController@listAgencies');
+        Route::post('list', 'AgenciesController@listCities');
     });
 });
 

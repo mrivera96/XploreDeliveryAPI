@@ -18,6 +18,7 @@ class Payment extends Model
         'fechaRegistro',
         'idCliente',
         'referencia',
+        'numAutorizacion',
         'banco'];
 
     public function user(){

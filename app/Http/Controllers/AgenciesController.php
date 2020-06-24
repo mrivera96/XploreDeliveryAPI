@@ -2,19 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use App\Agency;
+use App\City;
 use Exception;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class AgenciesController extends Controller
 {
-    public function listAgencies(){
+    public function listCities(){
         try{
-            $agencies = Agency::where('isActivo', 1)->get();
+            $cities = City::where('isActivo', 1)->get();
             return response()->json([
                 'error' => 0,
-                'data' => $agencies
+                'data' => $cities
             ], 200);
         }catch (Exception $ex){
             Log::error($ex->getMessage(),['context' => $ex->getTrace()]);

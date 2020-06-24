@@ -13,4 +13,8 @@ class Agency extends Model
     public function drivers(){
         return $this->hasMany('App\User','idAgencia','idAgencia');
     }
+
+    public function city(){
+        return $this->belongsTo('App\City','idCiudad','idCiudad');
+    }
 }

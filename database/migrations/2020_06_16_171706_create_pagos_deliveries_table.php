@@ -21,8 +21,9 @@ class CreatePagosDeliveriesTable extends Migration
             $table->integer('idUsuario')->unsigned();
             $table->dateTime('fechaRegistro')->default(\Carbon\Carbon::now());
             $table->integer('idCliente')->unsigned();
-            $table->string('referencia', 100);
-            $table->string('banco', 100);
+            $table->string('referencia', 20);
+            $table->string('banco', 50);
+            $table->string('numAutorizacion', 8)->nullable();
         });
 
         Schema::table('tblPagosDeliveries', function (Blueprint $table) {

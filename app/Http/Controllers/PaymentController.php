@@ -32,7 +32,23 @@ class PaymentController extends Controller
             $nPayment->tipoPago = $rPayment['tipoPago'];
             $nPayment->idCliente = $rPayment['idCliente'];
             $nPayment->fechaRegistro = Carbon::now();
-            if($rPayment['tipoPago'] == 6 || $rPayment['tipoPago'] == 7){
+            if ($rPayment['tipoPago'] == 6) {
+                $existe = Payment::where('idCliente', $nPayment->idCliente)
+                    ->where('numAutorizacion', $rPayment['numAutorizacion'])->count();
+
+                if ($existe == 0) {
+                    $nPayment->numAutorizacion = $rPayment['numAutorizacion'];
+                } else {
+                    return response()->json(
+                        [
+                            'error' => 1,
+                            'message' => 'Ese número de autorización ya está registrado'
+                        ],
+                        500
+                    );
+                }
+
+            } elseif ($rPayment['tipoPago'] == 7) {
                 $nPayment->referencia = $rPayment['referencia'];
                 $nPayment->banco = $rPayment['banco'];
             }
@@ -64,11 +80,12 @@ class PaymentController extends Controller
         }
     }
 
-    public function getPayments(){
+    public function getPayments()
+    {
         try {
             $payments = Payment::all();
 
-            foreach ($payments as $payment){
+            foreach ($payments as $payment) {
                 $payment->customer;
                 $payment->user;
                 $payment->paymentType;
@@ -82,7 +99,7 @@ class PaymentController extends Controller
                 200
             );
 
-        }catch (Exception $ex){
+        } catch (Exception $ex) {
             Log::error($ex->getMessage(), array([
                 'User' => Auth::user()->nomUsuario,
                 'context' => $ex->getTrace()
@@ -98,9 +115,10 @@ class PaymentController extends Controller
         }
     }
 
-    public function getPaymentTypes(){
+    public function getPaymentTypes()
+    {
         try {
-            $paymentTypes = PaymentType::where('isActivo',1)->whereIn('idTipoPago',[6,7,8])->get();
+            $paymentTypes = PaymentType::where('isActivo', 1)->whereIn('idTipoPago', [6, 7, 8])->get();
             return response()->json(
                 [
                     'error' => 0,
@@ -109,7 +127,7 @@ class PaymentController extends Controller
                 200
             );
 
-        }catch (Exception $ex){
+        } catch (Exception $ex) {
             Log::error($ex->getMessage(), array([
                 'User' => Auth::user()->nomUsuario,
                 'context' => $ex->getTrace()
