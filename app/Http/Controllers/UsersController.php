@@ -36,7 +36,7 @@ class UsersController extends Controller
                 $driver->agency->city;
                 $driverOrdersPending = DetalleDelivery::where('idEstado', 41)->where('idConductor', $driver->idUsuario)->count();
                 $driverOrdersTransit = DetalleDelivery::where('idEstado', 43)->where('idConductor', $driver->idUsuario)->count();
-                if ($driver->lastLogin != null && $driver->lastLogin == Carbon::today()) {
+                if ($driver->lastLogin != null && new Carbon($driver->lastLogin) == Carbon::today()) {
                     if ($driverOrdersPending > 0 || $driverOrdersTransit > 0) {
                         $driver->state = 'Ocupado / Entregas: '.$driverOrdersTransit.' en tránsito: '.' + '.$driverOrdersPending.' pendiente(s)';
                     } else {
