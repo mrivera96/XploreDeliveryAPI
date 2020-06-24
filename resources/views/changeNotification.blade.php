@@ -23,9 +23,9 @@
 
 <body>
 
-<div class="row">
+<section>
     <img src="{{asset('img/DELIVERY-fullcolor.png')}}" style="width: 20%; margin-left: 0">
-</div>
+</section>
 
 <div class="row">
     <h4>Es un placer saludarte, {{$client_name}}</h4>
