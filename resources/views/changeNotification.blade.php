@@ -24,7 +24,7 @@
 <body>
 
 <section>
-    <img src="{{asset('img/DELIVERY-fullcolor.png')}}" style="width: 20%; margin-left: 0">
+    <img src="http://190.4.56.14/XploreDeliveryAPIDesa/img/DELIVERY-fullcolor.png" style="width: 20%; margin-left: 0">
 </section>
 
 <div class="row">
