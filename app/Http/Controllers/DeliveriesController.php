@@ -330,6 +330,9 @@ class DeliveriesController extends Controller
     {
         try {
             $pendingDeliveries = DB::select('EXEC [Delivery].[ListadoEntregasPorAsignar]');
+            foreach ($pendingDeliveries as $delivery){
+                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d H:i');
+            }
             return response()->json([
                 'error' => 0,
                 'data' => $pendingDeliveries],
