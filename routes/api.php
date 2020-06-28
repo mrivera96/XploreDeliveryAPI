@@ -58,6 +58,9 @@ Route::group(['prefix' => 'deliveries'], function () {
 Route::group(['prefix' => 'rates'], function () {
     Route::post('update', 'RatesController@updateRate');
     Route::post('create', 'RatesController@createRate');
+    Route::post('removeCustomer','RatesController@removeCustomer');
+    Route::post('getCustomers', 'RatesController@getCustomers');
+    Route::post('addCustomer', 'RatesController@addCustomer');
 });
 
 Route::group(['prefix' => 'surcharges'], function () {

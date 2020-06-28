@@ -303,6 +303,7 @@ class DeliveriesController extends Controller
             $delivery->total = number_format($delivery->total, 2);
             foreach ($delivery->detalle as $detail) {
                 $detail->conductor;
+                $detail->estado;
                 $detail->tarifaBase = number_format($detail->tarifaBase, 2);
                 $detail->recargo = number_format($detail->recargo, 2);
                 $detail->cTotal = number_format($detail->cTotal, 2);

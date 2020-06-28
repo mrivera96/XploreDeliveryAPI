@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Category;
 use App\DeliveryClient;
+use App\RateCustomer;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -56,12 +57,12 @@ class CategoriesController extends Controller
     {
         try {
             $currCust = Auth::user()->idCliente;
-            $tarCust = DeliveryClient::find($currCust)->rates;
+            $tarCust = RateCustomer::where('idCliente',$currCust)->get();
             if ($tarCust->count() > 0) {
                 $idArray = [];
                 foreach ($tarCust as $item) {
-                    if (!in_array($item->idCategoria, $idArray)) {
-                        array_push($idArray, $item->idCategoria);
+                    if (!in_array($item->rate->idCategoria, $idArray)) {
+                        array_push($idArray, $item->rate->idCategoria);
                     }
                 }
                 $categories = Category::where('isActivo', 1)->whereIn('idCategoria', $idArray)->get();

@@ -55,11 +55,9 @@ class PaymentController extends Controller
                 );
             }
 
-
-
             $nPayment = new Payment();
             $nPayment->idUsuario = Auth::user()->idUsuario;
-            $nPayment->fechaPago = $rPayment['fechaPago'];
+            $nPayment->fechaPago = date('Y-m-d', strtotime($rPayment['fechaPago']));
             $nPayment->monto = $rPayment['monto'];
             $nPayment->tipoPago = $rPayment['tipoPago'];
             $nPayment->idCliente = $rPayment['idCliente'];
