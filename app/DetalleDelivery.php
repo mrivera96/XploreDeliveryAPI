@@ -8,6 +8,7 @@ class DetalleDelivery extends Model
 {
     protected $table = 'tblDetalleDelivery';
     public $timestamps = false;
+    protected $primaryKey = 'idDetalle';
     protected $fillable = [
         'idDelivery',
         'nFactura',

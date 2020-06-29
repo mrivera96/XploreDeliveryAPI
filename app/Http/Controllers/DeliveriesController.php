@@ -298,6 +298,7 @@ class DeliveriesController extends Controller
 
             $delivery->category;
             $delivery->detalle;
+            $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('d/m/Y, h:i a');
             $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
             $delivery->recargos = number_format($delivery->recargos, 2);
             $delivery->total = number_format($delivery->total, 2);
@@ -642,10 +643,7 @@ class DeliveriesController extends Controller
         $idDelivery = $request->idDelivery;
         try {
             $delivery = Delivery::where('idDelivery', $idDelivery);
-            if ($idEstado == 37) {
-                $idConductor = $request->idEstado['idConductor'];
-                $delivery->update(['idEstado' => $idEstado, 'idConductor' => $idConductor]);
-            }
+
             $delivery->update(['idEstado' => $idEstado]);
 
             $details = DetalleDelivery::where('idDelivery', $idDelivery);
@@ -664,6 +662,49 @@ class DeliveriesController extends Controller
                 [
                     'error' => 0,
                     'data' => 'Se cambió el estado de reserva a: ' . $estado->descEstado
+                ],
+                200
+            );
+
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => $ex->getMessage()
+                ],
+                500
+            );
+        }
+    }
+
+    public function changeOrderState(Request $request)
+    {
+        $request->validate([
+            'idEstado' => 'required',
+            'idDetalle' => 'required'
+        ]);
+
+        $stateId = $request->idEstado;
+        $orderId = $request->idDetalle;
+        try {
+
+
+            $details = DetalleDelivery::where('idDetalle',$orderId);
+            $details->update(['idEstado' => $stateId]);
+            $estado = Estado::where('idEstado', $stateId)->get()->first();
+
+            $nCtrl = new CtrlEstadoDelivery();
+            $nCtrl->idDetalle = $orderId;
+            $nCtrl->idEstado = $stateId;
+            $nCtrl->idUsuario = Auth::user()->idUsuario;
+            $nCtrl->fechaRegistro = Carbon::now();
+            $nCtrl->save();
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => 'Se cambió el estado del envío a: ' . $estado->descEstado
                 ],
                 200
             );

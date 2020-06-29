@@ -8,5 +8,5 @@ class CtrlEstadoDelivery extends Model
 {
     protected $table = 'tblCtrlEstadosDelivery';
     public $timestamps = false;
-    protected $fillable = ['idDelivery', 'idEstado', 'idUsuario', 'fechaRegistro'];
+    protected $fillable = ['idDelivery','idDetalle', 'idEstado', 'idUsuario', 'fechaRegistro'];
 }

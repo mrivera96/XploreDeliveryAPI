@@ -48,6 +48,7 @@ Route::group(['prefix' => 'deliveries'], function () {
         Route::post('assign', 'DeliveriesController@assignDelivery');
         Route::post('finish', 'DeliveriesController@finishDelivery');
         Route::post('changeState', 'DeliveriesController@changeStateDelivery');
+        Route::post('changeOrderState', 'DeliveriesController@changeOrderState');
         Route::post('getOrders', 'DeliveriesController@getOrders');
         Route::post('getPendingDeliveries', 'DeliveriesController@getPendingDeliveries');
         Route::post('changeHour', 'DeliveriesController@changeDeliveryHour');
