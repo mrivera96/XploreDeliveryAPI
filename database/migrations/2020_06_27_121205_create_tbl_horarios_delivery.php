@@ -16,8 +16,9 @@ class CreateTblHorariosDelivery extends Migration
         Schema::create('clsHorariosDelivery', function (Blueprint $table) {
             $table->increments('idHorario');
             $table->string('dia',10);
-            $table->string('inicio',10);
-            $table->string('final',10);
+            $table->time('inicio');
+            $table->time('final');
+            $table->dateTime('fechaRegistro');
         });
     }
 
@@ -28,6 +29,6 @@ class CreateTblHorariosDelivery extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tbl_horarios_delivery');
+        Schema::dropIfExists('clsHorariosDelivery');
     }
 }

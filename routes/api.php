@@ -119,6 +119,7 @@ Route::group(['prefix' => 'customers'], function () {
 Route::group(['prefix' => 'reports'], function () {
     Route::group(['middleware' => 'auth:api'], function () {
         Route::post('ordersByDriver', 'DeliveriesController@reportOrdersByDriver');
+        Route::post('ordersByCustomer', 'DeliveriesController@reportOrdersByCustomer');
     });
 });
 
@@ -130,7 +131,15 @@ Route::group(['prefix' => 'payments'], function () {
     });
 });
 
+Route::group(['prefix' => 'schedule'], function () {
+    Route::get('list', 'ScheduleController@getSchedules');
+    Route::group(['middleware' => 'auth:api'], function () {
+        Route::post('update', 'ScheduleController@updateSchedule');
+    });
+});
+
+
 Route::get('testCript', 'DeliveryUsersController@testEncryption');
 Route::get('testDeCript', 'DeliveryUsersController@testDecryption');
 Route::get('testAuthCript', 'AuthController@testGettingCript');
-Route::post('testReport', 'DeliveriesController@reportOrdersByDriver');
+Route::post('testReport', 'DeliveriesController@reportOrdersByCustomer');

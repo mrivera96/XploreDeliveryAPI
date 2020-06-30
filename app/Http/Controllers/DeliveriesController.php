@@ -200,7 +200,7 @@ class DeliveriesController extends Controller
 
         try {
             $date = date('Y-m-d', strtotime($currDelivery->fechaReserva));
-            $time = date('H:i',strtotime($rDelivery['hora']));
+            $time = date('H:i', strtotime($rDelivery['hora']));
             $datetime = $date . ' ' . $time;
             $currDelivery->update([
                 'fechaReserva' => new Carbon($datetime)
@@ -332,7 +332,7 @@ class DeliveriesController extends Controller
     {
         try {
             $pendingDeliveries = DB::select('EXEC [Delivery].[ListadoEntregasPorAsignar]');
-            foreach ($pendingDeliveries as $delivery){
+            foreach ($pendingDeliveries as $delivery) {
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d H:i');
             }
             return response()->json([
@@ -690,7 +690,7 @@ class DeliveriesController extends Controller
         try {
 
 
-            $details = DetalleDelivery::where('idDetalle',$orderId);
+            $details = DetalleDelivery::where('idDetalle', $orderId);
             $details->update(['idEstado' => $stateId]);
             $estado = Estado::where('idEstado', $stateId)->get()->first();
 
@@ -958,15 +958,15 @@ class DeliveriesController extends Controller
                         $dataObj->orders = DetalleDelivery::whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                             ->where('idConductor', $driver->idUsuario)->count();
 
-                        if($dataObj->orders > 0){
+                        if ($dataObj->orders > 0) {
                             $exist = 0;
-                            foreach($outputData as $output){
-                                if($dataObj->driver == $output->driver){
-                                    $exist ++;
+                            foreach ($outputData as $output) {
+                                if ($dataObj->driver == $output->driver) {
+                                    $exist++;
                                 }
                             }
 
-                            if($exist == 0){
+                            if ($exist == 0) {
                                 array_push($outputData, $dataObj);
                             }
 
@@ -987,7 +987,7 @@ class DeliveriesController extends Controller
 
             } else if ($driver == -1 && !$isSameDay) {
                 $orders = DetalleDelivery::where('idEstado', 44)
-                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->orderBy('fechaEntrega','desc')->get()
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->orderBy('fechaEntrega', 'desc')->get()
                     ->groupBy(function ($val) {
                         return Carbon::parse($val->fechaEntrega)->format('Y-m-d');
                     });
@@ -995,7 +995,7 @@ class DeliveriesController extends Controller
                 foreach ($drivers as $driver) {
                     foreach ($orders as $order) {
                         for ($i = 0; $i < sizeof($order); $i++) {
-                            if($driver->idUsuario == $order[$i]->idConductor){
+                            if ($driver->idUsuario == $order[$i]->idConductor) {
                                 $dataObj = (object)array();
                                 $dataObj->driver = $driver->nomUsuario;
                                 $dataObj->fecha = Carbon::parse($order[$i]->fechaEntrega)->format('Y-m-d');
@@ -1004,13 +1004,13 @@ class DeliveriesController extends Controller
                                 $dataObj->orders = DetalleDelivery::whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                                     ->where('idConductor', $driver->idUsuario)->count();
                                 $exist = 0;
-                                foreach($outputData as $output){
-                                    if($dataObj->fecha == $output->fecha && $dataObj->driver == $output->driver){
-                                        $exist ++;
+                                foreach ($outputData as $output) {
+                                    if ($dataObj->fecha == $output->fecha && $dataObj->driver == $output->driver) {
+                                        $exist++;
                                     }
                                 }
 
-                                if($exist == 0){
+                                if ($exist == 0) {
                                     array_push($outputData, $dataObj);
                                 }
 
@@ -1043,13 +1043,13 @@ class DeliveriesController extends Controller
                         $dataObj->orders = sizeof($orders);
 
                         $exist = 0;
-                        foreach($outputData as $output){
-                            if($dataObj->fecha == $output->fecha && $dataObj->driver == $output->driver){
-                                $exist ++;
+                        foreach ($outputData as $output) {
+                            if ($dataObj->fecha == $output->fecha && $dataObj->driver == $output->driver) {
+                                $exist++;
                             }
                         }
 
-                        if($exist == 0){
+                        if ($exist == 0) {
                             array_push($outputData, $dataObj);
                         }
                     }
@@ -1066,7 +1066,7 @@ class DeliveriesController extends Controller
 
             } else {
                 $orders = DetalleDelivery::where('idEstado', 44)->where('idConductor', $driver)
-                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->orderBy('fechaEntrega','desc')->get()
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->orderBy('fechaEntrega', 'desc')->get()
                     ->groupBy(function ($val) {
                         return Carbon::parse($val->fechaEntrega)->format('Y-m-d');
                     });
@@ -1111,6 +1111,205 @@ class DeliveriesController extends Controller
                 );
             }*/
 
+
+        } catch (Exception $ex) {
+            return response()->json(
+                ['error' => 1,
+                    'message' => $ex->getMessage()],
+                500
+            );
+        }
+
+    }
+
+    public function reportOrdersByCustomer(Request $request)
+    {
+        $request->validate([
+            'form' => 'required',
+            'form.customerId' => 'required',
+            'form.initDate' => 'required',
+            'form.finDate' => 'required'
+        ]);
+
+        $form = $request->form;
+        $customer = $form['customerId'];
+        if ($customer != -1) {
+            $customerDetails = DeliveryClient::where('idCliente', $customer)->get()->first();
+        }
+
+        $initDate = date('Y-m-d', strtotime($form['initDate']));
+        $finDate = date('Y-m-d', strtotime($form['finDate']));
+        $isSameDay = $initDate == $finDate;
+        $initDateTime = new Carbon(date('Y-m-d', strtotime($form['initDate'])) . ' 00:00:00');
+        $finDateTime = new Carbon(date('Y-m-d', strtotime($form['finDate'])) . ' 23:59:59');
+
+        try {
+            $outputData = [];
+            $customers = DeliveryClient::where('isActivo', 1)->get();
+
+            if ($customer == -1 && $isSameDay) { // ESTO FUNCIONA
+                $orders = DetalleDelivery::where('idEstado', 44)
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->get();
+
+                foreach ($customers as $custr) {
+                    foreach ($orders as $order) {
+                        $dataObj = (object)array();
+                        $dataObj->fecha = Carbon::parse($order->fechaEntrega)->format('Y-m-d');
+                        $dataObj->customer = $custr->nomEmpresa;
+                        $dataObj->orders = 0;
+
+                        foreach ($orders as $ord) {
+                            if ($ord->delivery->idCliente == $custr->idCliente) {
+                                $dataObj->orders++;
+                            }
+                        }
+
+                        if ($dataObj->orders > 0) {
+                            $exist = 0;
+                            foreach ($outputData as $output) {
+                                if ($dataObj->customer == $output->customer) {
+                                    $exist++;
+                                }
+                            }
+
+                            if ($exist == 0) {
+                                array_push($outputData, $dataObj);
+                            }
+
+                        }
+
+                    }
+
+                }
+
+                return response()->json(
+                    [
+                        'error' => 0,
+                        'data' => array('orders' => $outputData)
+                    ],
+                    200
+                );
+
+            } else if ($customer == -1 && !$isSameDay) {
+                $orders = DetalleDelivery::where('idEstado', 44)
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->orderBy('fechaEntrega', 'desc')->get()
+                    ->groupBy(function ($val) {
+                        return Carbon::parse($val->fechaEntrega)->format('Y-m-d');
+                    });
+
+                foreach ($customers as $custr) {
+                    foreach ($orders as $order) {
+                        for ($i = 0; $i < sizeof($order); $i++) {
+                            if ($custr->idCliente == $order[$i]->delivery->idCliente) {
+                                $dataObj = (object)array();
+                                $dataObj->customer = $custr->nomEmpresa;
+                                $dataObj->fecha = Carbon::parse($order[$i]->fechaEntrega)->format('Y-m-d');
+
+                                $dataObj->orders = 0;
+                                for ($idx = 0; $idx < sizeof($order); $idx++) {
+                                    if ($order[$i]->delivery->idCliente == $custr->idCliente) {
+                                        $dataObj->orders++;
+                                    }
+                                }
+
+                                $exist = 0;
+                                foreach ($outputData as $output) {
+                                    if ($dataObj->fecha == $output->fecha && $dataObj->customer == $output->customer) {
+                                        $exist++;
+                                    }
+                                }
+
+                                if ($exist == 0) {
+                                    array_push($outputData, $dataObj);
+                                }
+
+                            }
+
+                        }
+
+                    }
+
+                }
+
+                return response()->json(
+                    [
+                        'error' => 0,
+                        'data' => array('orders' => $outputData)
+                    ],
+                    200
+                );
+
+
+            } else if ($customer != -1 && $isSameDay) { //ESTO FUNCIONA
+                $orders = DetalleDelivery::where('idEstado', 44)->whereDate('fechaEntrega', $initDate)->get();
+
+                if (sizeof($orders) > 0) {
+                    foreach ($orders as $order) {
+                        $dataObj = (object)array();
+                        $dataObj->customer = $customerDetails->nomEmpresa;
+                        $dataObj->fecha = Carbon::parse($order->fechaEntrega)->format('Y-m-d');
+                        $dataObj->orders = 0;
+
+                        foreach ($orders as $ord) {
+                            if ($ord->delivery->idCliente == $customerDetails->idCliente) {
+                                $dataObj->orders++;
+                            }
+                        }
+
+                        $exist = 0;
+                        foreach ($outputData as $output) {
+                            if ($dataObj->fecha == $output->fecha && $dataObj->customer == $output->customer) {
+                                $exist++;
+                            }
+                        }
+
+                        if ($exist == 0) {
+                            array_push($outputData, $dataObj);
+                        }
+                    }
+                }
+
+                return response()->json(
+                    [
+                        'error' => 0,
+                        'data' => $outputData
+                    ],
+                    200
+                );
+
+
+            } else {
+                $orders = DetalleDelivery::where('idEstado', 44)
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->orderBy('fechaEntrega', 'desc')->get()
+                    ->groupBy(function ($val) {
+                        return Carbon::parse($val->fechaEntrega)->format('Y-m-d');
+                    });
+
+                foreach ($orders as $order) {
+
+                    for ($i = 0; $i < sizeof($order); $i++) {
+                        $data = (object)array();
+                        $data->customer = $customerDetails->nomEmpresa;
+                        $data->fecha = Carbon::parse($order[$i]->fechaEntrega)->format('Y-m-d');
+                        $data->orders = 0;
+
+                        if ($order[$i]->delivery->idCliente == $customerDetails->idCliente) {
+                            $data->orders++;
+                        }
+
+                    }
+                    array_push($outputData, $data);
+                }
+
+                return response()->json(
+                    [
+                        'error' => 0,
+                        'data' => array('orders' => $outputData)
+                    ],
+                    200
+                );
+            }
 
         } catch (Exception $ex) {
             return response()->json(
