@@ -1091,27 +1091,6 @@ class DeliveriesController extends Controller
                 );
             }
 
-
-            /*if ($driver == -1) {
-
-
-            } else {
-                $data = (object)array();
-                $outputData = [];
-                $driverDetails->agency;
-                $data->driver = $driverDetails;
-                $data->orders = $orders;
-                array_push($outputData, $data);
-                return response()->json(
-                    [
-                        'error' => 0,
-                        'data' => $outputData
-                    ],
-                    200
-                );
-            }*/
-
-
         } catch (Exception $ex) {
             return response()->json(
                 ['error' => 1,
@@ -1147,7 +1126,7 @@ class DeliveriesController extends Controller
             $outputData = [];
             $customers = DeliveryClient::where('isActivo', 1)->get();
 
-            if ($customer == -1 && $isSameDay) { // ESTO FUNCIONA
+            if ($customer == -1 && $isSameDay) {
                 $orders = DetalleDelivery::where('idEstado', 44)
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->get();
 
@@ -1156,13 +1135,11 @@ class DeliveriesController extends Controller
                         $dataObj = (object)array();
                         $dataObj->fecha = Carbon::parse($order->fechaEntrega)->format('Y-m-d');
                         $dataObj->customer = $custr->nomEmpresa;
-                        $dataObj->orders = 0;
-
-                        foreach ($orders as $ord) {
-                            if ($ord->delivery->idCliente == $custr->idCliente) {
-                                $dataObj->orders++;
-                            }
-                        }
+                        $dataObj->orders = DetalleDelivery::where('idEstado', 44)
+                            ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                            ->whereHas('delivery', function ($q) use ($custr) {
+                                $q->where('idCliente', $custr->idCliente);
+                            })->count();
 
                         if ($dataObj->orders > 0) {
                             $exist = 0;
@@ -1185,48 +1162,50 @@ class DeliveriesController extends Controller
                 return response()->json(
                     [
                         'error' => 0,
-                        'data' => array('orders' => $outputData)
+                        'data' => array('ordersReport' => $outputData)
                     ],
                     200
                 );
 
             } else if ($customer == -1 && !$isSameDay) {
-                $orders = DetalleDelivery::where('idEstado', 44)
+                $datedOrders = DetalleDelivery::where('idEstado', 44)
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->orderBy('fechaEntrega', 'desc')->get()
                     ->groupBy(function ($val) {
                         return Carbon::parse($val->fechaEntrega)->format('Y-m-d');
                     });
 
                 foreach ($customers as $custr) {
-                    foreach ($orders as $order) {
-                        for ($i = 0; $i < sizeof($order); $i++) {
-                            if ($custr->idCliente == $order[$i]->delivery->idCliente) {
+                    foreach ($datedOrders as $dOrders) {
+                        foreach ($dOrders as $order) {
+
+                            if ($custr->idCliente == $order->delivery->idCliente) {
                                 $dataObj = (object)array();
                                 $dataObj->customer = $custr->nomEmpresa;
-                                $dataObj->fecha = Carbon::parse($order[$i]->fechaEntrega)->format('Y-m-d');
+                                $dataObj->fecha = Carbon::parse($order->fechaEntrega)->format('Y-m-d');
+                                $initDateTime = new Carbon(date('Y-m-d', strtotime($dataObj->fecha)) . ' 00:00:00');
+                                $finDateTime = new Carbon(date('Y-m-d', strtotime($dataObj->fecha)) . ' 23:59:59');
+                                $dataObj->orders = DetalleDelivery::where('idEstado', 44)
+                                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                                    ->whereHas('delivery', function ($q) use ($custr) {
+                                        $q->where('idCliente', $custr->idCliente);
+                                    })->count();
 
-                                $dataObj->orders = 0;
-                                for ($idx = 0; $idx < sizeof($order); $idx++) {
-                                    if ($order[$i]->delivery->idCliente == $custr->idCliente) {
-                                        $dataObj->orders++;
+                                if ($dataObj->orders > 0) {
+                                    $exist = 0;
+                                    foreach ($outputData as $output) {
+                                        if ($dataObj->fecha == $output->fecha && $dataObj->customer == $output->customer) {
+                                            $exist++;
+                                        }
+                                    }
+
+                                    if ($exist == 0) {
+                                        array_push($outputData, $dataObj);
                                     }
                                 }
 
-                                $exist = 0;
-                                foreach ($outputData as $output) {
-                                    if ($dataObj->fecha == $output->fecha && $dataObj->customer == $output->customer) {
-                                        $exist++;
-                                    }
-                                }
-
-                                if ($exist == 0) {
-                                    array_push($outputData, $dataObj);
-                                }
 
                             }
-
                         }
-
                     }
 
                 }
@@ -1234,45 +1213,48 @@ class DeliveriesController extends Controller
                 return response()->json(
                     [
                         'error' => 0,
-                        'data' => array('orders' => $outputData)
+                        'data' => array('ordersReport' => $outputData)
                     ],
                     200
                 );
 
 
-            } else if ($customer != -1 && $isSameDay) { //ESTO FUNCIONA
-                $orders = DetalleDelivery::where('idEstado', 44)->whereDate('fechaEntrega', $initDate)->get();
+            } else if ($customer != -1 && $isSameDay) {
+                $orders = DetalleDelivery::where('idEstado', 44)
+                    ->whereDate('fechaEntrega', $initDate)->get();
 
                 if (sizeof($orders) > 0) {
                     foreach ($orders as $order) {
                         $dataObj = (object)array();
                         $dataObj->customer = $customerDetails->nomEmpresa;
                         $dataObj->fecha = Carbon::parse($order->fechaEntrega)->format('Y-m-d');
-                        $dataObj->orders = 0;
+                        $dataObj->orders = DetalleDelivery::where('idEstado', 44)
+                            ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                            ->whereHas('delivery', function ($q) use ($customerDetails) {
+                                $q->where('idCliente', $customerDetails->idCliente);
+                            })->count();
 
-                        foreach ($orders as $ord) {
-                            if ($ord->delivery->idCliente == $customerDetails->idCliente) {
-                                $dataObj->orders++;
+                        if ($dataObj->orders > 0) {
+                            $exist = 0;
+                            foreach ($outputData as $output) {
+                                if ($dataObj->fecha == $output->fecha && $dataObj->customer == $output->customer) {
+                                    $exist++;
+                                }
+                            }
+
+                            if ($exist == 0) {
+                                array_push($outputData, $dataObj);
                             }
                         }
 
-                        $exist = 0;
-                        foreach ($outputData as $output) {
-                            if ($dataObj->fecha == $output->fecha && $dataObj->customer == $output->customer) {
-                                $exist++;
-                            }
-                        }
 
-                        if ($exist == 0) {
-                            array_push($outputData, $dataObj);
-                        }
                     }
                 }
 
                 return response()->json(
                     [
                         'error' => 0,
-                        'data' => $outputData
+                        'data' => array('ordersReport' => $outputData)
                     ],
                     200
                 );
@@ -1292,20 +1274,25 @@ class DeliveriesController extends Controller
                         $data = (object)array();
                         $data->customer = $customerDetails->nomEmpresa;
                         $data->fecha = Carbon::parse($order[$i]->fechaEntrega)->format('Y-m-d');
-                        $data->orders = 0;
-
-                        if ($order[$i]->delivery->idCliente == $customerDetails->idCliente) {
-                            $data->orders++;
-                        }
+                        $initDateTime = new Carbon(date('Y-m-d', strtotime($data->fecha)) . ' 00:00:00');
+                        $finDateTime = new Carbon(date('Y-m-d', strtotime($data->fecha)) . ' 23:59:59');
+                        $data->orders = DetalleDelivery::where('idEstado', 44)
+                            ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                            ->whereHas('delivery', function ($q) use ($customerDetails) {
+                                $q->where('idCliente', $customerDetails->idCliente);
+                            })->count();
 
                     }
-                    array_push($outputData, $data);
+                    if ($data->orders > 0) {
+                        array_push($outputData, $data);
+                    }
+
                 }
 
                 return response()->json(
                     [
                         'error' => 0,
-                        'data' => array('orders' => $outputData)
+                        'data' => array('ordersReport' => $outputData)
                     ],
                     200
                 );
