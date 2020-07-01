@@ -14,8 +14,8 @@ class ScheduleController extends Controller
         try {
             $schedules = Schedule::all();
             foreach ($schedules as $schedule){
-                $schedule->inicio = Carbon::parse($schedule->inicio)->format('h:i a');
-                $schedule->final = Carbon::parse($schedule->final)->format('h:i a');
+                $schedule->inicio = Carbon::parse($schedule->inicio)->format('H:i');
+                $schedule->final = Carbon::parse($schedule->final)->format('H:i');
             }
 
             return response()->json([

@@ -45,7 +45,7 @@ class PaymentController extends Controller
             $balance = doubleval($subtotal) - doubleval($paid);
 
             $nBalance = $balance - $rPayment['monto'];
-            if($nBalance < 0){
+            /*if($nBalance < 0){
                 return response()->json(
                     [
                         'error' => 1,
@@ -53,7 +53,7 @@ class PaymentController extends Controller
                     ],
                     500
                 );
-            }
+            }*/
 
             $nPayment = new Payment();
             $nPayment->idUsuario = Auth::user()->idUsuario;
