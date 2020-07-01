@@ -13,14 +13,14 @@ class CreateTblTarifasClientesDelivery extends Migration
      */
     public function up()
     {
-        Schema::create('tblTarifasClientesDelivery', function (Blueprint $table) {
+        Schema::create('tblDetalleTarifasDelivery', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('idTarifaDelivery')->unsigned();
             $table->integer('idCliente')->unsigned();
             $table->dateTime('fechaRegistro');
         });
 
-        Schema::table('tblTarifasClientesDelivery', function (Blueprint $table) {
+        Schema::table('tblDetalleTarifasDelivery', function (Blueprint $table) {
             $table->foreign('idTarifaDelivery')
                 ->references('idTarifaDelivery')
                 ->on('clsTarifasDelivery');
@@ -38,6 +38,6 @@ class CreateTblTarifasClientesDelivery extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tblTarifasClientesDelivery');
+        Schema::dropIfExists('tblDetalleTarifasDelivery');
     }
 }
