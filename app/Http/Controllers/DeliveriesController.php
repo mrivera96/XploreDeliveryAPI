@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Category;
 use App\ContratoDelivery;
 use App\CtrlEstadoDelivery;
 use App\Delivery;
@@ -1126,11 +1127,46 @@ class DeliveriesController extends Controller
             $outputData = [];
             $customers = DeliveryClient::where('isActivo', 1)->get();
 
+            $categories = Category::where('isActivo',1)->get();
+            $ordersByCatArray = [];
+
+            foreach ($categories as $category) {
+                $mydataObj = (object)array();
+                $mydataObj->category = $category->descCategoria;
+                $mydataObj->orders = DetalleDelivery::where('idEstado', 44)
+                    ->whereHas('delivery', function ($q) use ($customerDetails, $category) {
+                        $q->where('idCliente', $customerDetails->idCliente)->where('idCategoria', $category->idCategoria);
+                    })->count();
+                $mydataObj->totalSurcharges = DetalleDelivery::where('idEstado', 44)
+                    ->whereHas('delivery', function ($q) use ($customerDetails, $category) {
+                        $q->where('idCliente', $customerDetails->idCliente)->where('idCategoria', $category->idCategoria);
+                    })->sum('recargo');
+
+                if($mydataObj->orders > 0){
+                    $exists = 0;
+                    foreach ($outputData as $output) {
+                        if ($mydataObj->category == $output->category) {
+                            $exists++;
+                        }
+                    }
+
+                    if ($exists == 0) {
+                        array_push($ordersByCatArray, $mydataObj);
+                    }
+                }
+            }
+
+            $totalOrders = DetalleDelivery::where('idEstado', 44)
+                ->whereHas('delivery', function ($q) use ($customerDetails) {
+                    $q->where('idCliente', $customerDetails->idCliente);
+                })->count();
+
             if ($customer == -1 && $isSameDay) {
                 $orders = DetalleDelivery::where('idEstado', 44)
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->get();
 
                 foreach ($customers as $custr) {
+
                     foreach ($orders as $order) {
                         $dataObj = (object)array();
                         $dataObj->fecha = Carbon::parse($order->fechaEntrega)->format('Y-m-d');
@@ -1213,7 +1249,9 @@ class DeliveriesController extends Controller
                 return response()->json(
                     [
                         'error' => 0,
-                        'data' => array('ordersReport' => $outputData)
+                        'data' => array(
+                            'ordersReport' => $outputData
+                        )
                     ],
                     200
                 );
@@ -1254,7 +1292,11 @@ class DeliveriesController extends Controller
                 return response()->json(
                     [
                         'error' => 0,
-                        'data' => array('ordersReport' => $outputData)
+                        'data' => array(
+                            'ordersReport' => $outputData,
+                            'totalOrders' => $totalOrders,
+                            'ordersByCategory' => $ordersByCatArray
+                        )
                     ],
                     200
                 );
@@ -1292,7 +1334,11 @@ class DeliveriesController extends Controller
                 return response()->json(
                     [
                         'error' => 0,
-                        'data' => array('ordersReport' => $outputData)
+                        'data' => array(
+                            'ordersReport' => $outputData,
+                            'totalOrders' => $totalOrders,
+                            'ordersByCategory' => $ordersByCatArray
+                        )
                     ],
                     200
                 );
