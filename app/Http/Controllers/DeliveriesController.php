@@ -690,7 +690,6 @@ class DeliveriesController extends Controller
         $orderId = $request->idDetalle;
         try {
 
-
             $details = DetalleDelivery::where('idDetalle', $orderId);
             $details->update(['idEstado' => $stateId]);
             $estado = Estado::where('idEstado', $stateId)->get()->first();
@@ -701,6 +700,21 @@ class DeliveriesController extends Controller
             $nCtrl->idUsuario = Auth::user()->idUsuario;
             $nCtrl->fechaRegistro = Carbon::now();
             $nCtrl->save();
+
+            $currDel = $details->get('idDelivery');
+            $currDelDetails = DetalleDelivery::where('idDelivery',$currDel)->get();
+            $counter = 0;
+
+            foreach ($currDelDetails as $order){
+                if($order->idEstado == 44){
+                    $counter ++;
+                }
+            }
+
+            if($counter == sizeof($currDelDetails)){
+                Delivery::where('idDelivery',$currDel)
+                    ->update(['idEstado' => 39]);
+            }
 
             return response()->json(
                 [

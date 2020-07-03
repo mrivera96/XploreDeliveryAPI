@@ -119,7 +119,7 @@ class PaymentController extends Controller
                 $payment->customer;
                 $payment->user;
                 $payment->paymentType;
-                $payment->fechaPago = Carbon::parse($payment->fechaPago)->format('d/m/Y');
+                $payment->fechaPago = Carbon::parse($payment->fechaPago)->format('Y-m-d');
             }
 
             return response()->json(
