@@ -1142,6 +1142,11 @@ class DeliveriesController extends Controller
                         $q->where('idCliente', $customerDetails->idCliente)->where('idCategoria', $category->idCategoria);
                     })->sum('recargo');
 
+                $mydataObj->cTotal = DetalleDelivery::where('idEstado', 44)
+                    ->whereHas('delivery', function ($q) use ($customerDetails, $category) {
+                        $q->where('idCliente', $customerDetails->idCliente)->where('idCategoria', $category->idCategoria);
+                    })->sum('cTotal');
+
                 if($mydataObj->orders > 0){
                     $exists = 0;
                     foreach ($outputData as $output) {
