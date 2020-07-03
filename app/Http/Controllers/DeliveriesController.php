@@ -701,7 +701,7 @@ class DeliveriesController extends Controller
             $nCtrl->fechaRegistro = Carbon::now();
             $nCtrl->save();
 
-            $currDel = $details->get('idDelivery');
+            $currDel = $details->get('idDelivery')->first()->idDelivery;
             $currDelDetails = DetalleDelivery::where('idDelivery',$currDel)->get();
             $counter = 0;
 
