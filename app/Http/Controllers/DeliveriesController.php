@@ -9,6 +9,7 @@ use App\Delivery;
 use App\DeliveryClient;
 use App\DetalleDelivery;
 use App\Estado;
+use App\Schedule;
 use App\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -119,6 +120,17 @@ class DeliveriesController extends Controller
         $hDelivery = $request->deliveryForm;
         $deliveryOrders = $request->orders;
         $pago = $request->pago;
+
+        $schedules = Schedule::all();
+        $today = Carbon::now()->dayOfWeek;
+        foreach ($schedules as $schedule){
+            if($schedule->cod == $today){
+                $todaySchedule = $schedule;
+            }
+
+        }
+
+
         try {
             $customerDetails = DeliveryClient::where('idCliente', Auth::user()->idCliente)->get()->first();
 
@@ -128,6 +140,19 @@ class DeliveriesController extends Controller
             $nDelivery->numCelular = $customerDetails->numTelefono;
             $date = date('Y-m-d', strtotime($hDelivery['fecha']));
             $time = date('H:i', strtotime($hDelivery['hora']));
+
+            if($time < $todaySchedule->inicio || $time > $todaySchedule->final){
+                return response()->json(
+                    [
+                        'error' => 1,
+                        'message' => 'Lo sentimos, la hora de reservación está fuera del horario.
+                        Puede que el horario haya sido cambiado recientemente.
+                        Por favor recargue la página por lo menos 2 veces para verificar el cambio.'
+                    ],
+                    500
+                );
+            }
+
             $datetime = $date . ' ' . $time;
             $nDelivery->fechaReserva = new Carbon($datetime);
             $nDelivery->dirRecogida = $hDelivery['dirRecogida'];
@@ -177,7 +202,7 @@ class DeliveriesController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getMessage()
+                    'message' => 'Lo sentimos, ha ocurrido un error al procesar tu solicitud. Por favor intenta de nuevo.'
                 ],
                 500
             );
@@ -299,6 +324,7 @@ class DeliveriesController extends Controller
 
             $delivery->category;
             $delivery->detalle;
+            $delivery->fechaNoFormatted = $delivery->fechaReserva;
             $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('d/m/Y, h:i a');
             $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
             $delivery->recargos = number_format($delivery->recargos, 2);

@@ -10,18 +10,19 @@ use Illuminate\Support\Facades\Log;
 
 class BranchOfficesController extends Controller
 {
-    public function getCustomerBranchOffices(){
+    public function getCustomerBranchOffices()
+    {
         try {
             $myBranchOffices = Branch::where('isActivo', 1)->where('idCliente', Auth::user()->idCliente)->get();
-            foreach ($myBranchOffices as $bOffice){
+            foreach ($myBranchOffices as $bOffice) {
                 $bOffice->cliente;
             }
             return response()->json([
                 'error' => 0,
                 'data' => $myBranchOffices
             ], 200);
-        }catch (\Exception $ex){
-            Log::error($ex->getMessage(),array('User' => Auth::user()->nomUsuario,'context' => $ex->getTrace()));
+        } catch (\Exception $ex) {
+            Log::error($ex->getMessage(), array('User' => Auth::user()->nomUsuario, 'context' => $ex->getTrace()));
             return response()->json([
                 'error' => 1,
                 'message' => $ex->getMessage()
@@ -29,40 +30,54 @@ class BranchOfficesController extends Controller
         }
     }
 
-    public function newBranch(Request $request){
-        try{
+    public function newBranch(Request $request)
+    {
+        try {
             $rBranch = $request->form;
             $nBranch = new Branch();
 
             $nBranch->nomSucursal = $rBranch['nomSucursal'];
-            if($rBranch['numTelefono']){
+            if ($rBranch['numTelefono']) {
                 $nBranch->numTelefono = $rBranch['numTelefono'];
             }
             $nBranch->idCliente = Auth::user()->idCliente;
             $nBranch->direccion = $rBranch['direccion'];
             $nBranch->fechaAlta = Carbon::now();
             $nBranch->isActivo = 1;
+            if ($rBranch['instrucciones'] != '') {
+                $nBranch->instrucciones = $rBranch['instrucciones'];
+            }
+
+            if ($rBranch['isDefault'] == true) {
+                if (Branch::where('idCliente', Auth::user()->idCliente)->count() > 0) {
+                    Branch::where('idCliente', Auth::user()->idCliente)
+                        ->update(['isDefault' => false]);
+                }
+
+                $nBranch->isDefault = true;
+            }
             $nBranch->save();
 
             return response()
                 ->json([
                     'error' => 0,
                     'message' => 'Dirección agregada correctamente.'
-                ],200);
+                ], 200);
 
-        }catch (\Exception $ex){
-            Log::error($ex->getMessage(),array('User' => Auth::user()->nomUsuario,
+        } catch (\Exception $ex) {
+            Log::error($ex->getMessage(), array('User' => Auth::user()->nomUsuario,
                 'context' => $ex->getTrace()));
             return response()
                 ->json([
                     'error' => 1,
                     'message' => $ex->getMessage()
-                ],500);
+                ], 500);
         }
     }
 
-    public function updateBranch(Request $request){
-        try{
+    public function updateBranch(Request $request)
+    {
+        try {
             $bId = $request->form['idSucursal'];
             $form = $request->form;
 
@@ -73,12 +88,25 @@ class BranchOfficesController extends Controller
                 'direccion' => $form['direccion']
             ]);
 
+            if ($form['instrucciones'] != '') {
+                $currBranch->update(['instrucciones' => $form['instrucciones']]);
+            }
+
+            if ($form['isDefault'] == true) {
+                if (Branch::where('idCliente', Auth::user()->idCliente)->count() > 0) {
+                    Branch::where('idCliente', Auth::user()->idCliente)
+                        ->update(['isDefault' => false]);
+                }
+
+                $currBranch->update(['isDefault' => true]);
+            }
+
             return response()->json([
                 'error' => 0,
                 'message' => 'Dirección actualizada correctamente'
             ]);
-        }catch (\Exception $exception){
-            Log::error($exception->getMessage(),['context' => $exception->getTrace()]);
+        } catch (\Exception $exception) {
+            Log::error($exception->getMessage(), ['context' => $exception->getTrace()]);
             return response()->json([
                 'error' => 1,
                 'message' => $exception->getMessage()
@@ -86,8 +114,9 @@ class BranchOfficesController extends Controller
         }
     }
 
-    public function deleteBranch(Request $request){
-        try{
+    public function deleteBranch(Request $request)
+    {
+        try {
             $bId = $request->id;
 
             Branch::find($bId)->delete();
@@ -96,8 +125,8 @@ class BranchOfficesController extends Controller
                 'error' => 0,
                 'message' => 'Dirección eliminada correctamente'
             ]);
-        }catch (\Exception $exception){
-            Log::error($exception->getMessage(),['context' => $exception->getTrace()]);
+        } catch (\Exception $exception) {
+            Log::error($exception->getMessage(), ['context' => $exception->getTrace()]);
             return response()->json([
                 'error' => 1,
                 'message' => $exception->getMessage()
