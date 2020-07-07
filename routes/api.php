@@ -52,6 +52,7 @@ Route::group(['prefix' => 'deliveries'], function () {
         Route::post('getOrders', 'DeliveriesController@getOrders');
         Route::post('getPendingDeliveries', 'DeliveriesController@getPendingDeliveries');
         Route::post('changeHour', 'DeliveriesController@changeDeliveryHour');
+        Route::post('getOrdersByCustomer', 'DeliveriesController@getOrdersByCustomer');
     });
 
 });

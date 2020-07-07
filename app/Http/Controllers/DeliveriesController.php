@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Category;
-use App\ContratoDelivery;
 use App\CtrlEstadoDelivery;
 use App\Delivery;
 use App\DeliveryClient;
@@ -17,7 +16,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
-use App\Tarifa;
 use Illuminate\Support\Facades\Auth;
 
 class DeliveriesController extends Controller
@@ -121,16 +119,6 @@ class DeliveriesController extends Controller
         $deliveryOrders = $request->orders;
         $pago = $request->pago;
 
-        $schedules = Schedule::all();
-        $today = Carbon::now()->dayOfWeek;
-        foreach ($schedules as $schedule){
-            if($schedule->cod == $today){
-                $todaySchedule = $schedule;
-            }
-
-        }
-
-
         try {
             $customerDetails = DeliveryClient::where('idCliente', Auth::user()->idCliente)->get()->first();
 
@@ -140,6 +128,15 @@ class DeliveriesController extends Controller
             $nDelivery->numCelular = $customerDetails->numTelefono;
             $date = date('Y-m-d', strtotime($hDelivery['fecha']));
             $time = date('H:i', strtotime($hDelivery['hora']));
+            $deliveryDayCode = Carbon::create($date)->dayOfWeek;
+            $schedules = Schedule::all();
+            foreach ($schedules as $schedule){
+                if($schedule->cod == $deliveryDayCode){
+                    $todaySchedule = $schedule;
+                }
+
+            }
+
 
             if($time < $todaySchedule->inicio || $time > $todaySchedule->final){
                 return response()->json(
@@ -197,12 +194,12 @@ class DeliveriesController extends Controller
             );
 
         } catch (Exception $ex) {
-            Log::error($ex->getMessage(), array('User' => Auth::user()->cliente()->nomEmpresa,
+            Log::error($ex->getMessage(), array('User' => Auth::user()->cliente->nomEmpresa,
                 'context' => $ex->getTrace()));
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => 'Lo sentimos, ha ocurrido un error al procesar tu solicitud. Por favor intenta de nuevo.'
+                    'message' => $ex->getMessage() //'Lo sentimos, ha ocurrido un error al procesar tu solicitud. Por favor intenta de nuevo.'
                 ],
                 500
             );
@@ -561,6 +558,50 @@ class DeliveriesController extends Controller
             );
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => $ex->getMessage()
+                ],
+                500
+            );
+        }
+    }
+
+    public function getOrdersByCustomer(Request $request){
+        $request->validate(['customerId' => 'required']);
+        $custId = $request->customerId;
+
+        try {
+            $user = User::where('idCliente', $custId)->get()->first();
+            $allDeliveries = Delivery::where('idCliente', $user->idCliente)->get();
+
+            $todosPedidos = [];
+
+            foreach ($allDeliveries as $delivery) {
+                $detail = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
+                foreach ($detail as $dtl) {
+                    $dtl->estado;
+                    $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
+                    $dtl->conductor;
+                    $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
+                    $dtl->recargo = number_format($dtl->recargo, 2);
+                    $dtl->cTotal = number_format($dtl->cTotal, 2);
+                    array_push($todosPedidos, $dtl);
+                }
+
+            }
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => array('todos' => $todosPedidos)
+                ],
+                200
+            );
+
+        }catch (Exception $ex) {
+            Log::error($ex->getMessage(), array('User' => Auth::user()->nomUsuario, 'context' => $ex->getTrace()));
             return response()->json(
                 [
                     'error' => 1,
@@ -997,6 +1038,7 @@ class DeliveriesController extends Controller
                         $dataObj->fecha = Carbon::parse($order->fechaEntrega)->format('Y-m-d');
                         $dataObj->driver = $driver->nomUsuario;
                         $dataObj->orders = DetalleDelivery::whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                            ->where('idEstado', 44)
                             ->where('idConductor', $driver->idUsuario)->count();
 
                         if ($dataObj->orders > 0) {
@@ -1043,6 +1085,7 @@ class DeliveriesController extends Controller
                                 $initDateTime = new Carbon(date('Y-m-d', strtotime($dataObj->fecha)) . ' 00:00:00');
                                 $finDateTime = new Carbon(date('Y-m-d', strtotime($dataObj->fecha)) . ' 23:59:59');
                                 $dataObj->orders = DetalleDelivery::whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                                    ->where('idEstado', 44)
                                     ->where('idConductor', $driver->idUsuario)->count();
                                 $exist = 0;
                                 foreach ($outputData as $output) {
