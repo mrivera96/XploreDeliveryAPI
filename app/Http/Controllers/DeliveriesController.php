@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Branch;
 use App\Category;
 use App\CtrlEstadoDelivery;
 use App\Delivery;
@@ -124,8 +125,8 @@ class DeliveriesController extends Controller
         $todaySchedule = Schedule::where('cod', $deliveryDayCode)->get()->first();
 
 
-        if(date('H:i', strtotime($hDelivery['hora'])) < $todaySchedule->inicio ||
-            date('H:i', strtotime($hDelivery['hora'])) > $todaySchedule->final){
+        if (date('H:i', strtotime($hDelivery['hora'])) < $todaySchedule->inicio ||
+            date('H:i', strtotime($hDelivery['hora'])) > $todaySchedule->final) {
             return response()->json(
                 [
                     'error' => 1,
@@ -137,7 +138,7 @@ class DeliveriesController extends Controller
             );
         }
 
-        if(sizeof($deliveryOrders) > 0){
+        if (sizeof($deliveryOrders) > 0) {
             try {
                 $customerDetails = DeliveryClient::where('idCliente', Auth::user()->idCliente)->get()->first();
 
@@ -159,7 +160,16 @@ class DeliveriesController extends Controller
                 $nDelivery->recargos = $pago['recargos'];
                 $nDelivery->total = $pago['total'];
                 $nDelivery->idCliente = Auth::user()->idCliente;
-                $nDelivery->instrucciones = $hDelivery['instrucciones'];
+
+                $customerBranch = Branch::where('idCliente', Auth::user()->idCliente)
+                    ->where('direccion', $hDelivery['dirRecogida'])->get()->first();
+
+                if ( $customerBranch != null && $customerBranch->instrucciones != '') {
+                    $nDelivery->instrucciones = $customerBranch->instrucciones;
+                }else{
+                    $nDelivery->instrucciones = $hDelivery['instrucciones'];
+                }
+
                 $nDelivery->fechaRegistro = Carbon::now();
                 $nDelivery->save();
 
@@ -203,7 +213,7 @@ class DeliveriesController extends Controller
                     500
                 );
             }
-        }else{
+        } else {
             return response()->json(
                 [
                     'error' => 1,
@@ -212,7 +222,6 @@ class DeliveriesController extends Controller
                 500
             );
         }
-
 
 
     }
@@ -578,7 +587,8 @@ class DeliveriesController extends Controller
         }
     }
 
-    public function getOrdersByCustomer(Request $request){
+    public function getOrdersByCustomer(Request $request)
+    {
         $request->validate(['customerId' => 'required']);
         $custId = $request->customerId;
 
@@ -610,7 +620,7 @@ class DeliveriesController extends Controller
                 200
             );
 
-        }catch (Exception $ex) {
+        } catch (Exception $ex) {
             Log::error($ex->getMessage(), array('User' => Auth::user()->nomUsuario, 'context' => $ex->getTrace()));
             return response()->json(
                 [
@@ -779,17 +789,17 @@ class DeliveriesController extends Controller
             $nCtrl->save();
 
             $currDel = $details->get('idDelivery')->first()->idDelivery;
-            $currDelDetails = DetalleDelivery::where('idDelivery',$currDel)->get();
+            $currDelDetails = DetalleDelivery::where('idDelivery', $currDel)->get();
             $counter = 0;
 
-            foreach ($currDelDetails as $order){
-                if($order->idEstado == 44){
-                    $counter ++;
+            foreach ($currDelDetails as $order) {
+                if ($order->idEstado == 44) {
+                    $counter++;
                 }
             }
 
-            if($counter == sizeof($currDelDetails)){
-                Delivery::where('idDelivery',$currDel)
+            if ($counter == sizeof($currDelDetails)) {
+                Delivery::where('idDelivery', $currDel)
                     ->update(['idEstado' => 39]);
             }
 
@@ -1220,7 +1230,7 @@ class DeliveriesController extends Controller
             $outputData = [];
             $customers = DeliveryClient::where('isActivo', 1)->get();
 
-            $categories = Category::where('isActivo',1)->get();
+            $categories = Category::where('isActivo', 1)->get();
             $ordersByCatArray = [];
 
             foreach ($categories as $category) {
@@ -1240,7 +1250,7 @@ class DeliveriesController extends Controller
                         $q->where('idCliente', $customerDetails->idCliente)->where('idCategoria', $category->idCategoria);
                     })->sum('cTotal');
 
-                if($mydataObj->orders > 0){
+                if ($mydataObj->orders > 0) {
                     $exists = 0;
                     foreach ($outputData as $output) {
                         if ($mydataObj->category == $output->category) {
