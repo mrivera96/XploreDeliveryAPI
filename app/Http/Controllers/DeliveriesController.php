@@ -164,7 +164,7 @@ class DeliveriesController extends Controller
                 $nDelivery->fechaRegistro = Carbon::now();
                 $nDelivery->save();
 
-                $lastId = Delivery::query()->max('idDelivery');
+                $lastId = $nDelivery->idDelivery;//Delivery::query()->max('idDelivery');
 
                 foreach ($deliveryOrders as $detalle) {
                     $nDetalle = new DetalleDelivery();
