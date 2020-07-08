@@ -160,16 +160,7 @@ class DeliveriesController extends Controller
                 $nDelivery->recargos = $pago['recargos'];
                 $nDelivery->total = $pago['total'];
                 $nDelivery->idCliente = Auth::user()->idCliente;
-
-                $customerBranch = Branch::where('idCliente', Auth::user()->idCliente)
-                    ->where('direccion', $hDelivery['dirRecogida'])->get()->first();
-
-                if ( $customerBranch != null && $customerBranch->instrucciones != '') {
-                    $nDelivery->instrucciones = $customerBranch->instrucciones;
-                }else{
-                    $nDelivery->instrucciones = $hDelivery['instrucciones'];
-                }
-
+                $nDelivery->instrucciones = $hDelivery['instrucciones'];
                 $nDelivery->fechaRegistro = Carbon::now();
                 $nDelivery->save();
 
