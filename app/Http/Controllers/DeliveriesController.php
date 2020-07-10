@@ -164,7 +164,7 @@ class DeliveriesController extends Controller
                 $nDelivery->fechaRegistro = Carbon::now();
                 $nDelivery->save();
 
-                $lastId = $nDelivery->idDelivery;//Delivery::query()->max('idDelivery');
+                $lastId = Delivery::query()->max('idDelivery');
 
                 foreach ($deliveryOrders as $detalle) {
                     $nDetalle = new DetalleDelivery();
@@ -234,6 +234,24 @@ class DeliveriesController extends Controller
         try {
             $date = date('Y-m-d', strtotime($currDelivery->fechaReserva));
             $time = date('H:i', strtotime($rDelivery['hora']));
+            $deliveryDayCode = Carbon::create($date)->dayOfWeek;
+
+            $todaySchedule = Schedule::where('cod', $deliveryDayCode)->get()->first();
+
+
+            if ($time < $todaySchedule->inicio ||
+                $time > $todaySchedule->final) {
+                return response()->json(
+                    [
+                        'error' => 1,
+                        'message' => 'Lo sentimos, la hora de reservación está fuera del horario.
+                        Puede que el horario haya sido cambiado recientemente.
+                        Por favor recargue la página por lo menos 2 veces para verificar el cambio.'
+                    ],
+                    500
+                );
+            }
+            
             $datetime = $date . ' ' . $time;
             $currDelivery->update([
                 'fechaReserva' => new Carbon($datetime)
