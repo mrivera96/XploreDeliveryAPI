@@ -251,7 +251,7 @@ class DeliveriesController extends Controller
                     500
                 );
             }
-            
+
             $datetime = $date . ' ' . $time;
             $currDelivery->update([
                 'fechaReserva' => new Carbon($datetime)
@@ -283,14 +283,13 @@ class DeliveriesController extends Controller
     public function list()
     {
         try {
-            $deliveriesDia = Delivery::whereDate('fechaReserva', Carbon::today())->get();
-            $deliveriesTomorrow = Delivery::whereDate('fechaReserva', Carbon::tomorrow())->get();
-            $allDeliveries = Delivery::all();
+            $deliveriesDia = Delivery::whereDate('fechaReserva', Carbon::today())
+                ->with(['category', 'detalle', 'estado'])->get();
+            $deliveriesTomorrow = Delivery::whereDate('fechaReserva', Carbon::tomorrow())
+                ->with(['category', 'detalle', 'estado'])->get();
+            $allDeliveries = Delivery::with(['category', 'detalle', 'estado'])->get();
 
             foreach ($deliveriesDia as $delivery) {
-                $delivery->category;
-                $delivery->detalle;
-                $delivery->estado;
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d H:i');
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
                 $delivery->recargos = number_format($delivery->recargos, 2);
@@ -299,9 +298,6 @@ class DeliveriesController extends Controller
             }
 
             foreach ($deliveriesTomorrow as $delivery) {
-                $delivery->category;
-                $delivery->detalle;
-                $delivery->estado;
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d H:i');
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
                 $delivery->recargos = number_format($delivery->recargos, 2);
@@ -310,9 +306,6 @@ class DeliveriesController extends Controller
             }
 
             foreach ($allDeliveries as $delivery) {
-                $delivery->category;
-                $delivery->detalle;
-                $delivery->estado;
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d H:i');
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
                 $delivery->recargos = number_format($delivery->recargos, 2);
@@ -342,13 +335,12 @@ class DeliveriesController extends Controller
     {
         try {
             if (Auth::user()->idPerfil == 1) {
-                $delivery = Delivery::where('idDelivery', $request->id)->get()->first();
+                $delivery = Delivery::where('idDelivery', $request->id)->with(['category', 'detalle'])->get()->first();
             } else {
-                $delivery = Delivery::where('idCliente', Auth::user()->idCliente)->where('idDelivery', $request->id)->get()->first();
+                $delivery = Delivery::where('idCliente', Auth::user()->idCliente)->where('idDelivery', $request->id)
+                    ->get()->first();
             }
 
-            $delivery->category;
-            $delivery->detalle;
             $delivery->fechaNoFormatted = $delivery->fechaReserva;
             $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('d/m/Y, h:i a');
             $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
@@ -409,16 +401,17 @@ class DeliveriesController extends Controller
         try {
             $user = Auth::user();
             $deliveriesDia = Delivery::where('idCliente', $user->idCliente)
-                ->whereDate('fechaReserva', Carbon::today())->get();
+                ->whereDate('fechaReserva', Carbon::today())
+                ->with(['category', 'detalle', 'estado'])->get();
             $deliveriesTomorrow = Delivery::where('idCliente', $user->idCliente)
-                ->whereDate('fechaReserva', Carbon::tomorrow())->get();
-            $allDeliveries = Delivery::where('idCliente', $user->idCliente)->get();
-            $finishedDeliveries = Delivery::where('idCliente', $user->idCliente)->where('idEstado', 39)->get();
+                ->whereDate('fechaReserva', Carbon::tomorrow())
+                ->with(['category', 'detalle', 'estado'])->get();
+            $allDeliveries = Delivery::where('idCliente', $user->idCliente)
+                ->with(['category', 'detalle', 'estado'])->get();
+            $finishedDeliveries = Delivery::where('idCliente', $user->idCliente)
+                ->with(['category', 'detalle', 'estado'])->where('idEstado', 39)->get();
 
             foreach ($deliveriesDia as $delivery) {
-                $delivery->category;
-                $delivery->detalle;
-                $delivery->estado;
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d H:i');
                 //$delivery->fechaReserva = date('d-m-Y h:i', strtotime($delivery->fechaReserva));
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
@@ -428,9 +421,6 @@ class DeliveriesController extends Controller
             }
 
             foreach ($deliveriesTomorrow as $delivery) {
-                $delivery->category;
-                $delivery->detalle;
-                $delivery->estado;
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d H:i');
                 //$delivery->fechaReserva = date('d-m-Y h:i', strtotime($delivery->fechaReserva));
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
@@ -440,9 +430,6 @@ class DeliveriesController extends Controller
             }
 
             foreach ($allDeliveries as $delivery) {
-                $delivery->category;
-                $delivery->detalle;
-                $delivery->estado;
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d H:i');
                 //$delivery->fechaReserva = date('d-m-Y h:i', strtotime($delivery->fechaReserva));
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
@@ -452,9 +439,6 @@ class DeliveriesController extends Controller
             }
 
             foreach ($finishedDeliveries as $delivery) {
-                $delivery->category;
-                $delivery->detalle;
-                $delivery->estado;
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d H:i');
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
                 $delivery->recargos = number_format($delivery->recargos, 2);
@@ -487,37 +471,31 @@ class DeliveriesController extends Controller
     {
         try {
             $user = Auth::user();
-            $deliveriesDia = Delivery::where('idCliente', $user->idCliente)
-                ->whereDate('fechaReserva', Carbon::today())->get();
-            $allDeliveries = Delivery::where('idCliente', $user->idCliente)->get();
+            $deliveriesDia = DetalleDelivery::with(['conductor', 'estado'])
+                ->whereHas('delivery', function ($q) use ($user) {
+                    $q->whereDate('fechaReserva', Carbon::today())
+                        ->where('idCliente', $user->idCliente);
+                })->get();
+            $allDeliveries = DetalleDelivery::with(['conductor', 'estado'])->whereHas('delivery', function ($q) use ($user) {
+                $q->where('idCliente', $user->idCliente);
+            })->get();
             $pedidosDia = [];
             $todosPedidos = [];
 
-            foreach ($deliveriesDia as $delivery) {
-                $detail = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
-                foreach ($detail as $dtl) {
-                    $dtl->conductor;
-                    $dtl->estado;
-                    $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
-                    $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
-                    $dtl->recargo = number_format($dtl->recargo, 2);
-                    $dtl->cTotal = number_format($dtl->cTotal, 2);
-                    array_push($pedidosDia, $dtl);
-                }
-
+            foreach ($deliveriesDia as $dtl) {
+                $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
+                $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
+                $dtl->recargo = number_format($dtl->recargo, 2);
+                $dtl->cTotal = number_format($dtl->cTotal, 2);
+                array_push($pedidosDia, $dtl);
             }
 
-            foreach ($allDeliveries as $delivery) {
-                $detail = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
-                foreach ($detail as $dtl) {
-                    $dtl->estado;
-                    $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
-                    $dtl->conductor;
-                    $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
-                    $dtl->recargo = number_format($dtl->recargo, 2);
-                    $dtl->cTotal = number_format($dtl->cTotal, 2);
-                    array_push($todosPedidos, $dtl);
-                }
+            foreach ($allDeliveries as $dtl) {
+                $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
+                $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
+                $dtl->recargo = number_format($dtl->recargo, 2);
+                $dtl->cTotal = number_format($dtl->cTotal, 2);
+                array_push($todosPedidos, $dtl);
 
             }
 
@@ -544,37 +522,28 @@ class DeliveriesController extends Controller
     public function getOrders()
     {
         try {
-            $deliveriesDia = Delivery::whereDate('fechaReserva', Carbon::today())->get();
-            $allDeliveries = Delivery::all();
+            $deliveriesDia = DetalleDelivery::with(['delivery', 'estado', 'conductor'])
+                ->whereHas('delivery', function ($q) {
+                    $q->whereDate('fechaReserva', Carbon::today());
+                })->get();
+            $allDeliveries = DetalleDelivery::with(['delivery', 'estado', 'conductor'])->get();
             $pedidosDia = [];
             $todosPedidos = [];
 
-            foreach ($deliveriesDia as $delivery) {
-                $detail = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
-                foreach ($detail as $dtl) {
-                    $dtl->estado;
-                    $dtl->delivery;
-                    $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
-                    $dtl->conductor;
-                    $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
-                    $dtl->recargo = number_format($dtl->recargo, 2);
-                    $dtl->cTotal = number_format($dtl->cTotal, 2);
-                    array_push($pedidosDia, $dtl);
-                }
+            foreach ($deliveriesDia as $dtl) {
+                $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
+                $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
+                $dtl->recargo = number_format($dtl->recargo, 2);
+                $dtl->cTotal = number_format($dtl->cTotal, 2);
+                array_push($pedidosDia, $dtl);
             }
 
-            foreach ($allDeliveries as $delivery) {
-                $detail = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
-                foreach ($detail as $dtl) {
-                    $dtl->estado;
-                    $dtl->delivery;
-                    $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
-                    $dtl->conductor;
-                    $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
-                    $dtl->recargo = number_format($dtl->recargo, 2);
-                    $dtl->cTotal = number_format($dtl->cTotal, 2);
-                    array_push($todosPedidos, $dtl);
-                }
+            foreach ($allDeliveries as $dtl) {
+                $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
+                $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
+                $dtl->recargo = number_format($dtl->recargo, 2);
+                $dtl->cTotal = number_format($dtl->cTotal, 2);
+                array_push($todosPedidos, $dtl);
             }
 
             return response()->json(
@@ -603,22 +572,19 @@ class DeliveriesController extends Controller
 
         try {
             $user = User::where('idCliente', $custId)->get()->first();
-            $allDeliveries = Delivery::where('idCliente', $user->idCliente)->get();
+            $allDeliveries = DetalleDelivery::with(['estado', 'conductor'])
+                ->whereHas('delivery', function ($q) use ($custId) {
+                    $q->whereDate('idCliente', $custId);
+                })->get();
 
             $todosPedidos = [];
 
-            foreach ($allDeliveries as $delivery) {
-                $detail = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
-                foreach ($detail as $dtl) {
-                    $dtl->estado;
-                    $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
-                    $dtl->conductor;
-                    $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
-                    $dtl->recargo = number_format($dtl->recargo, 2);
-                    $dtl->cTotal = number_format($dtl->cTotal, 2);
-                    array_push($todosPedidos, $dtl);
-                }
-
+            foreach ($allDeliveries as $dtl) {
+                $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
+                $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
+                $dtl->recargo = number_format($dtl->recargo, 2);
+                $dtl->cTotal = number_format($dtl->cTotal, 2);
+                array_push($todosPedidos, $dtl);
             }
 
             return response()->json(
@@ -784,10 +750,14 @@ class DeliveriesController extends Controller
 
         $stateId = $request->idEstado;
         $orderId = $request->idDetalle;
+        $observ = $request->observaciones;
         try {
 
             $details = DetalleDelivery::where('idDetalle', $orderId);
-            $details->update(['idEstado' => $stateId]);
+            $details->update([
+                'idEstado' => $stateId,
+                'observaciones' => $observ
+            ]);
             $estado = Estado::where('idEstado', $stateId)->get()->first();
 
             $nCtrl = new CtrlEstadoDelivery();
