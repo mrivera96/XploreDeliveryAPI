@@ -574,7 +574,7 @@ class DeliveriesController extends Controller
             $user = User::where('idCliente', $custId)->get()->first();
             $allDeliveries = DetalleDelivery::with(['estado', 'conductor'])
                 ->whereHas('delivery', function ($q) use ($custId) {
-                    $q->whereDate('idCliente', $custId);
+                    $q->where('idCliente', $custId);
                 })->get();
 
             $todosPedidos = [];
