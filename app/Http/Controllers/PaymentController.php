@@ -113,12 +113,9 @@ class PaymentController extends Controller
     public function getPayments()
     {
         try {
-            $payments = Payment::all();
+            $payments = Payment::with(['customer','user','paymentType'])->get();
 
             foreach ($payments as $payment) {
-                $payment->customer;
-                $payment->user;
-                $payment->paymentType;
                 $payment->fechaPago = Carbon::parse($payment->fechaPago)->format('Y-m-d');
             }
 

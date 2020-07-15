@@ -137,13 +137,20 @@ class RatesController extends Controller
             $lastIndex = Tarifa::query()->max('idTarifaDelivery');
 
             if (sizeof($customers) > 0) {
-                foreach ($customers as $customer) {
-                    $nCustRate = new RateCustomer();
-                    $nCustRate->idTarifaDelivery = $lastIndex;
-                    $nCustRate->idCliente = $customer->idCliente;
-                    $nCustRate->fechaRegistro = Carbon::now();
-                    $nCustRate->save();
+                for ($i = 0; $i < sizeof($customers); $i++) {
+                    $existe = RateCustomer::where('idTarifaDelivery', $lastIndex)
+                        ->where('idCliente', $customers[$i]['idCliente'])->count();
+
+                    if ($existe == 0) {
+                        $nCustRate = new RateCustomer();
+                        $nCustRate->idTarifaDelivery = $lastIndex;
+                        $nCustRate->idCliente = $customers[$i]['idCliente'];
+                        $nCustRate->fechaRegistro = Carbon::now();
+                        $nCustRate->save();
+
+                    }
                 }
+
             }
 
             return response()->json([
@@ -154,26 +161,27 @@ class RatesController extends Controller
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
-                'message' => 'Error al agregar la tarifa.'
+                'message' => $ex->getMessage() //'Error al agregar la tarifa.'
             ], 500);
         }
     }
 
-    public function getCustomers(Request $request){
+    public function getCustomers(Request $request)
+    {
         $request->validate([
             'idTarifa' => 'required'
         ]);
         $rateId = $request->idTarifa;
         try {
             $rateCustomers = RateCustomer::where('idTarifaDelivery', $rateId)->get();
-            foreach ($rateCustomers as $rc){
+            foreach ($rateCustomers as $rc) {
                 $rc->customer;
             }
             return response()->json([
                 'error' => 0,
                 'data' => $rateCustomers
             ], 200);
-        }catch (\Exception $ex){
+        } catch (\Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
@@ -182,7 +190,8 @@ class RatesController extends Controller
         }
     }
 
-    public function removeCustomer(Request $request){
+    public function removeCustomer(Request $request)
+    {
         $request->validate([
             'idCliente' => 'required',
             'idTarifa' => 'required'
@@ -198,7 +207,7 @@ class RatesController extends Controller
                 'error' => 0,
                 'message' => 'Cliente eliminado de la tarifa correctamente'
             ], 200);
-        }catch (\Exception $ex){
+        } catch (\Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
@@ -207,7 +216,8 @@ class RatesController extends Controller
         }
     }
 
-    public function addCustomer(Request $request){
+    public function addCustomer(Request $request)
+    {
         $request->validate([
             'idCliente' => 'required',
             'idTarifa' => 'required'
@@ -219,7 +229,7 @@ class RatesController extends Controller
             $existe = RateCustomer::where('idTarifaDelivery', $rateId)
                 ->where('idCliente', $customerId)->count();
 
-            if($existe == 0){
+            if ($existe == 0) {
                 $nCustRate = new RateCustomer();
                 $nCustRate->idTarifaDelivery = $rateId;
                 $nCustRate->idCliente = $customerId;
@@ -231,7 +241,7 @@ class RatesController extends Controller
                     'message' => 'La tarifa ha sido asignada correctamente'
                 ], 200);
 
-            }else{
+            } else {
                 return response()->json([
                     'error' => 1,
                     'message' => 'El cliente ya tiene asignada esta tarifa'
@@ -239,7 +249,7 @@ class RatesController extends Controller
             }
 
 
-        }catch (\Exception $ex){
+        } catch (\Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,

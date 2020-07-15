@@ -88,10 +88,8 @@ class BranchOfficesController extends Controller
                 'direccion' => $form['direccion']
             ]);
 
-            if ($form['instrucciones'] != '') {
-                $currBranch->update(['instrucciones' => $form['instrucciones']]);
-            }
-
+            $currBranch->update(['instrucciones' => $form['instrucciones']]);
+            
             if ($form['isDefault'] == true) {
                 if (Branch::where('idCliente', Auth::user()->idCliente)->count() > 0) {
                     Branch::where('idCliente', Auth::user()->idCliente)

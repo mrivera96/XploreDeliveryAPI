@@ -18,127 +18,218 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::group(['prefix' => 'categories'], function () {
-    Route::get('list', 'CategoriesController@listCategories');
-    Route::group(['middleware' => 'auth:api'], function () {
-        Route::post('showAll', 'CategoriesController@showAllCategories');
-        Route::post('update', 'CategoriesController@updateCategory');
-        Route::post('create', 'CategoriesController@createCategory');
-    });
 
-});
+/****************************
+ * RUTAS PARA WS COMPARTIDOS
+ * ***************************/
 
+//WS de autenticación
 Route::group(['prefix' => 'auth'], function () {
     Route::post('login', 'AuthController@login');
     Route::group(['middleware' => 'auth:api'], function () {
         Route::post('logout', 'AuthController@logout');
     });
-
 });
 
-Route::group(['prefix' => 'deliveries'], function () {
-    Route::post('new', 'DeliveriesController@createDelivery');
-    Route::get('getTarifas', 'RatesController@getRates');
-    Route::get('getRecargos', 'SurchargesController@getSurcharges');
+//WS que NO requieren autenticación
 
-    Route::post('entregar', 'DeliveriesController@updateDeliveried');
+Route::group(['prefix' => 'shared'], function () {
+    //Rutas Horarios
+    Route::group(['prefix' => 'schedule'], function () {
+        Route::get('get', 'ScheduleController@getSchedules');
+    });
+
+    //Rutas Estados
+    Route::group(['prefix' => 'states'], function () {
+        Route::get('list', 'StatesController@list');
+    });
+
+    //Rutas Tarifas
+    Route::group(['prefix' => 'rates'], function () {
+        Route::get('get', 'RatesController@getRates');
+    });
+
+    //Rutas Categorias
+    Route::group(['prefix' => 'categories'], function () {
+        Route::get('showAll', 'CategoriesController@showAllCategories');
+    });
+    //Rutas Recargos
+    Route::group(['prefix' => 'surcharges'], function () {
+        Route::get('get', 'SurchargesController@getSurcharges');
+    });
+
+    //WS que SI requieren autenticación
     Route::group(['middleware' => 'auth:api'], function () {
-        Route::post('getById', 'DeliveriesController@getById');
-        Route::post('list', 'DeliveriesController@list');
-        Route::post('assign', 'DeliveriesController@assignDelivery');
-        Route::post('finish', 'DeliveriesController@finishDelivery');
-        Route::post('changeState', 'DeliveriesController@changeStateDelivery');
-        Route::post('changeOrderState', 'DeliveriesController@changeOrderState');
-        Route::post('getOrders', 'DeliveriesController@getOrders');
-        Route::post('getPendingDeliveries', 'DeliveriesController@getPendingDeliveries');
-        Route::post('changeHour', 'DeliveriesController@changeDeliveryHour');
-        Route::post('getOrdersByCustomer', 'DeliveriesController@getOrdersByCustomer');
-    });
 
-});
+        //Rutas Deliveries
+        Route::group(['prefix' => 'deliveries'], function () {
+            Route::post('getById', 'DeliveriesController@getById');
+        });
 
-Route::group(['prefix' => 'rates'], function () {
-    Route::post('update', 'RatesController@updateRate');
-    Route::post('create', 'RatesController@createRate');
-    Route::post('removeCustomer','RatesController@removeCustomer');
-    Route::post('getCustomers', 'RatesController@getCustomers');
-    Route::post('addCustomer', 'RatesController@addCustomer');
-});
+        //Rutas Pagos
+        Route::group(['prefix' => 'payments'], function () {
+            Route::post('list', 'PaymentController@getPayments');
+        });
 
-Route::group(['prefix' => 'surcharges'], function () {
-    Route::post('update', 'SurchargesController@updateSurcharge');
-    Route::post('create', 'SurchargesController@createSurcharge');
-});
 
-Route::group(['prefix' => 'states'], function () {
-    Route::get('list', 'StatesController@list');
-});
-
-Route::group(['prefix' => 'vehicles'], function () {
-    Route::get('list', 'VehiclesController@list');
-});
-
-Route::group(['prefix' => 'drivers'], function () {
-    Route::group(['middleware' => 'auth:api'], function (){
-        Route::post('list', 'UsersController@listDrivers');
-        Route::post('create', 'UsersController@createDriver');
-        Route::post('update', 'UsersController@updateDriver');
     });
 });
 
-Route::group(['prefix' => 'cities'], function () {
-    Route::group(['middleware' => 'auth:api'], function (){
-        Route::post('list', 'AgenciesController@listCities');
-    });
-});
 
-Route::group(['prefix' => 'agencies'], function () {
-    Route::group(['middleware' => 'auth:api'], function (){
-        Route::post('list', 'AgenciesController@listAgencies');
-    });
-});
+/*************************
+ * RUTAS PARA WS DE ADMINS
+ * ************************/
 
-Route::group(['prefix' => 'customers'], function () {
+Route::group(['prefix' => 'admins'], function () {
+    //WS que requieren autenticación
     Route::group(['middleware' => 'auth:api'], function () {
-        Route::post('getMyDeliveries', 'DeliveriesController@getCustomerDeliveries');
-        Route::post('getMyBranchOffices', 'BranchOfficesController@getCustomerBranchOffices');
-        Route::post('newCustomerDelivery', 'DeliveriesController@createCustomerDelivery');
-        Route::post('getCustomerOrders', 'DeliveriesController@getCustomerOders');
-        Route::post('list', 'DeliveryUsersController@list');
-        Route::post('new', 'DeliveryUsersController@newCustomer');
-        Route::post('update', 'DeliveryUsersController@updateCustomer');
-        Route::post('newBranch', 'BranchOfficesController@newBranch');
-        Route::post('changePassword', 'DeliveryUsersController@changePassword');
-        Route::post('updateBranch', 'BranchOfficesController@updateBranch');
-        Route::post('deleteBranch', 'BranchOfficesController@deleteBranch');
-        Route::post('getMyRates', 'RatesController@getCustomerRates');
-        Route::post('getMySurcharges', 'SurchargesController@getCustomerSurcharges');
-        Route::post('getMyCategories', 'CategoriesController@getCustomerCategories');
+        //Rutas Cargos Extras
+        Route::group(['prefix' => 'extraCharges'], function () {
+            Route::post('get', 'ExtraChargesController@get');
+            Route::post('create', 'ExtraChargesController@create');
+            Route::post('update', 'ExtraChargesController@update');
+        });
+
+        //Rutas Deliveries
+        Route::group(['prefix' => 'deliveries'], function () {
+            Route::post('getToday', 'DeliveriesController@getTodayDeliveries');
+            Route::post('getTomorrow', 'DeliveriesController@getTomorrowDeliveries');
+            Route::post('getAll', 'DeliveriesController@getAllDeliveries');
+            Route::post('assign', 'DeliveriesController@assignDelivery');
+            Route::post('finish', 'DeliveriesController@finishDelivery');
+            Route::post('changeState', 'DeliveriesController@changeStateDelivery');
+            Route::post('getPending', 'DeliveriesController@getPendingDeliveries');
+        });
+
+        //Rutas Envios
+        Route::group(['prefix' => 'orders'], function () {
+            Route::post('changeState', 'DeliveriesController@changeOrderState');
+            Route::post('getToday', 'DeliveriesController@getTodayOrders');
+            Route::post('getAll', 'DeliveriesController@getAllOrders');
+            Route::post('getOrdersByCustomer', 'DeliveriesController@getOrdersByCustomer');
+        });
+
+        //Rutas Tarifas
+        Route::group(['prefix' => 'rates'], function () {
+            Route::post('update', 'RatesController@updateRate');
+            Route::post('create', 'RatesController@createRate');
+            Route::post('removeCustomer', 'RatesController@removeCustomer');
+            Route::post('getCustomers', 'RatesController@getCustomers');
+            Route::post('addCustomer', 'RatesController@addCustomer');
+        });
+
+        //Rutas Recargos
+        Route::group(['prefix' => 'surcharges'], function () {
+            Route::post('update', 'SurchargesController@updateSurcharge');
+            Route::post('create', 'SurchargesController@createSurcharge');
+        });
+
+        //Rutas Categorias
+        Route::group(['prefix' => 'categories'], function () {
+            Route::get('get', 'CategoriesController@listCategories');
+            Route::post('update', 'CategoriesController@updateCategory');
+            Route::post('create', 'CategoriesController@createCategory');
+        });
+
+        //Rutas Conductores
+        Route::group(['prefix' => 'drivers'], function () {
+            Route::post('get', 'UsersController@listDrivers');
+            Route::post('create', 'UsersController@createDriver');
+            Route::post('update', 'UsersController@updateDriver');
+        });
+
+        //Rutas Ciudades
+        Route::group(['prefix' => 'cities'], function () {
+            Route::post('get', 'AgenciesController@listCities');
+        });
+
+        //Rutas Agencias
+        Route::group(['prefix' => 'agencies'], function () {
+            Route::post('list', 'AgenciesController@listAgencies');
+        });
+
+        //Rutas Reportes
+        Route::group(['prefix' => 'reports'], function () {
+            Route::post('ordersByDriver', 'DeliveriesController@reportOrdersByDriver');
+            Route::post('ordersByCustomer', 'DeliveriesController@reportOrdersByCustomer');
+        });
+
+        //Rutas Pagos
+        Route::group(['prefix' => 'payments'], function () {
+            Route::post('create', 'PaymentController@createPayment');
+            Route::post('listTypes', 'PaymentController@getPaymentTypes');
+        });
+
+        //Rutas Horarios
+        Route::group(['prefix' => 'schedule'], function () {
+            Route::post('update', 'ScheduleController@updateSchedule');
+        });
+
+        //Rutas Clientes
+        Route::group(['prefix' => 'customers'], function () {
+            Route::post('get', 'DeliveryUsersController@list');
+            Route::post('new', 'DeliveryUsersController@newCustomer');
+            Route::post('update', 'DeliveryUsersController@updateCustomer');
+            Route::post('changePassword', 'DeliveryUsersController@changePassword');
+        });
+
+    });
+
+});
+
+
+/***************************
+ * RUTAS PARA WS DE CLIENTES
+ * ***************************/
+
+//WS que requieren autenticación
+
+Route::group(['middleware' => 'auth:api'], function () {
+    Route::group(['prefix' => 'customers'], function () {
+        //Rutas Deliveries
+        Route::group(['prefix' => 'deliveries'], function () {
+            Route::post('changeHour', 'DeliveriesController@changeDeliveryHour');
+            Route::post('getToday', 'DeliveriesController@getTodayCustomerDeliveries');
+            Route::post('getAll', 'DeliveriesController@getAllCustomerDeliveries');
+            Route::post('new', 'DeliveriesController@createCustomerDelivery');
+        });
+
+        //Rutas Direcciones
+        Route::group(['prefix' => 'address'], function () {
+            Route::post('get', 'BranchOfficesController@getCustomerBranchOffices');
+            Route::post('new', 'BranchOfficesController@newBranch');
+            Route::post('update', 'BranchOfficesController@updateBranch');
+            Route::post('delete', 'BranchOfficesController@deleteBranch');
+        });
+
+        //Rutas Tarifas
+        Route::group(['prefix' => 'rates'], function () {
+            Route::post('get', 'RatesController@getCustomerRates');
+        });
+
+        //Rutas Envios
+        Route::group(['prefix' => 'orders'], function () {
+            Route::post('getToday', 'DeliveriesController@getTodayCustomerOrders');
+            Route::post('getAll', 'DeliveriesController@getAllCustomerOrders');
+        });
+
+        //Rutas Recargos
+        Route::group(['prefix' => 'surcharges'], function () {
+            Route::post('get', 'SurchargesController@getCustomerSurcharges');
+        });
+
+        //Rutas Categorias
+        Route::group(['prefix' => 'categories'], function () {
+            Route::post('get', 'CategoriesController@getCustomerCategories');
+        });
+
     });
 });
 
-Route::group(['prefix' => 'reports'], function () {
-    Route::group(['middleware' => 'auth:api'], function () {
-        Route::post('ordersByDriver', 'DeliveriesController@reportOrdersByDriver');
-        Route::post('ordersByCustomer', 'DeliveriesController@reportOrdersByCustomer');
-    });
-});
 
-Route::group(['prefix' => 'payments'], function () {
-    Route::group(['middleware' => 'auth:api'], function () {
-        Route::post('create', 'PaymentController@createPayment');
-        Route::post('list', 'PaymentController@getPayments');
-        Route::post('listTypes', 'PaymentController@getPaymentTypes');
-    });
-});
-
-Route::group(['prefix' => 'schedule'], function () {
-    Route::get('list', 'ScheduleController@getSchedules');
-    Route::group(['middleware' => 'auth:api'], function () {
-        Route::post('update', 'ScheduleController@updateSchedule');
-    });
-});
-
+/***************************
+ * RUTAS PARA WS DE TESTEO
+ * ***************************/
 
 Route::get('testCript', 'DeliveryUsersController@testEncryption');
 Route::get('testDeCript', 'DeliveryUsersController@testDecryption');
