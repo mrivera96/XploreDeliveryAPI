@@ -29,7 +29,7 @@
 
 <div class="row">
     <h4>Es un placer saludarte, {{$client_name}}</h4>
-    <p>Te notificamos que se ha realizado con éxito el cambio de hora de la reserva No. {{$delivery->idDelivery}} a las {{ \Carbon\Carbon::parse(date('H:i', strtotime($delivery->fechaReserva)))->format('h:i a')}} .</p>
+    <p>Te notificamos que se ha realizado con éxito el cambio de hora de la reserva No. {{$delivery->idDelivery}} para:  {{ \Carbon\Carbon::parse(date('Y-m-d H:i', strtotime($delivery->fechaReserva)))->format('d/m/Y h:i a')}} .</p>
 </div>
 
 </body>

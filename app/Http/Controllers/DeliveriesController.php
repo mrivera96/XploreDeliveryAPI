@@ -928,6 +928,7 @@ class DeliveriesController extends Controller
     {
         $request->validate([
             'form' => 'required',
+            'form.fecha' => 'required',
             'form.hora' => 'required',
             'form.idDelivery' => 'required'
         ]);
@@ -936,14 +937,14 @@ class DeliveriesController extends Controller
         $currDelivery = Delivery::find($rDelivery['idDelivery']);
 
         try {
-            $date = date('Y-m-d', strtotime($currDelivery->fechaReserva));
+            $date = date('Y-m-d', strtotime($rDelivery['fecha']));
             $time = date('H:i', strtotime($rDelivery['hora']));
             $deliveryDayCode = Carbon::create($date)->dayOfWeek;
 
             $todaySchedule = Schedule::where('cod', $deliveryDayCode)->get()->first();
 
 
-            if ($time < $todaySchedule->inicio ||
+            if (Auth::user()->idPerfil != 1 && $time < $todaySchedule->inicio || Auth::user()->idPerfil != 1 &&
                 $time > $todaySchedule->final) {
                 return response()->json(
                     [

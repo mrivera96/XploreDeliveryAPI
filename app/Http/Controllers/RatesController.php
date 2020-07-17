@@ -113,8 +113,7 @@ class RatesController extends Controller
             'form.idCategoria' => 'required',
             'form.entregasMinimas' => 'required',
             'form.entregasMaximas' => 'required',
-            'form.precio' => 'required',
-            'customers' => 'required'
+            'form.precio' => 'required'
         ]);
 
         $descRate = $request->form["descTarifa"];
@@ -122,7 +121,7 @@ class RatesController extends Controller
         $emin = $request->form["entregasMinimas"];
         $emax = $request->form["entregasMaximas"];
         $monto = $request->form["precio"];
-        $customers = $request->customers;
+        
 
         try {
             $currRate = new Tarifa();
@@ -132,26 +131,34 @@ class RatesController extends Controller
             $currRate->entregasMaximas = $emax;
             $currRate->precio = $monto;
             $currRate->fechaRegistro = Carbon::now();
+            if($request->form['idCliente'] == 1){
+                $currRate->idCliente = 1;
+            }
             $currRate->save();
 
             $lastIndex = Tarifa::query()->max('idTarifaDelivery');
 
-            if (sizeof($customers) > 0) {
-                for ($i = 0; $i < sizeof($customers); $i++) {
-                    $existe = RateCustomer::where('idTarifaDelivery', $lastIndex)
-                        ->where('idCliente', $customers[$i]['idCliente'])->count();
-
-                    if ($existe == 0) {
-                        $nCustRate = new RateCustomer();
-                        $nCustRate->idTarifaDelivery = $lastIndex;
-                        $nCustRate->idCliente = $customers[$i]['idCliente'];
-                        $nCustRate->fechaRegistro = Carbon::now();
-                        $nCustRate->save();
-
+            if(isset($request->customers)){
+                $customers = $request->customers;
+                if (sizeof($customers) > 0) {
+                    for ($i = 0; $i < sizeof($customers); $i++) {
+                        $existe = RateCustomer::where('idTarifaDelivery', $lastIndex)
+                            ->where('idCliente', $customers[$i]['idCliente'])->count();
+    
+                        if ($existe == 0) {
+                            $nCustRate = new RateCustomer();
+                            $nCustRate->idTarifaDelivery = $lastIndex;
+                            $nCustRate->idCliente = $customers[$i]['idCliente'];
+                            $nCustRate->fechaRegistro = Carbon::now();
+                            $nCustRate->save();
+    
+                        }
                     }
+    
                 }
-
             }
+            
+            
 
             return response()->json([
                 'error' => 0,
