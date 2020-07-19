@@ -12,10 +12,9 @@ class SurchargesController extends Controller
     public function getSurcharges()
     {
         try {
-            $recargos = RecargoDelivery::all();
+            $recargos = RecargoDelivery::with('customer')->get();
             foreach ($recargos as $recargo) {
                 $recargo->monto = number_format($recargo->monto, 2);
-                $recargo->cliente = $recargo->customer;
                 $recargo->kilomMinimo = number_format($recargo->kilomMinimo, 2);
                 $recargo->kilomMaximo = number_format($recargo->kilomMaximo, 2);
             }

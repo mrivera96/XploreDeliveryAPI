@@ -121,7 +121,7 @@ class RatesController extends Controller
         $emin = $request->form["entregasMinimas"];
         $emax = $request->form["entregasMaximas"];
         $monto = $request->form["precio"];
-        
+
 
         try {
             $currRate = new Tarifa();
@@ -144,21 +144,19 @@ class RatesController extends Controller
                     for ($i = 0; $i < sizeof($customers); $i++) {
                         $existe = RateCustomer::where('idTarifaDelivery', $lastIndex)
                             ->where('idCliente', $customers[$i]['idCliente'])->count();
-    
+
                         if ($existe == 0) {
                             $nCustRate = new RateCustomer();
                             $nCustRate->idTarifaDelivery = $lastIndex;
                             $nCustRate->idCliente = $customers[$i]['idCliente'];
                             $nCustRate->fechaRegistro = Carbon::now();
                             $nCustRate->save();
-    
+
                         }
                     }
-    
+
                 }
             }
-            
-            
 
             return response()->json([
                 'error' => 0,
@@ -180,10 +178,8 @@ class RatesController extends Controller
         ]);
         $rateId = $request->idTarifa;
         try {
-            $rateCustomers = RateCustomer::where('idTarifaDelivery', $rateId)->get();
-            foreach ($rateCustomers as $rc) {
-                $rc->customer;
-            }
+            $rateCustomers = RateCustomer::with('customer')->where('idTarifaDelivery', $rateId)->get();
+
             return response()->json([
                 'error' => 0,
                 'data' => $rateCustomers

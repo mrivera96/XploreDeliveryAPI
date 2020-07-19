@@ -18,7 +18,8 @@ class DeliveryUsersController extends Controller
     public function list()
     {
         try {
-            $customers = DeliveryClient::all();
+            $customers = DeliveryClient::with(['payments','deliveries.detalle'])->get();
+
             return response()
                 ->json([
                     'error' => 0,

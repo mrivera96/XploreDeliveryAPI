@@ -13,10 +13,8 @@ class BranchOfficesController extends Controller
     public function getCustomerBranchOffices()
     {
         try {
-            $myBranchOffices = Branch::where('isActivo', 1)->where('idCliente', Auth::user()->idCliente)->get();
-            foreach ($myBranchOffices as $bOffice) {
-                $bOffice->cliente;
-            }
+            $myBranchOffices = Branch::with('cliente')->where('isActivo', 1)->where('idCliente', Auth::user()->idCliente)->get();
+
             return response()->json([
                 'error' => 0,
                 'data' => $myBranchOffices
@@ -89,7 +87,7 @@ class BranchOfficesController extends Controller
             ]);
 
             $currBranch->update(['instrucciones' => $form['instrucciones']]);
-            
+
             if ($form['isDefault'] == true) {
                 if (Branch::where('idCliente', Auth::user()->idCliente)->count() > 0) {
                     Branch::where('idCliente', Auth::user()->idCliente)

@@ -42,5 +42,9 @@ class Delivery extends Model
         return $this->hasOne('App\Estado', 'idEstado', 'idEstado');
     }
 
+    public function cliente(){
+        return $this->belongsTo('App\DeliveryClient', 'idCliente', 'idCliente');
+    }
+
 
 }
