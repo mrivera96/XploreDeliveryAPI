@@ -178,6 +178,8 @@ Route::group(['prefix' => 'admins'], function () {
 });
 
 
+Route::get('generatePassword','AuthController@generatePassword');
+
 /***************************
  * RUTAS PARA WS DE CLIENTES
  * ***************************/

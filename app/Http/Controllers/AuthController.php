@@ -102,4 +102,9 @@ class AuthController extends Controller
         }
 
     }
+
+    public function generatePassword(Request $request){
+        $pass = \Illuminate\Support\Facades\Hash::make($request->pass);
+        return response()->json($pass);
+    }
 }
