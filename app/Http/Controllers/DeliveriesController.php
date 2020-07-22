@@ -277,9 +277,7 @@ class DeliveriesController extends Controller
         }
     }
 
-    /****
-     * REPORTS ORDER BY DRIVER
-     ****/
+    //Report Orders By Driver
 
     public function reportOrdersByDriver(Request $request)
     {
@@ -464,6 +462,8 @@ class DeliveriesController extends Controller
 
     }
 
+    //Report order by customer
+
     public function reportOrdersByCustomer(Request $request)
     {
         $request->validate([
@@ -496,15 +496,18 @@ class DeliveriesController extends Controller
                 $mydataObj = (object)array();
                 $mydataObj->category = $category->descCategoria;
                 $mydataObj->orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                     ->whereHas('delivery', function ($q) use ($customerDetails, $category) {
                         $q->where('idCliente', $customerDetails->idCliente)->where('idCategoria', $category->idCategoria);
                     })->count();
                 $mydataObj->totalSurcharges = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                     ->whereHas('delivery', function ($q) use ($customerDetails, $category) {
                         $q->where('idCliente', $customerDetails->idCliente)->where('idCategoria', $category->idCategoria);
                     })->sum('recargo');
 
                 $mydataObj->cTotal = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                     ->whereHas('delivery', function ($q) use ($customerDetails, $category) {
                         $q->where('idCliente', $customerDetails->idCliente)->where('idCategoria', $category->idCategoria);
                     })->sum('cTotal');
@@ -528,7 +531,7 @@ class DeliveriesController extends Controller
                     $q->where('idCliente', $customerDetails->idCliente);
                 })->count();
 
-            if ($customer == -1 && $isSameDay) {
+            /*if ($customer == -1 && $isSameDay) {
                 $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->get();
 
@@ -538,7 +541,7 @@ class DeliveriesController extends Controller
                         $dataObj = (object)array();
                         $dataObj->fecha = Carbon::parse($order->fechaEntrega)->format('Y-m-d');
                         $dataObj->customer = $custr->nomEmpresa;
-                        $dataObj->orders = DetalleDelivery::whereIn('idEstado', [44,46,47])
+                        $dataObj->orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                             ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                             ->whereHas('delivery', function ($q) use ($custr) {
                                 $q->where('idCliente', $custr->idCliente);
@@ -571,7 +574,7 @@ class DeliveriesController extends Controller
                 );
 
             } else if ($customer == -1 && !$isSameDay) {
-                $datedOrders = DetalleDelivery::whereIn('idEstado', [44,46,47])
+                $datedOrders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->orderBy('fechaEntrega', 'desc')->get()
                     ->groupBy(function ($val) {
                         return Carbon::parse($val->fechaEntrega)->format('Y-m-d');
@@ -587,7 +590,7 @@ class DeliveriesController extends Controller
                                 $dataObj->fecha = Carbon::parse($order->fechaEntrega)->format('Y-m-d');
                                 $initDateTime = new Carbon(date('Y-m-d', strtotime($dataObj->fecha)) . ' 00:00:00');
                                 $finDateTime = new Carbon(date('Y-m-d', strtotime($dataObj->fecha)) . ' 23:59:59');
-                                $dataObj->orders = DetalleDelivery::whereIn('idEstado', [44,46,47])
+                                $dataObj->orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                                     ->whereHas('delivery', function ($q) use ($custr) {
                                         $q->where('idCliente', $custr->idCliente);
@@ -624,16 +627,19 @@ class DeliveriesController extends Controller
                 );
 
 
-            } else if ($customer != -1 && $isSameDay) {
-                $orders = DetalleDelivery::whereIn('idEstado', [44,46,47])
-                    ->whereDate('fechaEntrega', $initDate)->get();
+            } else*/ if ($customer != -1 && $isSameDay) {
+                $orders = DetalleDelivery::with('estado')->whereIn('idEstado', [44, 46, 47])
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->whereHas('delivery', function ($q) use ($customerDetails) {
+                        $q->where('idCliente', $customerDetails->idCliente);
+                    })->get();
 
                 if (sizeof($orders) > 0) {
                     foreach ($orders as $order) {
                         $dataObj = (object)array();
                         $dataObj->customer = $customerDetails->nomEmpresa;
                         $dataObj->fecha = Carbon::parse($order->fechaEntrega)->format('Y-m-d');
-                        $dataObj->orders = DetalleDelivery::whereIn('idEstado', [44,46,47])
+                        $dataObj->orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                             ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                             ->whereHas('delivery', function ($q) use ($customerDetails) {
                                 $q->where('idCliente', $customerDetails->idCliente);
@@ -662,16 +668,20 @@ class DeliveriesController extends Controller
                         'data' => array(
                             'ordersReport' => $outputData,
                             'totalOrders' => $totalOrders,
-                            'ordersByCategory' => $ordersByCatArray
+                            'ordersByCategory' => $ordersByCatArray,
+                            'orders' => $orders
                         )
                     ],
                     200
                 );
 
 
-            } else {
-                $orders = DetalleDelivery::whereIn('idEstado', [44,46,47])
+            } else if($customer != -1 && !$isSameDay){
+                $orders = DetalleDelivery::with('estado')->whereIn('idEstado', [44, 46, 47])
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->whereHas('delivery', function ($q) use ($customerDetails) {
+                        $q->where('idCliente', $customerDetails->idCliente);
+                    })
                     ->orderBy('fechaEntrega', 'desc')->get()
                     ->groupBy(function ($val) {
                         return Carbon::parse($val->fechaEntrega)->format('Y-m-d');
@@ -685,7 +695,7 @@ class DeliveriesController extends Controller
                         $data->fecha = Carbon::parse($order[$i]->fechaEntrega)->format('Y-m-d');
                         $initDateTime = new Carbon(date('Y-m-d', strtotime($data->fecha)) . ' 00:00:00');
                         $finDateTime = new Carbon(date('Y-m-d', strtotime($data->fecha)) . ' 23:59:59');
-                        $data->orders = DetalleDelivery::whereIn('idEstado', [44,46,47])
+                        $data->orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                             ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                             ->whereHas('delivery', function ($q) use ($customerDetails) {
                                 $q->where('idCliente', $customerDetails->idCliente);
@@ -698,13 +708,21 @@ class DeliveriesController extends Controller
 
                 }
 
+                $initDateTime = new Carbon(date('Y-m-d', strtotime($form['initDate'])) . ' 00:00:00');
+                $finDateTime = new Carbon(date('Y-m-d', strtotime($form['finDate'])) . ' 23:59:59');
+
                 return response()->json(
                     [
                         'error' => 0,
                         'data' => array(
                             'ordersReport' => $outputData,
                             'totalOrders' => $totalOrders,
-                            'ordersByCategory' => $ordersByCatArray
+                            'ordersByCategory' => $ordersByCatArray,
+                            'orders' => $orders = DetalleDelivery::with('estado')->whereIn('idEstado', [44, 46, 47])
+                                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                                ->whereHas('delivery', function ($q) use ($customerDetails) {
+                                    $q->where('idCliente', $customerDetails->idCliente);
+                                })->get()
                         )
                     ],
                     200
@@ -1345,7 +1363,7 @@ class DeliveriesController extends Controller
             $counter = 0;
 
             foreach ($currDelDetails as $order) {
-                if ($order->idEstado == 44 || $order->idEstado == 46 || $order->idEstado == 47 ) {
+                if ($order->idEstado == 44 || $order->idEstado == 46 || $order->idEstado == 47) {
                     $counter++;
                 }
             }
