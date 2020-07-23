@@ -1163,6 +1163,7 @@ class DeliveriesController extends Controller
 
         try {
             $allDeliveries = DetalleDelivery::with(['estado', 'conductor'])
+            ->whereIn('idEstado',[44,46,47])
                 ->whereHas('delivery', function ($q) use ($custId) {
                     $q->where('idCliente', $custId);
                 })->get();
