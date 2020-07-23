@@ -28,7 +28,7 @@ class PaymentController extends Controller
         try {
             $finishedDeliveries = Delivery::where('idCliente', $rPayment['idCliente'])->where('idEstado', 39)->get();
 
-            if(sizeof($finishedDeliveries) == 0){
+            if (sizeof($finishedDeliveries) == 0) {
                 return response()->json(
                     [
                         'error' => 1,
@@ -78,9 +78,22 @@ class PaymentController extends Controller
                     );
                 }
 
-            } elseif ($rPayment['tipoPago'] == 7) {
-                $nPayment->referencia = $rPayment['referencia'];
-                $nPayment->banco = $rPayment['banco'];
+            } else if ($rPayment['tipoPago'] == 7) {
+                $existe = Payment::where('idCliente', $nPayment->idCliente)
+                    ->where('referencia', $rPayment['referencia'])->count();
+                if ($existe == 0) {
+                    $nPayment->referencia = $rPayment['referencia'];
+                    $nPayment->banco = $rPayment['banco'];
+                }else {
+                    return response()->json(
+                        [
+                            'error' => 1,
+                            'message' => 'Ese número de referencia ya está registrado'
+                        ],
+                        500
+                    );
+                }
+
             }
 
             $nPayment->save();
@@ -113,7 +126,7 @@ class PaymentController extends Controller
     public function getPayments()
     {
         try {
-            $payments = Payment::with(['customer','user','paymentType'])->get();
+            $payments = Payment::with(['customer', 'user', 'paymentType'])->get();
 
             foreach ($payments as $payment) {
                 $payment->fechaPago = Carbon::parse($payment->fechaPago)->format('Y-m-d');

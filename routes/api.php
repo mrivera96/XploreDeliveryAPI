@@ -26,6 +26,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 //WS de autenticación
 Route::group(['prefix' => 'auth'], function () {
     Route::post('login', 'AuthController@login');
+    Route::post('passwordRecovery', 'AuthController@passwordRecovery');
     Route::group(['middleware' => 'auth:api'], function () {
         Route::post('logout', 'AuthController@logout');
     });
@@ -223,6 +224,11 @@ Route::group(['middleware' => 'auth:api'], function () {
         //Rutas Categorias
         Route::group(['prefix' => 'categories'], function () {
             Route::post('get', 'CategoriesController@getCustomerCategories');
+        });
+
+        //Rutas Pagos
+        Route::group(['prefix' => 'payments'], function () {
+            Route::post('get', 'PaymentController@getCustomerPayments');
         });
 
     });

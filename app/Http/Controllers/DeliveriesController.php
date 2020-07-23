@@ -28,7 +28,7 @@ class DeliveriesController extends Controller
     public function getById(Request $request)
     {
         try {
-            if (Auth::user()->idPerfil == 1) {
+            if (Auth::user()->idPerfil == 1 || Auth::user()->idPerfil == 9) {
                 $delivery = Delivery::where('idDelivery', $request->id)->with(['category', 'detalle'])->get()->first();
             } else {
                 $delivery = Delivery::where('idCliente', Auth::user()->idCliente)->where('idDelivery', $request->id)
@@ -1162,7 +1162,6 @@ class DeliveriesController extends Controller
         $custId = $request->customerId;
 
         try {
-            $user = User::where('idCliente', $custId)->get()->first();
             $allDeliveries = DetalleDelivery::with(['estado', 'conductor'])
                 ->whereHas('delivery', function ($q) use ($custId) {
                     $q->where('idCliente', $custId);

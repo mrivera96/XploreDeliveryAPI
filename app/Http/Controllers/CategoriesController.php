@@ -88,13 +88,15 @@ class CategoriesController extends Controller
         $request->validate(
             [
                 'form' => 'required',
-                'form.descCategoria' => 'required'
+                'form.descCategoria' => 'required',
+                'form.descripcion' => 'required'
             ]
         );
         $rCat = $request->form;
         try {
             $nCategory = new Category();
             $nCategory->descCategoria = $rCat['descCategoria'];
+            $nCategory->descripcion = $rCat['descripcion'];
             $nCategory->fechaAlta = Carbon::now();
             $nCategory->save();
             return response()->json([
@@ -117,7 +119,8 @@ class CategoriesController extends Controller
             [
                 'form' => 'required',
                 'form.idCategoria' => 'required',
-                'form.descCategoria' => 'required'
+                'form.descCategoria' => 'required',
+                'form.descripcion' => 'required'
             ]
         );
         $idCat = $request->form["idCategoria"];
@@ -125,6 +128,7 @@ class CategoriesController extends Controller
             $currCat = Category::where('idCategoria', $idCat);
             $currCat->update([
                 'descCategoria' => $request->form["descCategoria"],
+                'descripcion' => $request->form["descripcion"],
                 'isActivo' => $request->form['isActivo']
             ]);
             return response()->json(
