@@ -242,4 +242,4 @@ Route::group(['middleware' => 'auth:api'], function () {
 Route::get('testCript', 'DeliveryUsersController@testEncryption');
 Route::get('testDeCript', 'DeliveryUsersController@testDecryption');
 Route::get('testAuthCript', 'AuthController@testGettingCript');
-Route::post('testReport', 'DeliveriesController@reportOrdersByCustomer');
+Route::post('testReport', 'DeliveriesController@reportOrdersByDriver');
