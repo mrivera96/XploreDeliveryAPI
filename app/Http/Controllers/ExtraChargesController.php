@@ -51,7 +51,7 @@ class ExtraChargesController extends Controller
         $categories = $request->categories;
 
         try {
-            
+
             $nEC = new ExtraCharge();
 
             $nEC->nombre = $rNom;
@@ -69,7 +69,7 @@ class ExtraChargesController extends Controller
                     if ($existe == 0) {
                         $nExtraChargeCategory = new ExtraChargeCategory();
                         $nExtraChargeCategory->idCargoExtra = $lastIndex;
-                        $nExtraChargeCategory->idCategoria = $categories[$i]['idCategoria'];  
+                        $nExtraChargeCategory->idCategoria = $categories[$i]['idCategoria'];
                         $nExtraChargeCategory->fechaRegistro = Carbon::now();
                         $nExtraChargeCategory->save();
                     }
@@ -104,19 +104,22 @@ class ExtraChargesController extends Controller
             'form' => 'required',
             'form.nombre' => 'required',
             'form.costo' => 'required',
+            'form.tipoCargo' => 'required'
 
         ]);
 
         try {
             $rNom = $request->form['nombre'];
             $rCost = $request->form['costo'];
+            $rTypeEC = $request->form['tipoCargo'];
             $aEcId = $request->ecId;
 
             $aEC = ExtraCharge::where('idCargoExtra', $aEcId);
 
             $aEC->update([
                 'nombre' => $rNom,
-                'costo' => $rCost
+                'costo' => $rCost,
+                'tipoCargo' => $rTypeEC
             ]);
 
             return response()
