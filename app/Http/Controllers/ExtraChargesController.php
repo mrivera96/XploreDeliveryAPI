@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\ExtraCharge;
+use App\ExtraChargeCategory;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -38,18 +40,42 @@ class ExtraChargesController extends Controller
         $request->validate([
             'form' => 'required',
             'form.nombre' => 'required',
-            'form.costo' => 'required'
+            'form.costo' => 'required',
+            'form.tipoCargo' => 'required',
+            'categories' => 'required'
         ]);
 
-        try {
-            $rNom = $request->form['nombre'];
-            $rCost = $request->form['costo'];
+        $rNom = $request->form['nombre'];
+        $rCost = $request->form['costo'];
+        $rTypeCharg = $request->form['tipoCargo'];
+        $categories = $request->categories;
 
+        try {
+            
             $nEC = new ExtraCharge();
 
             $nEC->nombre = $rNom;
             $nEC->costo = $rCost;
+            $nEC->tipoCargo = $rTypeCharg;
             $nEC->save();
+
+            $lastIndex = ExtraCharge::query()->max('idCargoExtra');
+
+            if (sizeof($categories) > 0) {
+                for ($i = 0; $i < sizeof($categories); $i++) {
+                    $existe = ExtraChargeCategory::where('idCargoExtra', $lastIndex)
+                        ->where('idCategoria', $categories[$i]['idCategoria'])->count();
+
+                    if ($existe == 0) {
+                        $nExtraChargeCategory = new ExtraChargeCategory();
+                        $nExtraChargeCategory->idCargoExtra = $lastIndex;
+                        $nExtraChargeCategory->idCategoria = $categories[$i]['idCategoria'];  
+                        $nExtraChargeCategory->fechaRegistro = Carbon::now();
+                        $nExtraChargeCategory->save();
+                    }
+                }
+
+            }
 
             return response()
                 ->json([
