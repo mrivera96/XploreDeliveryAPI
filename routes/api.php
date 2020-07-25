@@ -87,8 +87,10 @@ Route::group(['prefix' => 'admins'], function () {
         //Rutas Cargos Extras
         Route::group(['prefix' => 'extraCharges'], function () {
             Route::post('get', 'ExtraChargesController@get');
+            Route::post('getCategories', 'ExtraChargesController@getExtraChargeCategories');
             Route::post('create', 'ExtraChargesController@create');
             Route::post('update', 'ExtraChargesController@update');
+            Route::post('removeCategory', 'ExtraChargesController@removeCategory');
         });
 
         //Rutas Deliveries

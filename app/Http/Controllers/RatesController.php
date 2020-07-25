@@ -131,14 +131,14 @@ class RatesController extends Controller
             $currRate->entregasMaximas = $emax;
             $currRate->precio = $monto;
             $currRate->fechaRegistro = Carbon::now();
-            if($request->form['idCliente'] == 1){
+            if ($request->form['idCliente'] == 1) {
                 $currRate->idCliente = 1;
             }
             $currRate->save();
 
             $lastIndex = Tarifa::query()->max('idTarifaDelivery');
 
-            if(isset($request->customers)){
+            if (isset($request->customers)) {
                 $customers = $request->customers;
                 if (sizeof($customers) > 0) {
                     for ($i = 0; $i < sizeof($customers); $i++) {
@@ -178,7 +178,9 @@ class RatesController extends Controller
         ]);
         $rateId = $request->idTarifa;
         try {
-            $rateCustomers = RateCustomer::with('customer')->where('idTarifaDelivery', $rateId)->get();
+            $rateCustomers = RateCustomer::with('customer')
+                ->where('idTarifaDelivery', $rateId)
+                ->get();
 
             return response()->json([
                 'error' => 0,
@@ -214,7 +216,7 @@ class RatesController extends Controller
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
-                'message' => 'Error al agregar la tarifa.'
+                'message' => 'Error al eliminar el cliente.'
             ], 500);
         }
     }

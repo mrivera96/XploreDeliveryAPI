@@ -11,7 +11,8 @@ use Illuminate\Support\Facades\Log;
 
 class ExtraChargesController extends Controller
 {
-    public function get(){
+    public function get()
+    {
         try {
             $extraCharges = ExtraCharge::all();
 
@@ -36,7 +37,33 @@ class ExtraChargesController extends Controller
         }
     }
 
-    public function create(Request $request){
+    public function getExtraChargeCategories(Request $request)
+    {
+        $request->validate([
+            'idCargoExtra' => 'required'
+        ]);
+
+        $extraChargeId = $request->idCargoExtra;
+        try {
+            $extraChargeCategories = ExtraChargeCategory::with('category')
+                ->where('idCargoExtra', $extraChargeId)
+                ->get();
+
+            return response()->json([
+                'error' => 0,
+                'data' => $extraChargeCategories
+            ], 200);
+        } catch (\Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json([
+                'error' => 1,
+                'message' => 'Error al cargar las categorías del cargo extra.'
+            ], 500);
+        }
+    }
+
+    public function create(Request $request)
+    {
         $request->validate([
             'form' => 'required',
             'form.nombre' => 'required',
@@ -98,7 +125,35 @@ class ExtraChargesController extends Controller
         }
     }
 
-    public function update(Request $request){
+    public function removeCategory(Request $request){
+        $request->validate([
+            'idCargoExtra' => 'required',
+            'idCategoria' => 'required'
+        ]);
+
+        $categoryId = $request->idCategoria;
+        $extraChargeId = $request->idCargoExtra;
+
+        try {
+            ExtraChargeCategory::where('idCargoExtra', $extraChargeId)
+                ->where('idCategoria', $categoryId)->delete();
+
+            return response()->json([
+                'error' => 0,
+                'message' => 'Categoría eliminada del cargo extra correctamente'
+            ], 200);
+        } catch (\Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json([
+                'error' => 1,
+                'message' => 'Error al eliminar la categoría'
+            ], 500);
+        }
+
+    }
+
+    public function update(Request $request)
+    {
         $request->validate([
             'ecId' => 'required',
             'form' => 'required',
