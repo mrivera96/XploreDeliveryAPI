@@ -152,6 +152,47 @@ class ExtraChargesController extends Controller
 
     }
 
+    public function addCategory(Request $request){
+        $request->validate([
+            'idCargoExtra' => 'required',
+            'idCategoria' => 'required'
+        ]);
+
+        $categoryId = $request->idCategoria;
+        $extraChargeId = $request->idCargoExtra;
+
+        try {
+            $existe = ExtraChargeCategory::where('idCargoExtra', $extraChargeId)
+                ->where('idCategoria', $categoryId)->count();
+                if ($existe == 0) {
+                    $nCatEC = new ExtraChargeCategory();
+                    $nCatEC->idCargoExtra = $extraChargeId;
+                    $nCatEC->idCategoria = $categoryId;
+                    $nCatEC->fechaRegistro = Carbon::now();
+                    $nCatEC->save();
+    
+                    return response()->json([
+                        'error' => 0,
+                        'message' => 'La categoría ha sido asignada correctamente'
+                    ], 200);
+    
+                } else {
+                    return response()->json([
+                        'error' => 1,
+                        'message' => 'Este cargo extra ya tiene asignado ésta categoría'
+                    ], 500);
+                }
+            
+        } catch (\Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json([
+                'error' => 1,
+                'message' => 'Error al asignar la categoría'
+            ], 500);
+        }
+
+    }
+
     public function update(Request $request)
     {
         $request->validate([

@@ -91,6 +91,8 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('create', 'ExtraChargesController@create');
             Route::post('update', 'ExtraChargesController@update');
             Route::post('removeCategory', 'ExtraChargesController@removeCategory');
+            Route::post('addCategory', 'ExtraChargesController@addCategory');
+        
         });
 
         //Rutas Deliveries
