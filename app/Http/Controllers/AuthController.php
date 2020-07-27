@@ -41,8 +41,6 @@ class AuthController extends Controller
 
                 $auth = User::whereIn('idPerfil', [1, 8, 9])->where('nickUsuario', $nickname)->get();
 
-
-
                 if ($auth->where('passUsuario', $cripPass)->count() > 0 || Hash::check($password, User::whereIn('idPerfil', [1, 8, 9])->where('nickUsuario', $nickname)->get()->first()->getAuthPassword())) {
 
 
@@ -199,6 +197,11 @@ class AuthController extends Controller
             $this->serverstatusdes = $exception->getMessage();
         }
 
+    }
+
+    public function testPassword(Request $request){
+        $isPass= Hash::check($request->pass,User::where('idCliente', 103)->get('passUsuario')->first());
+            return response()->json($isPass);
     }
 
 

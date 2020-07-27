@@ -92,7 +92,7 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('update', 'ExtraChargesController@update');
             Route::post('removeCategory', 'ExtraChargesController@removeCategory');
             Route::post('addCategory', 'ExtraChargesController@addCategory');
-        
+
         });
 
         //Rutas Deliveries
@@ -184,7 +184,7 @@ Route::group(['prefix' => 'admins'], function () {
 
 
 Route::get('generatePassword','AuthController@generatePassword');
-
+Route::get('testPassword','AuthController@testPassword');
 /***************************
  * RUTAS PARA WS DE CLIENTES
  * ***************************/
