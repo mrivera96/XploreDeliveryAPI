@@ -656,7 +656,7 @@ class DeliveriesController extends Controller
 
 
             } else*/ if ($customer != -1 && $isSameDay) {
-                $orders = DetalleDelivery::with('estado')->whereIn('idEstado', [44, 46, 47])
+                $orders = DetalleDelivery::with(['estado','conductor'])->whereIn('idEstado', [44, 46, 47])
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                     ->whereHas('delivery', function ($q) use ($customerDetails) {
                         $q->where('idCliente', $customerDetails->idCliente);
@@ -705,7 +705,7 @@ class DeliveriesController extends Controller
 
 
             } else if($customer != -1 && !$isSameDay){
-                $orders = DetalleDelivery::with('estado')->whereIn('idEstado', [44, 46, 47])
+                $orders = DetalleDelivery::with(['estado','conductor'])->whereIn('idEstado', [44, 46, 47])
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                     ->whereHas('delivery', function ($q) use ($customerDetails) {
                         $q->where('idCliente', $customerDetails->idCliente);
@@ -912,7 +912,7 @@ class DeliveriesController extends Controller
                 $nDelivery->recargos = $pago['recargos'];
                 $nDelivery->total = $pago['total'];
                 $nDelivery->idCliente = Auth::user()->idCliente;
-                $nDelivery->coordsOrigen = $hDelivery['coordsOrigen'];
+                //$nDelivery->coordsOrigen = $hDelivery['coordsOrigen'];
                 $nDelivery->instrucciones = $hDelivery['instrucciones'];
                 $nDelivery->fechaRegistro = Carbon::now();
                 $nDelivery->save();
@@ -931,7 +931,7 @@ class DeliveriesController extends Controller
                     $nDetalle->recargo = $detalle['recargo'];
                     $nDetalle->cTotal = $detalle['cTotal'];
                     $nDetalle->instrucciones = $detalle['instrucciones'];
-                    $nDetalle->coordsDestino = $detalle['coordsDestino'];
+                    //$nDetalle->coordsDestino = $detalle['coordsDestino'];
                     $nDetalle->save();
                 }
 
