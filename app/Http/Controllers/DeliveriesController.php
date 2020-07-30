@@ -528,17 +528,17 @@ class DeliveriesController extends Controller
                     ->whereHas('delivery', function ($q) use ($customerDetails, $category) {
                         $q->where('idCliente', $customerDetails->idCliente)->where('idCategoria', $category->idCategoria);
                     })->count();
-                $mydataObj->totalSurcharges = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                $mydataObj->totalSurcharges = number_format(DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                     ->whereHas('delivery', function ($q) use ($customerDetails, $category) {
                         $q->where('idCliente', $customerDetails->idCliente)->where('idCategoria', $category->idCategoria);
-                    })->sum('recargo');
+                    })->sum('recargo'), 2);
 
-                $mydataObj->cTotal = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                $mydataObj->cTotal = number_format(DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                     ->whereHas('delivery', function ($q) use ($customerDetails, $category) {
                         $q->where('idCliente', $customerDetails->idCliente)->where('idCategoria', $category->idCategoria);
-                    })->sum('cTotal');
+                    })->sum('cTotal'),2);
 
                 if ($mydataObj->orders > 0) {
                     $exists = 0;
@@ -664,6 +664,8 @@ class DeliveriesController extends Controller
 
                 if (sizeof($orders) > 0) {
                     foreach ($orders as $order) {
+                        $order->recargo = number_format($order->recargo,2);
+                        $order->cTotal = number_format($order->cTotal,2);
                         $dataObj = (object)array();
                         $dataObj->customer = $customerDetails->nomEmpresa;
                         $dataObj->fecha = Carbon::parse($order->fechaEntrega)->format('Y-m-d');
