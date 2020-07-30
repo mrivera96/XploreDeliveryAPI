@@ -920,7 +920,7 @@ class DeliveriesController extends Controller
                 $nDelivery->recargos = $pago['recargos'];
                 $nDelivery->total = $pago['total'];
                 $nDelivery->idCliente = Auth::user()->idCliente;
-                //$nDelivery->coordsOrigen = $hDelivery['coordsOrigen'];
+                $nDelivery->coordsOrigen = $hDelivery['coordsOrigen'];
                 $nDelivery->instrucciones = $hDelivery['instrucciones'];
                 $nDelivery->fechaRegistro = Carbon::now();
                 $nDelivery->save();
@@ -939,7 +939,7 @@ class DeliveriesController extends Controller
                     $nDetalle->recargo = $detalle['recargo'];
                     $nDetalle->cTotal = $detalle['cTotal'];
                     $nDetalle->instrucciones = $detalle['instrucciones'];
-                    //$nDetalle->coordsDestino = $detalle['coordsDestino'];
+                    $nDetalle->coordsDestino = $detalle['coordsDestino'];
                     $nDetalle->save();
                 }
 
