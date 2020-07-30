@@ -707,7 +707,7 @@ class DeliveriesController extends Controller
 
 
             } else if($customer != -1 && !$isSameDay){
-                $orders = DetalleDelivery::with(['estado','conductor'])->whereIn('idEstado', [44, 46, 47])
+                $orders = DetalleDelivery::with(['estado'])->whereIn('idEstado', [44, 46, 47])
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                     ->whereHas('delivery', function ($q) use ($customerDetails) {
                         $q->where('idCliente', $customerDetails->idCliente);
@@ -718,9 +718,9 @@ class DeliveriesController extends Controller
                     });
 
                 foreach ($orders as $order) {
-                    $order->recargo = number_format($order->recargo,2);
-                    $order->cTotal = number_format($order->cTotal,2);
+
                     for ($i = 0; $i < sizeof($order); $i++) {
+
                         $data = (object)array();
                         $data->customer = $customerDetails->nomEmpresa;
                         $data->fecha = Carbon::parse($order[$i]->fechaEntrega)->format('Y-m-d');
@@ -742,6 +742,15 @@ class DeliveriesController extends Controller
                 $initDateTime = new Carbon(date('Y-m-d', strtotime($form['initDate'])) . ' 00:00:00');
                 $finDateTime = new Carbon(date('Y-m-d', strtotime($form['finDate'])) . ' 23:59:59');
 
+                $orders = DetalleDelivery::with(['estado','conductor'])->whereIn('idEstado', [44, 46, 47])
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->whereHas('delivery', function ($q) use ($customerDetails) {
+                        $q->where('idCliente', $customerDetails->idCliente);
+                    })->get();
+                foreach ($orders as $order){
+                    $order->recargo = number_format($order->recargo,2);
+                    $order->cTotal = number_format($order->cTotal,2);
+                }
                 return response()->json(
                     [
                         'error' => 0,
@@ -749,11 +758,7 @@ class DeliveriesController extends Controller
                             'ordersReport' => $outputData,
                             'totalOrders' => $totalOrders,
                             'ordersByCategory' => $ordersByCatArray,
-                            'orders' => $orders = DetalleDelivery::with('estado')->whereIn('idEstado', [44, 46, 47])
-                                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                                ->whereHas('delivery', function ($q) use ($customerDetails) {
-                                    $q->where('idCliente', $customerDetails->idCliente);
-                                })->get()
+                            'orders' => $orders
                         )
                     ],
                     200
@@ -763,7 +768,7 @@ class DeliveriesController extends Controller
         } catch (Exception $ex) {
             return response()->json(
                 ['error' => 1,
-                    'message' => 'Ocurrió un error al cargar los datos'],
+                    'message' => $ex->getMessage()],
                 500
             );
         }
@@ -1404,6 +1409,12 @@ class DeliveriesController extends Controller
             if ($counter == sizeof($currDelDetails)) {
                 Delivery::where('idDelivery', $currDel)
                     ->update(['idEstado' => 39]);
+                $nCtrl = new CtrlEstadoDelivery();
+                $nCtrl->idDelivery = $currDel;
+                $nCtrl->idEstado = 39;
+                $nCtrl->idUsuario = Auth::user()->idUsuario;
+                $nCtrl->fechaRegistro = Carbon::now();
+                $nCtrl->save();
             }
 
             return response()->json(

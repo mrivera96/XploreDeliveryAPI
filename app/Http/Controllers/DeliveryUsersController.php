@@ -20,6 +20,7 @@ class DeliveryUsersController extends Controller
         try {
             $customers = DeliveryClient::with(['payments','payments.paymentType','deliveries.detalle'])->get();
 
+
             return response()
                 ->json([
                     'error' => 0,
@@ -30,7 +31,7 @@ class DeliveryUsersController extends Controller
             return response()
                 ->json([
                     'error' => 1,
-                    'message' => $exception->getMessage()
+                    'message' => 'Ocurrió un error al cargar los datos'
                 ], 500);
         }
     }
