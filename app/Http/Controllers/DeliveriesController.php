@@ -718,7 +718,8 @@ class DeliveriesController extends Controller
                     });
 
                 foreach ($orders as $order) {
-
+                    $order->recargo = number_format($order->recargo,2);
+                    $order->cTotal = number_format($order->cTotal,2);
                     for ($i = 0; $i < sizeof($order); $i++) {
                         $data = (object)array();
                         $data->customer = $customerDetails->nomEmpresa;
