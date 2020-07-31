@@ -254,7 +254,7 @@ class ExtraChargesController extends Controller
 
             return response()->json([
                 'error' => 0,
-                'data' => $opciones
+                'data' => $options
             ], 200);
 
         } catch (\Exception $exception) {
