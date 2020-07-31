@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DetalleOpcionesCargosExtras;
 use App\ExtraCharge;
 use App\ExtraChargeCategory;
 use Carbon\Carbon;
@@ -125,7 +126,8 @@ class ExtraChargesController extends Controller
         }
     }
 
-    public function removeCategory(Request $request){
+    public function removeCategory(Request $request)
+    {
         $request->validate([
             'idCargoExtra' => 'required',
             'idCategoria' => 'required'
@@ -152,7 +154,8 @@ class ExtraChargesController extends Controller
 
     }
 
-    public function addCategory(Request $request){
+    public function addCategory(Request $request)
+    {
         $request->validate([
             'idCargoExtra' => 'required',
             'idCategoria' => 'required'
@@ -164,25 +167,25 @@ class ExtraChargesController extends Controller
         try {
             $existe = ExtraChargeCategory::where('idCargoExtra', $extraChargeId)
                 ->where('idCategoria', $categoryId)->count();
-                if ($existe == 0) {
-                    $nCatEC = new ExtraChargeCategory();
-                    $nCatEC->idCargoExtra = $extraChargeId;
-                    $nCatEC->idCategoria = $categoryId;
-                    $nCatEC->fechaRegistro = Carbon::now();
-                    $nCatEC->save();
-    
-                    return response()->json([
-                        'error' => 0,
-                        'message' => 'La categoría ha sido asignada correctamente'
-                    ], 200);
-    
-                } else {
-                    return response()->json([
-                        'error' => 1,
-                        'message' => 'Este cargo extra ya tiene asignado ésta categoría'
-                    ], 500);
-                }
-            
+            if ($existe == 0) {
+                $nCatEC = new ExtraChargeCategory();
+                $nCatEC->idCargoExtra = $extraChargeId;
+                $nCatEC->idCategoria = $categoryId;
+                $nCatEC->fechaRegistro = Carbon::now();
+                $nCatEC->save();
+
+                return response()->json([
+                    'error' => 0,
+                    'message' => 'La categoría ha sido asignada correctamente'
+                ], 200);
+
+            } else {
+                return response()->json([
+                    'error' => 1,
+                    'message' => 'Este cargo extra ya tiene asignado ésta categoría'
+                ], 500);
+            }
+
         } catch (\Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
@@ -238,4 +241,94 @@ class ExtraChargesController extends Controller
             );
         }
     }
+
+    public function getExtraChargeOptions(Request $request)
+    {
+        $request->validate(['idCargoExtra' => 'required']);
+        $extrachargeId = $request->idCargoExtra;
+        try {
+            $opciones = DetalleOpcionesCargosExtras::where('idCargoExtra', $extrachargeId)->get();
+
+            return response()->json([
+                'error' => 0,
+                'data' => $opciones
+            ], 200);
+
+        } catch (\Exception $exception) {
+            Log::error($exception->getMessage(),
+                array('User' => Auth::user()->nomUsuario, 'context' => $exception->getTrace()));
+            return response()
+                ->json([
+                    'error' => 1,
+                    'message' => 'Ocurrió un error al cargar los datos'
+                ], 500);
+        }
+    }
+
+    public function addOption(Request $request)
+    {
+        $request->validate([
+            'idCargoExtra' => 'required',
+            'form' => 'required',
+            'form.descripcion' => 'required',
+            'form.costo' => 'required'
+        ]);
+
+        $extraChargeId = $request->idCargoExtra;
+        $optionDesc = $request->form['descripcion'];
+        $optionCost = $request->form['costo'];
+
+        try {
+
+            $nECOpt = new DetalleOpcionesCargosExtras();
+            $nECOpt->idCargoExtra = $extraChargeId;
+            $nECOpt->descripcion = $optionDesc;
+            $nECOpt->costo = $optionCost;
+            $nECOpt->save();
+
+            return response()->json([
+                'error' => 0,
+                'message' => 'La opción ha sido asignada correctamente'
+            ], 200);
+
+
+        } catch (\Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json([
+                'error' => 1,
+                'message' => 'Error al asignar la opción'
+            ], 500);
+        }
+
+    }
+
+    public function removeOption(Request $request)
+    {
+        $request->validate([
+            'idCargoExtra' => 'required',
+            'optionId' => 'required'
+        ]);
+
+        $optionId = $request->optionId;
+        $extraChargeId = $request->idCargoExtra;
+
+        try {
+            DetalleOpcionesCargosExtras::where('idCargoExtra', $extraChargeId)
+                ->where('idDetalleOpcion', $optionId)->delete();
+
+            return response()->json([
+                'error' => 0,
+                'message' => 'Opción eliminada del cargo extra correctamente'
+            ], 200);
+        } catch (\Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json([
+                'error' => 1,
+                'message' => 'Error al eliminar la Opción'
+            ], 500);
+        }
+
+    }
+
+
 }
