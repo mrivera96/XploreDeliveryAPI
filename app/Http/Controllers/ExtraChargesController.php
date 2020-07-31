@@ -247,7 +247,10 @@ class ExtraChargesController extends Controller
         $request->validate(['idCargoExtra' => 'required']);
         $extrachargeId = $request->idCargoExtra;
         try {
-            $opciones = DetalleOpcionesCargosExtras::where('idCargoExtra', $extrachargeId)->get();
+            $options = DetalleOpcionesCargosExtras::where('idCargoExtra', $extrachargeId)->get();
+            foreach ($options as $option) {
+                $option->costo = number_format($option->costo,2);
+            }
 
             return response()->json([
                 'error' => 0,
