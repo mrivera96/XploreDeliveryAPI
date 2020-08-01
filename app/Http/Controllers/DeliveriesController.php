@@ -668,8 +668,10 @@ class DeliveriesController extends Controller
                     $totalCosts = 0;
                     $ordersInRange = 0;
                     foreach ($orders as $order) {
-                        $totalSurcharges = number_format($totalSurcharges + $order->recargo, 2);
-                        $totalCosts = number_format($totalCosts + $order->cTotal, 2);
+                        $tempSurSum = $totalSurcharges + $order->recargo;
+                        $tempCostSum = $totalCosts + $order->cTotal;
+                        $totalSurcharges = number_format($tempSurSum, 2);
+                        $totalCosts = number_format($tempCostSum, 2);
                         $order->recargo = number_format($order->recargo, 2);
                         $order->cTotal = number_format($order->cTotal, 2);
                         $dataObj = (object)array();
@@ -763,8 +765,10 @@ class DeliveriesController extends Controller
                 $totalCosts = 0;
                 $ordersInRange = sizeof($orders);
                 foreach ($orders as $order) {
-                    $totalSurcharges = number_format($totalSurcharges + $order->recargo, 2);
-                    $totalCosts = number_format($totalCosts + $order->cTotal, 2);
+                    $tempSurSum = $totalSurcharges + $order->recargo;
+                    $tempCostSum = $totalCosts + $order->cTotal;
+                    $totalSurcharges = number_format($tempSurSum, 2);
+                    $totalCosts = number_format($tempCostSum, 2);
                     $order->recargo = number_format($order->recargo, 2);
                     $order->cTotal = number_format($order->cTotal, 2);
                 }
