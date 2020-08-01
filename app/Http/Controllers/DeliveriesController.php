@@ -664,14 +664,8 @@ class DeliveriesController extends Controller
                     })->get();
 
                 if (sizeof($orders) > 0) {
-                    $totalSurcharges = 0;
-                    $totalCosts = 0;
                     $ordersInRange = 0;
                     foreach ($orders as $order) {
-                        $tempSurSum = (double)$totalSurcharges + (double)$order->recargo;
-                        $tempCostSum = (double)$totalCosts + (double)$order->cTotal;
-                        $totalSurcharges = number_format($tempSurSum, 2);
-                        $totalCosts = number_format($tempCostSum, 2);
                         $order->recargo = number_format($order->recargo, 2);
                         $order->cTotal = number_format($order->cTotal, 2);
                         $dataObj = (object)array();
@@ -699,7 +693,20 @@ class DeliveriesController extends Controller
 
 
                     }
+                    $tempSurSum = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                        ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                        ->whereHas('delivery', function ($q) use ($customerDetails) {
+                            $q->where('idCliente', $customerDetails->idCliente);
+                        })->sum('recargo');
 
+                    $tempCostSum = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                        ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                        ->whereHas('delivery', function ($q) use ($customerDetails) {
+                            $q->where('idCliente', $customerDetails->idCliente);
+                        })->sum('cTotal');
+
+                    $totalSurcharges = number_format($tempSurSum, 2);
+                    $totalCosts = number_format($tempCostSum, 2);
 
                 }
 
@@ -761,17 +768,26 @@ class DeliveriesController extends Controller
                     ->whereHas('delivery', function ($q) use ($customerDetails) {
                         $q->where('idCliente', $customerDetails->idCliente);
                     })->get();
-                $totalSurcharges = 0;
-                $totalCosts = 0;
                 $ordersInRange = sizeof($orders);
                 foreach ($orders as $order) {
-                    $tempSurSum = (double)$totalSurcharges + (double)$order->recargo;
-                    $tempCostSum = (double)$totalCosts + (double)$order->cTotal;
-                    $totalSurcharges = number_format($tempSurSum, 2);
-                    $totalCosts = number_format($tempCostSum, 2);
                     $order->recargo = number_format($order->recargo, 2);
                     $order->cTotal = number_format($order->cTotal, 2);
                 }
+
+                $tempSurSum = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->whereHas('delivery', function ($q) use ($customerDetails) {
+                        $q->where('idCliente', $customerDetails->idCliente);
+                    })->sum('recargo');
+
+                $tempCostSum = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->whereHas('delivery', function ($q) use ($customerDetails) {
+                        $q->where('idCliente', $customerDetails->idCliente);
+                    })->sum('cTotal');
+
+                $totalSurcharges = number_format($tempSurSum, 2);
+                $totalCosts = number_format($tempCostSum, 2);
                 return response()->json(
                     [
                         'error' => 0,
