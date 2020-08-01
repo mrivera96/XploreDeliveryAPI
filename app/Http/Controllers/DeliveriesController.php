@@ -664,8 +664,8 @@ class DeliveriesController extends Controller
                     })->get();
 
                 if (sizeof($orders) > 0) {
-                    $totalSurcharges = 0.00;
-                    $totalCosts = 0.00;
+                    $totalSurcharges = 0;
+                    $totalCosts = 0;
                     $ordersInRange = 0;
                     foreach ($orders as $order) {
                         $totalSurcharges = number_format($totalSurcharges + $order->recargo, 2);
@@ -759,8 +759,8 @@ class DeliveriesController extends Controller
                     ->whereHas('delivery', function ($q) use ($customerDetails) {
                         $q->where('idCliente', $customerDetails->idCliente);
                     })->get();
-                $totalSurcharges = 0.00;
-                $totalCosts = 0.00;
+                $totalSurcharges = 0;
+                $totalCosts = 0;
                 $ordersInRange = sizeof($orders);
                 foreach ($orders as $order) {
                     $totalSurcharges = number_format($totalSurcharges + $order->recargo, 2);
