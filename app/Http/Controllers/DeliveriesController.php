@@ -788,7 +788,7 @@ class DeliveriesController extends Controller
         } catch (Exception $ex) {
             return response()->json(
                 ['error' => 1,
-                    'message' => $ex->getMessage()],
+                    'message' => $ex->getTrace()],
                 500
             );
         }
