@@ -14,12 +14,10 @@ class ExtraChargeCategory extends Model
     ];
 
     public function extraCharge(){
-        return $this->hasOne('App\ExtraCharge', 'idCargoExtra','idCargoExtra');
-    
+        return $this->belongsTo('App\ExtraCharge', 'idCargoExtra','idCargoExtra');
     }
 
     public function category(){
-        return $this->hasOne('App\Category', 'idCategoria','idCategoria');
-    
+        return $this->belongsTo('App\Category', 'idCategoria','idCategoria');
     }
 }

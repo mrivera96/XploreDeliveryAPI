@@ -1423,10 +1423,19 @@ class DeliveriesController extends Controller
         try {
 
             $details = DetalleDelivery::where('idDetalle', $orderId);
-            $details->update([
-                'idEstado' => $stateId,
-                'observaciones' => $observ
-            ]);
+            if($stateId == 44 || $stateId == 46 || $stateId == 47){
+                $details->update([
+                    'idEstado' => $stateId,
+                    'observaciones' => $observ,
+                    'fechaEntrega' => Carbon::now()
+                ]);
+            }else{
+                $details->update([
+                    'idEstado' => $stateId,
+                    'observaciones' => $observ
+                ]);
+            }
+
             $estado = Estado::where('idEstado', $stateId)->get()->first();
 
             $nCtrl = new CtrlEstadoDelivery();

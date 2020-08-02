@@ -65,9 +65,12 @@ class CategoriesController extends Controller
                         array_push($idArray, $item->rate->idCategoria);
                     }
                 }
-                $categories = Category::where('isActivo', 1)->whereIn('idCategoria', $idArray)->orderBy('orden')->get();
+                $categories = Category::with('categoryExtraCharges.extraCharge.options')
+                    ->where('isActivo', 1)->whereIn('idCategoria', $idArray)
+                    ->orderBy('orden')->get();
             } else {
-                $categories = Category::where('isActivo', 1)->orderBy('orden')->get();
+                $categories = Category::with('categoryExtraCharges.extraCharge.options')
+                    ->where('isActivo', 1)->orderBy('orden')->get();
             }
 
             return response()->json([

@@ -13,8 +13,14 @@ class Category extends Model
     protected $fillable = ['descCategoria', 'isActivo', 'fechaAlta'];
 
 
-    public function delivery(){
+    public function delivery()
+    {
         return $this->belongsTo('App\Delivery', 'idTipoVehiculo', 'idTipoVehiculo');
+    }
+
+    public function categoryExtraCharges()
+    {
+        return $this->hasMany('App\ExtraChargeCategory', 'idCategoria', 'idCategoria');
     }
 
 }
