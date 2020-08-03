@@ -1011,8 +1011,15 @@ class DeliveriesController extends Controller
                     $nDetalle->recargo = $detalle['recargo'];
                     $nDetalle->cTotal = $detalle['cTotal'];
                     $nDetalle->cargosExtra = $detalle['cargosExtra'];
-                    $nDetalle->idCargoExtra = $detalle['idCargoExtra'];
-                    $nDetalle->idDetalleOpcion = $detalle['idDetalleOpcion'];
+                    if(isset($detalle['idCargoExtra'])){
+                        $nDetalle->idCargoExtra = $detalle['idCargoExtra'];
+                    }
+
+                    $nDetalle->tomarFoto = $detalle['tomarFoto'];
+                    if(isset($detalle['idDetalleOpcion'])){
+                        $nDetalle->idDetalleOpcion = $detalle['idDetalleOpcion'];
+                    }
+
                     $nDetalle->instrucciones = $detalle['instrucciones'];
                     $nDetalle->coordsDestino = $detalle['coordsDestino'];
                     $nDetalle->save();
@@ -1035,7 +1042,7 @@ class DeliveriesController extends Controller
                 return response()->json(
                     [
                         'error' => 1,
-                        'message' => 'Lo sentimos, ha ocurrido un error al procesar tu solicitud. Por favor intenta de nuevo.'
+                        'message' => $ex->getMessage()//'Lo sentimos, ha ocurrido un error al procesar tu solicitud. Por favor intenta de nuevo.'
                     ],
                     500
                 );
