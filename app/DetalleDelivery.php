@@ -28,4 +28,12 @@ class DetalleDelivery extends Model
     public function estado(){
         return $this->hasOne('App\Estado', 'idEstado', 'idEstado');
     }
+
+    public function ExtraCharge(){
+        return $this->hasOne('App\ExtraCharge', 'idCargoExtra', 'idCargoExtra');
+    }
+
+    public function ExtraChargeOption(){
+        return $this->hasOne('App\DetalleOpcionesCargosExtras', 'idDetalleOpcion', 'idDetalleOpcion');
+    }
 }

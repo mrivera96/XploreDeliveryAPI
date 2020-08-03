@@ -18,4 +18,8 @@ class ExtraCharge extends Model
     public function options(){
         return $this->hasMany('App\DetalleOpcionesCargosExtras', 'idCargoExtra','idCargoExtra');
     }
+
+    public function ExtraCharge(){
+        return $this->belongsTo('App\DetalleDelivery', 'idCargoExtra', 'idCargoExtra');
+    }
 }

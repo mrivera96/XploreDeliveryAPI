@@ -14,4 +14,8 @@ class DetalleOpcionesCargosExtras extends Model
     public function extraCharge(){
         return $this->belongsTo('App\ExtraCharge', 'idCargoExtra','idCargoExtra');
     }
+
+    public function orders(){
+        return $this->belongsTo('App\DetalleDelivery', 'idDetalleOpcion', 'idDetalleOpcion');
+    }
 }

@@ -1011,6 +1011,8 @@ class DeliveriesController extends Controller
                     $nDetalle->recargo = $detalle['recargo'];
                     $nDetalle->cTotal = $detalle['cTotal'];
                     $nDetalle->cargosExtra = $detalle['cargosExtra'];
+                    $nDetalle->idCargoExtra = $detalle['idCargoExtra'];
+                    $nDetalle->idDetalleOpcion = $detalle['idDetalleOpcion'];
                     $nDetalle->instrucciones = $detalle['instrucciones'];
                     $nDetalle->coordsDestino = $detalle['coordsDestino'];
                     $nDetalle->save();
