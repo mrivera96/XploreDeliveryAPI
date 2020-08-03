@@ -522,7 +522,6 @@ class DeliveriesController extends Controller
 
         try {
             $outputData = [];
-            $customers = DeliveryClient::where('isActivo', 1)->get();
 
             $categories = Category::where('isActivo', 1)->get();
             $ordersByCatArray = [];
