@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddCargosExtrasToTblDetalleDelivery extends Migration
+class AddCargosExtraToTblDeliveries extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddCargosExtrasToTblDetalleDelivery extends Migration
      */
     public function up()
     {
-        Schema::table('tblDetalleDelivery', function (Blueprint $table) {
-            $table->double('cargosExtra')->after('recargo')->default(0.00)->nullable();
+        Schema::table('tblDeliveries', function (Blueprint $table) {
+            $table->double('cargosExtra')->default(0.00)->nullable();
         });
     }
 
@@ -25,7 +25,7 @@ class AddCargosExtrasToTblDetalleDelivery extends Migration
      */
     public function down()
     {
-        Schema::table('tblDetalleDelivery', function (Blueprint $table) {
+        Schema::table('tblDeliveries', function (Blueprint $table) {
             $table->dropColumn('cargosExtra');
         });
     }

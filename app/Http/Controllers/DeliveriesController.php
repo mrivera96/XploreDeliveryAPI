@@ -39,12 +39,14 @@ class DeliveriesController extends Controller
             $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('d/m/Y, h:i a');
             $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
             $delivery->recargos = number_format($delivery->recargos, 2);
+            $delivery->cargosExtra = number_format($delivery->cargosExtra, 2);
             $delivery->total = number_format($delivery->total, 2);
             foreach ($delivery->detalle as $detail) {
                 $detail->conductor;
                 $detail->estado;
                 $detail->tarifaBase = number_format($detail->tarifaBase, 2);
                 $detail->recargo = number_format($detail->recargo, 2);
+                $detail->cargosExtra = number_format($detail->cargosExtra, 2);
                 $detail->cTotal = number_format($detail->cTotal, 2);
             }
             $delivery->estado;
@@ -82,6 +84,7 @@ class DeliveriesController extends Controller
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d H:i');
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
                 $delivery->recargos = number_format($delivery->recargos, 2);
+                $delivery->cargosExtra = number_format($delivery->cargosExtra, 2);
                 $delivery->total = number_format($delivery->total, 2);
             }
 
@@ -116,6 +119,7 @@ class DeliveriesController extends Controller
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d H:i');
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
                 $delivery->recargos = number_format($delivery->recargos, 2);
+                $delivery->cargosExtra = number_format($delivery->cargosExtra, 2);
                 $delivery->total = number_format($delivery->total, 2);
             }
 
@@ -150,6 +154,7 @@ class DeliveriesController extends Controller
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d H:i');
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
                 $delivery->recargos = number_format($delivery->recargos, 2);
+                $delivery->cargosExtra = number_format($delivery->cargosExtra, 2);
                 $delivery->total = number_format($delivery->total, 2);
             }
 
@@ -214,6 +219,7 @@ class DeliveriesController extends Controller
                 $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
                 $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
                 $dtl->recargo = number_format($dtl->recargo, 2);
+                $dtl->cargosExtra = number_format($dtl->cargosExtra, 2);
                 $dtl->cTotal = number_format($dtl->cTotal, 2);
                 array_push($pedidosDia, $dtl);
             }
@@ -251,6 +257,7 @@ class DeliveriesController extends Controller
                 $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
                 $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
                 $dtl->recargo = number_format($dtl->recargo, 2);
+                $dtl->cargosExtra = number_format($dtl->cargosExtra, 2);
                 $dtl->cTotal = number_format($dtl->cTotal, 2);
                 array_push($todosPedidos, $dtl);
             }
@@ -534,6 +541,12 @@ class DeliveriesController extends Controller
                         $q->where('idCliente', $customerDetails->idCliente)->where('idCategoria', $category->idCategoria);
                     })->sum('recargo'), 2);
 
+                $mydataObj->totalExtraCharges = number_format(DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->whereHas('delivery', function ($q) use ($customerDetails, $category) {
+                        $q->where('idCliente', $customerDetails->idCliente)->where('idCategoria', $category->idCategoria);
+                    })->sum('cargosExtra'), 2);
+
                 $mydataObj->cTotal = number_format(DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                     ->whereHas('delivery', function ($q) use ($customerDetails, $category) {
@@ -668,6 +681,7 @@ class DeliveriesController extends Controller
                     foreach ($orders as $order) {
                         $order->recargo = number_format($order->recargo, 2);
                         $order->cTotal = number_format($order->cTotal, 2);
+                        $order->cargosExtra = number_format($order->cargosExtra, 2);
                         $dataObj = (object)array();
                         $dataObj->customer = $customerDetails->nomEmpresa;
                         $dataObj->fecha = Carbon::parse($order->fechaEntrega)->format('Y-m-d');
@@ -699,6 +713,12 @@ class DeliveriesController extends Controller
                             $q->where('idCliente', $customerDetails->idCliente);
                         })->sum('recargo');
 
+                    $tempECSum = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                        ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                        ->whereHas('delivery', function ($q) use ($customerDetails) {
+                            $q->where('idCliente', $customerDetails->idCliente);
+                        })->sum('cargosExtra');
+
                     $tempCostSum = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                         ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                         ->whereHas('delivery', function ($q) use ($customerDetails) {
@@ -707,6 +727,7 @@ class DeliveriesController extends Controller
 
                     $totalSurcharges = number_format($tempSurSum, 2);
                     $totalCosts = number_format($tempCostSum, 2);
+                    $totalExtraCharges = number_format($tempECSum, 2);
 
                 }
 
@@ -717,6 +738,7 @@ class DeliveriesController extends Controller
                             'ordersReport' => $outputData,
                             'totalOrders' => $totalOrders,
                             'totalSurcharges' => $totalSurcharges,
+                            'totalExtraCharges' => $totalExtraCharges,
                             'totalCosts' => $totalCosts,
                             'ordersInRange' => $ordersInRange,
                             'ordersByCategory' => $ordersByCatArray,
@@ -771,6 +793,7 @@ class DeliveriesController extends Controller
                 $ordersInRange = sizeof($orders);
                 foreach ($orders as $order) {
                     $order->recargo = number_format($order->recargo, 2);
+                    $order->cargosExtra = number_format($order->cargosExtra, 2);
                     $order->cTotal = number_format($order->cTotal, 2);
                 }
 
@@ -780,6 +803,12 @@ class DeliveriesController extends Controller
                         $q->where('idCliente', $customerDetails->idCliente);
                     })->sum('recargo');
 
+                $tempECSum = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->whereHas('delivery', function ($q) use ($customerDetails) {
+                        $q->where('idCliente', $customerDetails->idCliente);
+                    })->sum('cargosExtra');
+
                 $tempCostSum = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                     ->whereHas('delivery', function ($q) use ($customerDetails) {
@@ -788,6 +817,7 @@ class DeliveriesController extends Controller
 
                 $totalSurcharges = number_format($tempSurSum, 2);
                 $totalCosts = number_format($tempCostSum, 2);
+                $totalExtraCharges = number_format($tempECSum, 2);
                 return response()->json(
                     [
                         'error' => 0,
@@ -796,6 +826,7 @@ class DeliveriesController extends Controller
                             'totalOrders' => $totalOrders,
                             'ordersByCategory' => $ordersByCatArray,
                             'totalSurcharges' => $totalSurcharges,
+                            'totalExtraCharges' => $totalExtraCharges,
                             'totalCosts' => $totalCosts,
                             'ordersInRange' => $ordersInRange,
                             'orders' => $orders
@@ -958,6 +989,7 @@ class DeliveriesController extends Controller
                 $nDelivery->idEstado = 34;
                 $nDelivery->tarifaBase = $pago['baseRate'];
                 $nDelivery->recargos = $pago['recargos'];
+                $nDelivery->cargosExtra = $pago['cargosExtra'];
                 $nDelivery->total = $pago['total'];
                 $nDelivery->idCliente = Auth::user()->idCliente;
                 $nDelivery->coordsOrigen = $hDelivery['coordsOrigen'];
@@ -978,6 +1010,7 @@ class DeliveriesController extends Controller
                     $nDetalle->tarifaBase = $detalle['tarifaBase'];
                     $nDetalle->recargo = $detalle['recargo'];
                     $nDetalle->cTotal = $detalle['cTotal'];
+                    $nDetalle->cargosExtra = $detalle['cargosExtra'];
                     $nDetalle->instrucciones = $detalle['instrucciones'];
                     $nDetalle->coordsDestino = $detalle['coordsDestino'];
                     $nDetalle->save();
@@ -1094,6 +1127,7 @@ class DeliveriesController extends Controller
                 $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
                 $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
                 $dtl->recargo = number_format($dtl->recargo, 2);
+                $dtl->cargosExtra = number_format($dtl->cargosExtra, 2);
                 $dtl->cTotal = number_format($dtl->cTotal, 2);
                 array_push($pedidosDia, $dtl);
             }
@@ -1134,6 +1168,7 @@ class DeliveriesController extends Controller
                 $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
                 $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
                 $dtl->recargo = number_format($dtl->recargo, 2);
+                $dtl->cargosExtra = number_format($dtl->cargosExtra, 2);
                 $dtl->cTotal = number_format($dtl->cTotal, 2);
                 array_push($todosPedidos, $dtl);
 
@@ -1171,6 +1206,7 @@ class DeliveriesController extends Controller
                 //$delivery->fechaReserva = date('d-m-Y h:i', strtotime($delivery->fechaReserva));
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
                 $delivery->recargos = number_format($delivery->recargos, 2);
+                $delivery->cargosExtra = number_format($delivery->cargosExtra, 2);
                 $delivery->total = number_format($delivery->total, 2);
 
             }
@@ -1207,6 +1243,7 @@ class DeliveriesController extends Controller
                 //$delivery->fechaReserva = date('d-m-Y h:i', strtotime($delivery->fechaReserva));
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
                 $delivery->recargos = number_format($delivery->recargos, 2);
+                $delivery->cargosExtra = number_format($delivery->cargosExtra, 2);
                 $delivery->total = number_format($delivery->total, 2);
             }
 
@@ -1252,6 +1289,7 @@ class DeliveriesController extends Controller
                 $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
                 $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
                 $dtl->recargo = number_format($dtl->recargo, 2);
+                $dtl->cargosExtra = number_format($dtl->cargosExtra, 2);
                 $dtl->cTotal = number_format($dtl->cTotal, 2);
                 array_push($todosPedidos, $dtl);
             }
@@ -1423,13 +1461,13 @@ class DeliveriesController extends Controller
         try {
 
             $details = DetalleDelivery::where('idDetalle', $orderId);
-            if($stateId == 44 || $stateId == 46 || $stateId == 47){
+            if ($stateId == 44 || $stateId == 46 || $stateId == 47) {
                 $details->update([
                     'idEstado' => $stateId,
                     'observaciones' => $observ,
                     'fechaEntrega' => Carbon::now()
                 ]);
-            }else{
+            } else {
                 $details->update([
                     'idEstado' => $stateId,
                     'observaciones' => $observ
