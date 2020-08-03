@@ -36,4 +36,8 @@ class DetalleDelivery extends Model
     public function ExtraChargeOption(){
         return $this->hasOne('App\DetalleOpcionesCargosExtras', 'idDetalleOpcion', 'idDetalleOpcion');
     }
+
+    public function photography(){
+        return $this->hasMany('App\FotografiaDetalle', 'idDetalle', 'idDetalle');
+    }
 }

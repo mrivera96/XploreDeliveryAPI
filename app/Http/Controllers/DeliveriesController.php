@@ -29,9 +29,12 @@ class DeliveriesController extends Controller
     {
         try {
             if (Auth::user()->idPerfil == 1 || Auth::user()->idPerfil == 9) {
-                $delivery = Delivery::where('idDelivery', $request->id)->with(['category', 'detalle'])->get()->first();
+                $delivery = Delivery::with(['estado','detalle.conductor', 'detalle.estado', 'detalle.photography'])
+                    ->where('idDelivery', $request->id)->with(['category', 'detalle'])
+                    ->get()->first();
             } else {
-                $delivery = Delivery::where('idCliente', Auth::user()->idCliente)->where('idDelivery', $request->id)
+                $delivery = Delivery::with(['estado','detalle.conductor', 'detalle.estado', 'detalle.photography'])
+                    ->where('idCliente', Auth::user()->idCliente)->where('idDelivery', $request->id)
                     ->get()->first();
             }
 
@@ -42,14 +45,11 @@ class DeliveriesController extends Controller
             $delivery->cargosExtra = number_format($delivery->cargosExtra, 2);
             $delivery->total = number_format($delivery->total, 2);
             foreach ($delivery->detalle as $detail) {
-                $detail->conductor;
-                $detail->estado;
                 $detail->tarifaBase = number_format($detail->tarifaBase, 2);
                 $detail->recargo = number_format($detail->recargo, 2);
                 $detail->cargosExtra = number_format($detail->cargosExtra, 2);
                 $detail->cTotal = number_format($detail->cTotal, 2);
             }
-            $delivery->estado;
 
             return response()->json([
                 'error' => 0,
@@ -1011,12 +1011,12 @@ class DeliveriesController extends Controller
                     $nDetalle->recargo = $detalle['recargo'];
                     $nDetalle->cTotal = $detalle['cTotal'];
                     $nDetalle->cargosExtra = $detalle['cargosExtra'];
-                    if(isset($detalle['idCargoExtra'])){
+                    if (isset($detalle['idCargoExtra'])) {
                         $nDetalle->idCargoExtra = $detalle['idCargoExtra'];
                     }
 
                     $nDetalle->tomarFoto = $detalle['tomarFoto'];
-                    if(isset($detalle['idDetalleOpcion'])){
+                    if (isset($detalle['idDetalleOpcion'])) {
                         $nDetalle->idDetalleOpcion = $detalle['idDetalleOpcion'];
                     }
 
