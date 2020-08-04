@@ -130,7 +130,6 @@ class PaymentController extends Controller
 
             foreach ($payments as $payment) {
                 $payment->fechaPago = Carbon::parse($payment->fechaPago)->format('Y-m-d');
-                $payment->monto = number_format($payment->monto, 2);
             }
 
             return response()->json(
