@@ -27,13 +27,13 @@ class AuthController extends Controller
         $nickname = $request->nickname;
         $password = $request->password;
 
-        /*if (Carbon::now()->hour >= 22) {
+        if (Carbon::now()->hour >= 22) {
             return response()->json([
                 'error' => 1,
                 'message' => 'Lo sentimos, en estos momentos nuestra plataforma se encuentra en mantenimiento.',
                 'status' => 401
             ], 401);
-        }*/
+        }
 
         if (UsersController::existeUsuario($nickname) != 0) {
             if (UsersController::usuarioActivo($nickname) > 0) {
