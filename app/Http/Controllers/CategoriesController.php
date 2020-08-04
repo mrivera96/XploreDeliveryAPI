@@ -29,7 +29,7 @@ class CategoriesController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getMessage()
+                    'message' => 'Ocurrió un erro al cargar los datos'
                 ],
                 500
             );
@@ -48,7 +48,7 @@ class CategoriesController extends Controller
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
-                'message' => $ex->getMessage()
+                'message' => 'Ocurrió un erro al cargar los datos'
             ], 500);
         }
     }
@@ -65,12 +65,12 @@ class CategoriesController extends Controller
                         array_push($idArray, $item->rate->idCategoria);
                     }
                 }
-                $categories = Category::with('categoryExtraCharges.extraCharge.options')
-                    ->where('isActivo', 1)->whereIn('idCategoria', $idArray)
+                $categories = Category:://with('categoryExtraCharges.extraCharge.options')
+                    where('isActivo', 1)->whereIn('idCategoria', $idArray)
                     ->orderBy('orden')->get();
             } else {
-                $categories = Category::with('categoryExtraCharges.extraCharge.options')
-                    ->where('isActivo', 1)->orderBy('orden')->get();
+                $categories = Category:://with('categoryExtraCharges.extraCharge.options')
+                    where('isActivo', 1)->orderBy('orden')->get();
             }
 
             return response()->json([
@@ -81,7 +81,7 @@ class CategoriesController extends Controller
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
-                'message' => $ex->getMessage()
+                'message' => 'Ocurrió un erro al cargar los datos'
             ], 500);
         }
     }
