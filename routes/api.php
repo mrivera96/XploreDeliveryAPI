@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\DeliveryUsersController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
 
 /*
 |--------------------------------------------------------------------------
@@ -196,6 +198,8 @@ Route::get('testPassword','AuthController@testPassword');
 
 Route::group(['middleware' => 'auth:api'], function () {
     Route::group(['prefix' => 'customers'], function () {
+        //Ruta Dashboard
+        Route::post('myDashboard', 'DeliveryUsersController@dashboardData');
         //Rutas Deliveries
         Route::group(['prefix' => 'deliveries'], function () {
             Route::post('changeHour', 'DeliveriesController@changeDeliveryHour');

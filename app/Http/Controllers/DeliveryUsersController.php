@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\DeliveryClient;
+use App\DetalleDelivery;
 use App\User;
+use App\Payment;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
@@ -18,7 +20,7 @@ class DeliveryUsersController extends Controller
     public function list()
     {
         try {
-            $customers = DeliveryClient::with(['payments','payments.paymentType','deliveries.detalle'])->get();
+            $customers = DeliveryClient::with(['payments', 'payments.paymentType', 'deliveries.detalle'])->get();
 
 
             return response()
@@ -59,10 +61,9 @@ class DeliveryUsersController extends Controller
                     'message' => 'La contraseña actual ingresada no coincide con nuestros registros.'
                 ], 500);
             }
-
-
         } catch (Exception $exception) {
-            Log::error($exception->getMessage(),
+            Log::error(
+                $exception->getMessage(),
                 array('User' => Auth::user()->nomUsuario, 'context' => $exception->getTrace())
             );
             return response()->json([
@@ -70,7 +71,6 @@ class DeliveryUsersController extends Controller
                 'message' => $exception->getMessage()
             ], 500);
         }
-
     }
 
     public function newCustomer(Request $request)
@@ -106,19 +106,17 @@ class DeliveryUsersController extends Controller
                     'error' => 0,
                     'message' => 'Cliente agregado correctamente.'
                 ], 200);
-
-
             } else {
                 return response()->json([
                     'error' => 1,
                     'message' => 'Ya existe este usuario.'
                 ], 500);
             }
-
         } catch (Exception $exception) {
-            Log::error($exception->getMessage(), array('User' => Auth::user()->nomUsuario,
-                    'context' => $exception->getTrace())
-            );
+            Log::error($exception->getMessage(), array(
+                'User' => Auth::user()->nomUsuario,
+                'context' => $exception->getTrace()
+            ));
             return response()->json([
                 'error' => 1,
                 'message' => $exception->getMessage()
@@ -149,7 +147,6 @@ class DeliveryUsersController extends Controller
                     'error' => 0,
                     'message' => 'Cliente actualizado correctamente.'
                 ], 200);
-
             } else {
                 if (UsersController::existeUsuario($rCustomer['email']) == 0) {
                     $currCustomer->update([
@@ -169,7 +166,6 @@ class DeliveryUsersController extends Controller
                         'error' => 0,
                         'message' => 'Cliente actualizado correctamente.'
                     ], 200);
-
                 } else {
                     return response()->json([
                         'error' => 1,
@@ -177,10 +173,11 @@ class DeliveryUsersController extends Controller
                     ], 500);
                 }
             }
-
         } catch (Exception $exception) {
-            Log::error($exception->getMessage(), array('User' => Auth::user()->nomUsuario,
-                'context' => $exception->getTrace()));
+            Log::error($exception->getMessage(), array(
+                'User' => Auth::user()->nomUsuario,
+                'context' => $exception->getTrace()
+            ));
             return response()->json([
                 'error' => 1,
                 'message' => $exception->getMessage()
@@ -208,7 +205,6 @@ class DeliveryUsersController extends Controller
             $this->serverstatuscode = "0";
             $this->serverstatusdes = $exception->getMessage();
         }
-
     }
 
     private function obtenerCifrado($psswd)
@@ -222,8 +218,51 @@ class DeliveryUsersController extends Controller
     {
         $cliente = DeliveryClient::where('idCliente', $request->idCliente)->get()->first();
         return view('mails.userCredentials', compact('cliente'));
-
     }
 
+    public function dashboardData()
+    {
+        try {
+            $finishedOrders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                ->whereHas('delivery', function ($q) {
+                    $q->where('idCliente', Auth::user()->idCliente);
+                });
 
+            $pendingOrders = DetalleDelivery::with('delivery')->where('idEstado', 34)
+                ->whereHas('delivery', function ($q) {
+                    $q->where('idCliente', Auth::user()->idCliente);
+                });
+
+            $assignedOrders = DetalleDelivery::with('conductor')->whereIn('idEstado', [41, 43])
+                ->whereHas('delivery', function ($q) {
+                    $q->where('idCliente', Auth::user()->idCliente);
+                });
+
+            $subtotal = $finishedOrders->sum('cTotal');
+            $paid = Payment::where('idCliente', Auth::user()->idCliente)
+                ->sum('monto');
+            $actualBalance = $subtotal - $paid;
+
+
+            return response()->json([
+                'error' => 0,
+                'finishedOrdersCount' => $finishedOrders->count(),
+                'actualBalance' => number_format($actualBalance,2),
+                'pendingOrdersCount' => $pendingOrders->count(),
+                'pendingOrders' => $pendingOrders->get(),
+                'assignedOrdersCount' => $assignedOrders->count(),
+                'assignedOrders' => $assignedOrders->get()
+            ]);
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), array(
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
+
+            return response()->json([
+                'error' => 1,
+                'message' => 'Ha ocurrido un error al cargar sus datos'
+            ], 500);
+        }
+    }
 }
