@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\DeliveryClient;
+use App\DetalleDelivery;
+use App\Payment;
 use App\User;
 use Carbon\Carbon;
 use Exception;
@@ -223,6 +225,52 @@ class DeliveryUsersController extends Controller
         $cliente = DeliveryClient::where('idCliente', $request->idCliente)->get()->first();
         return view('mails.userCredentials', compact('cliente'));
 
+    }
+
+    public function dashboardData()
+    {
+        try {
+            $finishedOrders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                ->whereHas('delivery', function ($q) {
+                    $q->where('idCliente', Auth::user()->idCliente);
+                });
+
+            $pendingOrders = DetalleDelivery::with('delivery')->where('idEstado', 34)
+                ->whereHas('delivery', function ($q) {
+                    $q->where('idCliente', Auth::user()->idCliente);
+                });
+
+            $assignedOrders = DetalleDelivery::with('conductor')->whereIn('idEstado', [41, 43])
+                ->whereHas('delivery', function ($q) {
+                    $q->where('idCliente', Auth::user()->idCliente);
+                });
+
+            $subtotal = $finishedOrders->sum('cTotal');
+            $paid = Payment::where('idCliente', Auth::user()->idCliente)
+                ->sum('monto');
+            $actualBalance = $subtotal - $paid;
+
+
+            return response()->json([
+                'error' => 0,
+                'finishedOrdersCount' => $finishedOrders->count(),
+                'actualBalance' => number_format($actualBalance,2),
+                'pendingOrdersCount' => $pendingOrders->count(),
+                'pendingOrders' => $pendingOrders->get(),
+                'assignedOrdersCount' => $assignedOrders->count(),
+                'assignedOrders' => $assignedOrders->get()
+            ]);
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), array(
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
+
+            return response()->json([
+                'error' => 1,
+                'message' => 'Ha ocurrido un error al cargar sus datos'
+            ], 500);
+        }
     }
 
 
