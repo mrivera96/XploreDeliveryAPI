@@ -200,6 +200,10 @@ Route::group(['middleware' => 'auth:api'], function () {
     Route::group(['prefix' => 'customers'], function () {
         //Ruta Dashboard
         Route::post('myDashboard', 'DeliveryUsersController@dashboardData');
+
+        //Ruta Balance
+        Route::post('balance', 'DeliveryUsersController@customerBalance');
+        
         //Rutas Deliveries
         Route::group(['prefix' => 'deliveries'], function () {
             Route::post('changeHour', 'DeliveriesController@changeDeliveryHour');

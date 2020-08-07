@@ -20,9 +20,8 @@ class DeliveryUsersController extends Controller
     public function list()
     {
         try {
-            $customers = DeliveryClient::with(['payments', 'payments.paymentType', 'deliveries.detalle'])->get();
-
-
+            $customers = DeliveryClient::where('isActivo', 1)->get();
+            
             return response()
                 ->json([
                     'error' => 0,
@@ -247,7 +246,7 @@ class DeliveryUsersController extends Controller
             return response()->json([
                 'error' => 0,
                 'finishedOrdersCount' => $finishedOrders->count(),
-                'actualBalance' => number_format($actualBalance,2),
+                'actualBalance' => number_format($actualBalance, 2),
                 'pendingOrdersCount' => $pendingOrders->count(),
                 'pendingOrders' => $pendingOrders->get(),
                 'assignedOrdersCount' => $assignedOrders->count(),
@@ -263,6 +262,70 @@ class DeliveryUsersController extends Controller
                 'error' => 1,
                 'message' => 'Ha ocurrido un error al cargar sus datos'
             ], 500);
+        }
+    }
+
+    public function customerBalance(Request $request)
+    {
+        $request->validate(['idCliente' => 'required']);
+        $customerId = $request->idCliente;
+        try {
+
+            $finishedOrders = DetalleDelivery::with(['estado', 'conductor'])
+                ->whereIn('idEstado', [44, 46, 47])
+                ->whereHas('delivery', function ($q) use ($customerId) {
+                    $q->where('idCliente', $customerId);
+                });
+
+            $payments = Payment::with('paymentType')->where('idCliente', $customerId);
+
+            $subtotal = $finishedOrders->sum('cTotal');
+            $paid = $payments->sum('monto');
+            $balance = $subtotal - $paid;
+
+            $finishedOrdersGet = $finishedOrders->get();
+
+            foreach ($finishedOrdersGet as $detail) {
+                $detail->fechaEntrega = \Carbon\Carbon::parse($detail->fechaEntrega)->format('Y-m-d H:i');
+                $detail->tarifaBase = number_format($detail->tarifaBase, 2);
+                $detail->recargo = number_format($detail->recargo, 2);
+                //$detail->cargosExtra = number_format($detail->cargosExtra, 2);
+                $detail->cTotal = number_format($detail->cTotal, 2);
+            }
+
+            $paymentsGet = $payments->get();
+
+            foreach($paymentsGet as $payment){
+                $payment->monto = number_format($payment->monto,2);
+            }
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'finishedOrders' => $finishedOrdersGet,
+                    'footSurcharges' => number_format($finishedOrders->sum('recargo'), 2),
+                    //'footExtraCharges' => number_format($finishedOrders->sum('cargosExtra'), 2),
+                    'footCTotal' => number_format($finishedOrders->sum('cTotal'), 2),
+                    'footMonto' => number_format($payments->sum('monto'),2),
+                    'subtotal' => number_format($subtotal, 2),
+                    'paid' => number_format($paid, 2),
+                    'balance' => number_format($balance, 2),
+                    'payments' => $paymentsGet
+                ],
+                200
+            );
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), array(
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => 'Ocurrió un error al cargar los datos'
+                ],
+                500
+            );
         }
     }
 }
