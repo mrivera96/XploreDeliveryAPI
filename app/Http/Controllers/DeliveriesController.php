@@ -1014,7 +1014,7 @@ class DeliveriesController extends Controller
                         $nDetalle->idCargoExtra = $detalle['idCargoExtra'];
                     }*/
 
-                    $nDetalle->tomarFoto = $detalle['tomarFoto'];
+                    $nDetalle->tomarFoto = true;
                     /*if (isset($detalle['idDetalleOpcion'])) {
                         $nDetalle->idDetalleOpcion = $detalle['idDetalleOpcion'];
                     }*/
