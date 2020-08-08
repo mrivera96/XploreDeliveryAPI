@@ -23,4 +23,8 @@ class Tarifa extends Model
     public function customer(){
         return $this->belongsTo('App\DeliveryClient', 'idCliente', 'idCliente');
     }
+
+    public function rateType(){
+        return $this->hasOne('App\RateType','idTipoTarifa','idTipoTarifa');
+    }
 }

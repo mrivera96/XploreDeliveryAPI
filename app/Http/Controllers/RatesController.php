@@ -14,11 +14,9 @@ class RatesController extends Controller
     public function getRates()
     {
         try {
-            $tarifas = Tarifa::all();
+            $tarifas = Tarifa::with(['category','customer','rateType'])->get();
             foreach ($tarifas as $tarifa) {
-                $tarifa->category;
                 $tarifa->precio = number_format($tarifa->precio, 2);
-                $tarifa->cliente = $tarifa->customer;
             }
             return response()->json(
                 [
@@ -32,7 +30,7 @@ class RatesController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getMessage()
+                    'message' => 'Ha ocurrido un error al cargar los datos'
                 ],
                 500
             );
@@ -67,7 +65,7 @@ class RatesController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getMessage()
+                    'message' => 'Ha ocurrido un error al cargar los datos'
                 ],
                 500
             );
@@ -76,12 +74,23 @@ class RatesController extends Controller
 
     public function updateRate(Request $request)
     {
+        $request->validate([
+            'form.idTarifaDelivery' => 'required',
+            'form.descTarifa' => 'required',
+            'form.idCategoria' => 'required',
+            'form.entregasMinimas' => 'required',
+            'form.entregasMaximas' => 'required',
+            'form.precio' => 'required',
+            'form.idTipoTarifa' => 'required',
+        ]);
         $idRate = $request->form["idTarifaDelivery"];
         $descRate = $request->form["descTarifa"];
         $idCategoria = $request->form["idCategoria"];
         $emin = $request->form["entregasMinimas"];
         $emax = $request->form["entregasMaximas"];
         $monto = $request->form["precio"];
+        $rateType = $request->form["idTipoTarifa"];
+
         try {
             $currRate = Tarifa::where('idTarifaDelivery', $idRate);
             $currRate->update([
@@ -89,7 +98,9 @@ class RatesController extends Controller
                     'descTarifa' => $descRate,
                     'entregasMinimas' => $emin,
                     'entregasMaximas' => $emax,
-                    'precio' => $monto]
+                    'precio' => $monto,
+                    'idTipoTarifa' => $rateType
+                    ]
             );
 
             return response()->json([
@@ -113,6 +124,7 @@ class RatesController extends Controller
             'form.idCategoria' => 'required',
             'form.entregasMinimas' => 'required',
             'form.entregasMaximas' => 'required',
+            'form.idTipoTarifa' => 'required',
             'form.precio' => 'required'
         ]);
 
@@ -121,6 +133,7 @@ class RatesController extends Controller
         $emin = $request->form["entregasMinimas"];
         $emax = $request->form["entregasMaximas"];
         $monto = $request->form["precio"];
+        $rateType = $request->form["idTipoTarifa"];
 
 
         try {
@@ -130,6 +143,7 @@ class RatesController extends Controller
             $currRate->entregasMinimas = $emin;
             $currRate->entregasMaximas = $emax;
             $currRate->precio = $monto;
+            $currRate->idTipoTarifa = $rateType;
             $currRate->fechaRegistro = Carbon::now();
             if ($request->form['idCliente'] == 1) {
                 $currRate->idCliente = 1;
@@ -166,7 +180,7 @@ class RatesController extends Controller
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
-                'message' => $ex->getMessage() //'Error al agregar la tarifa.'
+                'message' => 'Ha ocurrido un error al cargar los datos'
             ], 500);
         }
     }

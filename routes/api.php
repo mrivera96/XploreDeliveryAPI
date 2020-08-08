@@ -128,6 +128,11 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('addCustomer', 'RatesController@addCustomer');
         });
 
+        //Rutas Tipo Tarifas
+        Route::group(['prefix' => 'ratesType'], function () {
+            Route::post('get', 'RateTypeController@get');
+        });
+
         //Rutas Recargos
         Route::group(['prefix' => 'surcharges'], function () {
             Route::post('update', 'SurchargesController@updateSurcharge');
