@@ -31,4 +31,8 @@ class Tarifa extends Model
     public function consolidatedDetail(){
         return $this->hasOne('App\ConsolidatedRateDetail','idTarifaDelivery','idTarifaDelivery');
     }
+
+    public function schedules(){
+        return $this->hasMany('App\Schedule','idTarifaDelivery','idTarifaDelivery');
+    }
 }

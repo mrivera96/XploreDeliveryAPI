@@ -21,7 +21,7 @@ class DeliveryUsersController extends Controller
     {
         try {
             $customers = DeliveryClient::where('isActivo', 1)->get();
-            
+
             return response()
                 ->json([
                     'error' => 0,
@@ -289,7 +289,7 @@ class DeliveryUsersController extends Controller
                 $detail->fechaEntrega = \Carbon\Carbon::parse($detail->fechaEntrega)->format('Y-m-d H:i');
                 $detail->tarifaBase = number_format($detail->tarifaBase, 2);
                 $detail->recargo = number_format($detail->recargo, 2);
-                //$detail->cargosExtra = number_format($detail->cargosExtra, 2);
+                $detail->cargosExtra = number_format($detail->cargosExtra, 2);
                 $detail->cTotal = number_format($detail->cTotal, 2);
             }
 
@@ -304,7 +304,7 @@ class DeliveryUsersController extends Controller
                     'error' => 0,
                     'finishedOrders' => $finishedOrdersGet,
                     'footSurcharges' => number_format($finishedOrders->sum('recargo'), 2),
-                    //'footExtraCharges' => number_format($finishedOrders->sum('cargosExtra'), 2),
+                    'footExtraCharges' => number_format($finishedOrders->sum('cargosExtra'), 2),
                     'footCTotal' => number_format($finishedOrders->sum('cTotal'), 2),
                     'footMonto' => number_format($payments->sum('monto'),2),
                     'subtotal' => number_format($subtotal, 2),

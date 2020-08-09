@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\ConsolidatedRateDetail;
 use App\RateCustomer;
+use App\Schedule;
 use App\Tarifa;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -15,7 +16,7 @@ class RatesController extends Controller
     public function getRates()
     {
         try {
-            $tarifas = Tarifa::with(['category','customer','rateType'])->get();
+            $tarifas = Tarifa::with(['category', 'customer', 'rateType', 'consolidatedDetail', 'schedules'])->get();
             foreach ($tarifas as $tarifa) {
                 $tarifa->precio = number_format($tarifa->precio, 2);
             }
@@ -44,20 +45,29 @@ class RatesController extends Controller
             $currCustomer = Auth::user()->idCliente;
             $custRates = RateCustomer::where('idCliente', $currCustomer)->get();
             $tarifas = [];
+            $tarifasConsolidadas = [];
 
             if ($custRates->count() == 0) {
-                $tarifas = Tarifa::where('idCliente', 1)->get();
+                $tarifas = Tarifa::where('idCliente', 1)->where('idTipoTarifa', 1)->get();
             } else {
                 foreach ($custRates as $value) {
-                    $tarifa = Tarifa::where('idTarifaDelivery', $value->idTarifaDelivery)->get()->first();
+                    $tarifa = Tarifa::where('idTarifaDelivery', $value->idTarifaDelivery)->where('idTipoTarifa', 1)->get()->first();
                     array_push($tarifas, $tarifa);
+
+                    $tarifasCons = Tarifa::with(['consolidatedDetail', 'schedules'])
+                        ->where('idTarifaDelivery', $value->idTarifaDelivery)
+                        ->where('idTipoTarifa', 2)->get()->first();
+
+                    array_push($tarifasConsolidadas, $tarifasCons);
                 }
             }
+
 
             return response()->json(
                 [
                     'error' => 0,
-                    'data' => $tarifas
+                    'data' => $tarifas,
+                    'consolidadas' => $tarifasConsolidadas
                 ],
                 200
             );
@@ -101,7 +111,7 @@ class RatesController extends Controller
                     'entregasMaximas' => $emax,
                     'precio' => $monto,
                     'idTipoTarifa' => $rateType
-                    ]
+                ]
             );
 
             return response()->json([
@@ -170,15 +180,28 @@ class RatesController extends Controller
                 }
             }
 
-            if(isset($request->detail)){
+            if (isset($request->detail)) {
                 $maxRad = $request->detail["radioMaximo"];
                 $addrs = $request->detail["dirRecogida"];
+                $rateSchedules = $request->schedules;
 
                 $nRateDetail = new ConsolidatedRateDetail();
                 $nRateDetail->idTarifaDelivery = $lastIndex;
                 $nRateDetail->radioMaximo = $maxRad;
                 $nRateDetail->dirRecogida = $addrs;
                 $nRateDetail->save();
+
+                foreach ($rateSchedules as $schedule) {
+                    $nSch = new Schedule();
+                    $nSch->descHorario = $schedule["descHorario"];
+                    $nSch->dia = $schedule["dia"];
+                    $nSch->cod = $schedule["cod"];
+                    $nSch->inicio = date('H:i', strtotime($schedule['inicio']));
+                    $nSch->final = date('H:i', strtotime($schedule['final']));
+                    $nSch->fechaRegistro = Carbon::now();
+                    $nSch->idTarifaDelivery = $lastIndex;
+                    $nSch->save();
+                }
             }
 
             return response()->json([

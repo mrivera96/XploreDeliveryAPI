@@ -58,7 +58,7 @@
         <p style="line-height: 1">Tarifa Base: <strong> L. {{number_format($delivery->tarifaBase, 2)}}</strong></p>
         <p>Subtotal: <strong>L. {{ number_format($delivery->tarifaBase * $delivery->detalle->count() , 2)}}</strong></p>
         <p>Recargo(s) por distancia: <strong>L. {{number_format($delivery->recargos, 2)}}</strong></p>
-        <!--<p>Cargos Extra: <strong>L. {{number_format($delivery->cargosExtra, 2)}}</strong></p>-->
+        <p>Cargos Extra: <strong>L. {{number_format($delivery->cargosExtra, 2)}}</strong></p>
         <p>Total: <strong>L. {{number_format($delivery->total, 2)}}</strong></p>
     </section>
 
@@ -74,7 +74,7 @@
         <th scope="col">Número Celular del Destinatario</th>
         <th scope="col">Dirección del Destinatario</th>
         <th scope="col">Recargo por Distancia</th>
-        <!--<th scope="col">Cargos Extra</th>-->
+        <th scope="col">Cargos Extra</th>
         <th scope="col">Total</th>
     </tr>
     </thead>
@@ -88,7 +88,7 @@
             <td>{{$detail->numCel}}</td>
             <td>{{$detail->direccion}}</td>
             <td>L. {{number_format($detail->recargo, 2)}}</td>
-            <!--<td>L. {{number_format($detail->cargosExtra, 2)}}</td>-->
+            <td>L. {{number_format($detail->cargosExtra, 2)}}</td>
             <td>L. {{number_format($detail->cTotal, 2)}}</td>
         </tr>
     @endforeach
