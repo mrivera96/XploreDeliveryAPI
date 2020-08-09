@@ -308,4 +308,35 @@ class RatesController extends Controller
             ], 500);
         }
     }
+
+    public function updateRateDetail(Request  $request){
+        $request->validate([
+            'form.idTarifaDelivery' => 'required',
+            'form.radioMaximo' => 'required',
+            'form.dirRecogida' => 'required'
+        ]);
+
+        try {
+            $currDetail = ConsolidatedRateDetail::where('idTarifaDelivery', $request->form['idTarifaDelivery']);
+            $currDetail->update([
+                'radioMaximo' => $request->form['radioMaximo'],
+                'dirRecogida' => $request->form['dirRecogida'],
+            ]);
+
+            return response()->json([
+                'error' => 0,
+                'message' => 'Detalle de tarifa actualizado correctamente'
+            ], 200);
+
+        }catch (\Exception $ex) {
+            Log::error($ex->getMessage(), array(
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
+            return response()->json([
+                'error' => 1,
+                'message' => 'Ha ocurrido un error al actualizar el detalle'
+            ], 500);
+        }
+    }
 }

@@ -97,7 +97,6 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('getOptions', 'ExtraChargesController@getExtraChargeOptions');
             Route::post('removeOption', 'ExtraChargesController@removeOption');
             Route::post('addOption', 'ExtraChargesController@addOption');
-
         });
 
         //Rutas Deliveries
@@ -126,6 +125,7 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('removeCustomer', 'RatesController@removeCustomer');
             Route::post('getCustomers', 'RatesController@getCustomers');
             Route::post('addCustomer', 'RatesController@addCustomer');
+            Route::post('updateDetail', 'RatesController@updateRateDetail');
         });
 
         //Rutas Tipo Tarifas
@@ -208,7 +208,7 @@ Route::group(['middleware' => 'auth:api'], function () {
 
         //Ruta Balance
         Route::post('balance', 'DeliveryUsersController@customerBalance');
-        
+
         //Rutas Deliveries
         Route::group(['prefix' => 'deliveries'], function () {
             Route::post('changeHour', 'DeliveriesController@changeDeliveryHour');
