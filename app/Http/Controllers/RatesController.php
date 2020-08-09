@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\ConsolidatedRateDetail;
 use App\RateCustomer;
 use App\Tarifa;
 use Carbon\Carbon;
@@ -135,7 +136,6 @@ class RatesController extends Controller
         $monto = $request->form["precio"];
         $rateType = $request->form["idTipoTarifa"];
 
-
         try {
             $currRate = new Tarifa();
             $currRate->descTarifa = $descRate;
@@ -158,18 +158,27 @@ class RatesController extends Controller
                     for ($i = 0; $i < sizeof($customers); $i++) {
                         $existe = RateCustomer::where('idTarifaDelivery', $lastIndex)
                             ->where('idCliente', $customers[$i]['idCliente'])->count();
-
                         if ($existe == 0) {
                             $nCustRate = new RateCustomer();
                             $nCustRate->idTarifaDelivery = $lastIndex;
                             $nCustRate->idCliente = $customers[$i]['idCliente'];
                             $nCustRate->fechaRegistro = Carbon::now();
                             $nCustRate->save();
-
                         }
                     }
 
                 }
+            }
+
+            if(isset($request->detail)){
+                $maxRad = $request->detail["radioMaximo"];
+                $addrs = $request->detail["dirRecogida"];
+
+                $nRateDetail = new ConsolidatedRateDetail();
+                $nRateDetail->idTarifaDelivery = $lastIndex;
+                $nRateDetail->radioMaximo = $maxRad;
+                $nRateDetail->dirRecogida = $addrs;
+                $nRateDetail->save();
             }
 
             return response()->json([

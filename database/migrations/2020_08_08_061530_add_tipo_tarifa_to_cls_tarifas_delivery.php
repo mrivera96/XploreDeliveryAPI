@@ -29,6 +29,7 @@ class AddTipoTarifaToClsTarifasDelivery extends Migration
     public function down()
     {
         Schema::table('clsTarifasDelivery', function (Blueprint $table) {
+            $table->dropForeign('idTipoTarifa');
             $table->dropColumn('idTipoTarifa');
         });
     }

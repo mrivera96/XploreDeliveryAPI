@@ -10,10 +10,11 @@ use Illuminate\Support\Facades\Log;
 
 class ScheduleController extends Controller
 {
-    public function getSchedules(){
+    public function getSchedules()
+    {
         try {
-            $schedules = Schedule::all();
-            foreach ($schedules as $schedule){
+            $schedules = Schedule::with('rate')->get();
+            foreach ($schedules as $schedule) {
                 $schedule->inicio = Carbon::parse($schedule->inicio)->format('H:i');
                 $schedule->final = Carbon::parse($schedule->final)->format('H:i');
             }
@@ -22,9 +23,9 @@ class ScheduleController extends Controller
                 'error' => 0,
                 'data' => $schedules
             ]);
-        }catch (\Exception $ex){
+        } catch (\Exception $ex) {
             Log::error($ex->getMessage(), array([
-                'context'=>$ex->getTrace(),
+                'context' => $ex->getTrace(),
                 'User' => Auth::user()->nomUsuario
             ]));
 
@@ -35,32 +36,48 @@ class ScheduleController extends Controller
         }
     }
 
-    public function updateSchedule(Request $request){
+    public function updateSchedule(Request $request)
+    {
         $request->validate([
             'form' => 'required',
+            'form.descHorario' => 'required',
             'form.scheduleId' => 'required',
             'form.inicio' => 'required',
-            'form.final' => 'required'
+            'form.final' => 'required',
         ]);
+
         try {
 
             $schId = $request->form['scheduleId'];
             $init = date('H:i', strtotime($request->form['inicio']));
             $fin = date('H:i', strtotime($request->form['final']));
+            $schDesc = $request->form['descHorario'];
 
             $currSch = Schedule::where('idHorario', $schId);
-           $currSch->update([
-               'inicio' => $init,
-               'final' => $fin
-           ]);
+            if(isset($request->form["idTarifaDelivery"])){
+                $currSch->update([
+                    'inicio' => $init,
+                    'final' => $fin,
+                    'descHorario' => $schDesc,
+                    'cod' => $request->form["cod"],
+                    'idTarifaDelivery' => $request->form["idTarifaDelivery"]
+                ]);
+            }else{
+                $currSch->update([
+                    'inicio' => $init,
+                    'final' => $fin,
+                    'descHorario' => $schDesc
+                ]);
+            }
 
+            
             return response()->json([
                 'error' => 0,
                 'message' => 'Horario actualizado correctamente'
             ]);
-        }catch (\Exception $ex){
+        } catch (\Exception $ex) {
             Log::error($ex->getMessage(), array([
-                'context'=>$ex->getTrace(),
+                'context' => $ex->getTrace(),
                 'User' => Auth::user()->nomUsuario
             ]));
 

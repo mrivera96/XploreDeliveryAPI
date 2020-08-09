@@ -27,4 +27,8 @@ class Tarifa extends Model
     public function rateType(){
         return $this->hasOne('App\RateType','idTipoTarifa','idTipoTarifa');
     }
+
+    public function consolidatedDetail(){
+        return $this->hasOne('App\ConsolidatedRateDetail','idTarifaDelivery','idTarifaDelivery');
+    }
 }
