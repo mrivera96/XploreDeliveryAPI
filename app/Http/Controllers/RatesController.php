@@ -309,7 +309,8 @@ class RatesController extends Controller
         }
     }
 
-    public function updateRateDetail(Request  $request){
+    public function updateRateDetail(Request $request)
+    {
         $request->validate([
             'form.idTarifaDelivery' => 'required',
             'form.radioMaximo' => 'required',
@@ -323,12 +324,30 @@ class RatesController extends Controller
                 'dirRecogida' => $request->form['dirRecogida'],
             ]);
 
+            if (isset($request->schedules)) {
+                $schedules = $request->schedules;
+
+                foreach ($schedules as $schedule) {
+
+                    $nSch = new Schedule();
+                    $nSch->descHorario = $schedule["descHorario"];
+                    $nSch->dia = $schedule["dia"];
+                    $nSch->cod = $schedule["cod"];
+                    $nSch->inicio = date('H:i', strtotime($schedule['inicio']));
+                    $nSch->final = date('H:i', strtotime($schedule['final']));
+                    $nSch->fechaRegistro = Carbon::now();
+                    $nSch->idTarifaDelivery = $request->form['idTarifaDelivery'];
+                    $nSch->save();
+
+                }
+            }
+
             return response()->json([
                 'error' => 0,
                 'message' => 'Detalle de tarifa actualizado correctamente'
             ], 200);
 
-        }catch (\Exception $ex) {
+        } catch (\Exception $ex) {
             Log::error($ex->getMessage(), array(
                 'User' => Auth::user()->nomUsuario,
                 'context' => $ex->getTrace()
