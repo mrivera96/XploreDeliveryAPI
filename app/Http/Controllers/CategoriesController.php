@@ -69,7 +69,7 @@ class CategoriesController extends Controller
                     }
                 }
 
-                $categories = Category::with(['rate.schedules','rate.rateDetail'])
+                $categories = Category::with(['rate.schedules','rate.rateDetail','rate.consolidatedDetail'])
                     ->where('isActivo', 1)
                     ->whereIn('idCategoria', $idArray)
                     ->orderBy('orden')->get();
@@ -87,7 +87,7 @@ class CategoriesController extends Controller
                     }
                 }
 
-                $consolidatedCategories = Category::with(['rate.schedules','rate.rateDetail'])
+                $consolidatedCategories = Category::with(['rate.schedules','rate.rateDetail','rate.consolidatedDetail'])
                     ->where('isActivo', 1)
                     ->whereIn('idCategoria', $idArray)
                     ->orderBy('orden')->get();

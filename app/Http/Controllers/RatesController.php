@@ -53,13 +53,17 @@ class RatesController extends Controller
                 foreach ($custRates as $value) {
                     $tarifa = Tarifa::where('idTarifaDelivery', $value->idTarifaDelivery)
                         ->where('idTipoTarifa', 1)->get()->first();
-                    array_push($tarifas, $tarifa);
+                    if($tarifa != null){
+                        array_push($tarifas, $tarifa);
+                    }
 
                     $tarifasCons = Tarifa::with(['consolidatedDetail', 'schedules'])
                         ->where('idTarifaDelivery', $value->idTarifaDelivery)
                         ->where('idTipoTarifa', 2)->get()->first();
+                    if($tarifasCons != null){
+                        array_push($tarifasConsolidadas, $tarifasCons);
+                    }
 
-                    array_push($tarifasConsolidadas, $tarifasCons);
                 }
             }
 
