@@ -1015,9 +1015,9 @@ class DeliveriesController extends Controller
                     }
 
                     $nDetalle->tomarFoto = true;
-                    /*if (isset($detalle['idDetalleOpcion'])) {
+                    if (isset($detalle['idDetalleOpcion'])) {
                         $nDetalle->idDetalleOpcion = $detalle['idDetalleOpcion'];
-                    }*/
+                    }
 
                     $nDetalle->instrucciones = $detalle['instrucciones'];
                     $nDetalle->coordsDestino = $detalle['coordsDestino'];

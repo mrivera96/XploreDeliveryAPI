@@ -13,7 +13,7 @@ class ScheduleController extends Controller
     public function getSchedules()
     {
         try {
-            $schedules = Schedule::with('rate')->get();
+            $schedules = Schedule::where('idTarifaDelivery',null)->get();
             foreach ($schedules as $schedule) {
                 $schedule->inicio = Carbon::parse($schedule->inicio)->format('H:i');
                 $schedule->final = Carbon::parse($schedule->final)->format('H:i');
@@ -70,7 +70,7 @@ class ScheduleController extends Controller
                 ]);
             }
 
-            
+
             return response()->json([
                 'error' => 0,
                 'message' => 'Horario actualizado correctamente'

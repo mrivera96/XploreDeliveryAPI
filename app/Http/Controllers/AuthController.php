@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DeliveryClient;
+use App\Tarifa;
 use App\User;
 use Carbon\Carbon;
 use Exception;
@@ -43,12 +44,22 @@ class AuthController extends Controller
 
                 if ($auth->where('passUsuario', $cripPass)->count() > 0 || Hash::check($password, User::whereIn('idPerfil', [1, 8, 9])->where('nickUsuario', $nickname)->get()->first()->getAuthPassword())) {
 
-
                     Auth::login($auth->first());
                     $user = Auth::user();
                     $tkn = $user->createToken('XploreDeliverypApi')->accessToken;
                     $user->access_token = $tkn;
                     $user->cliente;
+                    $custConsolidatedRates = Tarifa::where('idTipoTarifa',2)
+                    ->whereHas('rateDetail', function ($q) use ($user) {
+                        $q->where('idCliente', $user->idCliente);
+                    })->count();
+
+                    $hasConsolidatedRate = false;
+                    if($custConsolidatedRates > 0){
+                        $hasConsolidatedRate = true;
+                    }
+
+                    $user->permiteConsolidada = $hasConsolidatedRate;
 
                     return response()->json(
                         [

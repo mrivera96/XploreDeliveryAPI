@@ -15,6 +15,6 @@ class RateCustomer extends Model
     }
 
     public function rate(){
-        return $this->hasOne('App\Tarifa', 'idTarifaDelivery', 'idTarifaDelivery');
+        return $this->belongsTo('App\Tarifa', 'idTarifaDelivery', 'idTarifaDelivery');
     }
 }

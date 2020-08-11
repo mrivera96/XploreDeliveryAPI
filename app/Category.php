@@ -23,4 +23,8 @@ class Category extends Model
         return $this->hasMany('App\ExtraChargeCategory', 'idCategoria', 'idCategoria');
     }
 
+    public function rate(){
+        return $this->belongsTo('App\Tarifa', 'idCategoria', 'idCategoria');
+    }
+
 }

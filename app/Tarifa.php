@@ -35,4 +35,8 @@ class Tarifa extends Model
     public function schedules(){
         return $this->hasMany('App\Schedule','idTarifaDelivery','idTarifaDelivery');
     }
+
+    public function rateDetail(){
+        return $this->hasMany('App\RateCustomer', 'idTarifaDelivery', 'idTarifaDelivery');
+    }
 }
