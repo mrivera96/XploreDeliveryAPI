@@ -984,7 +984,7 @@ class DeliveriesController extends Controller
                     $nDelivery->idCliente = Auth::user()->idCliente;
                     $nDelivery->coordsOrigen = $hDelivery['coordsOrigen'];
                     $nDelivery->instrucciones = $hDelivery['instrucciones'];
-                    $nDelivery->isConsilidada = true;
+                    $nDelivery->isConsolidada = true;
                     $nDelivery->fechaRegistro = Carbon::now();
                     $nDelivery->save();
 
@@ -1033,7 +1033,7 @@ class DeliveriesController extends Controller
                     return response()->json(
                         [
                             'error' => 1,
-                            'message' =>'Lo sentimos, ha ocurrido un error al procesar tu solicitud. Por favor intenta de nuevo.'
+                            'message' => $ex->getMessage()//'Lo sentimos, ha ocurrido un error al procesar tu solicitud. Por favor intenta de nuevo.'
                         ],
                         500
                     );
