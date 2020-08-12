@@ -966,7 +966,7 @@ class DeliveriesController extends Controller
                         $date = date('Y-m-d', strtotime("next " . $day . "", strtotime($mydate)));
 
                     }else{
-                        $date = date('Y-m-d', strtotime(strtotime($mydate)));
+                        $date = Carbon::parse($mydate)->format('Y-m-d');
                     }
 
                     $customerDetails = DeliveryClient::where('idCliente', Auth::user()->idCliente)->get()->first();
