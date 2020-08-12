@@ -12,6 +12,7 @@ use App\Schedule;
 use App\Tarifa;
 use App\User;
 use Exception;
+use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -936,10 +937,10 @@ class DeliveriesController extends Controller
 
     public function createCustomerDelivery(Request $request)
     {
+
+
         $request->validate([
             'deliveryForm' => 'required',
-            'deliveryForm.fecha' => 'required',
-            'deliveryForm.hora' => 'required',
             'deliveryForm.dirRecogida' => 'required',
             'deliveryForm.idCategoria' => 'required',
             'deliveryForm.coordsOrigen' => 'required',
@@ -947,122 +948,100 @@ class DeliveriesController extends Controller
             'pago' => 'required'
         ]);
 
+
         if (isset($request->deliveryForm["idTarifa"])) {
             $hDelivery = $request->deliveryForm;
             $deliveryOrders = $request->orders;
             $pago = $request->pago;
 
-            $deliveryDayCode = Carbon::create(date('Y-m-d', strtotime($hDelivery['fecha'])))->dayOfWeek;
 
-            $todaySchedule = Schedule::where('cod', $deliveryDayCode)
-                ->where('idTarifaDelivery', $request->deliveryForm["idTarifa"])
-                ->get();
-
-            if ($todaySchedule->count() > 0) {
-                $inSchedule = false;
-                foreach ($todaySchedule as $schedule) {
-                    if (date('H:i', strtotime($hDelivery['hora'])) >= $schedule->inicio ||
-                        date('H:i', strtotime($hDelivery['hora'])) <= $schedule->final) {
-                        $inSchedule = true;
-                    }
-                }
-
-                if($inSchedule == false){
-                    return response()->json(
-                        [
-                            'error' => 1,
-                            'message' => 'Lo sentimos, la hora de reservación está fuera del horario.
-                        Por favor verifica los horarios que se te muestran.'
-                        ],
-                        500
-                    );
-                }
-
-
-
-                if (sizeof($deliveryOrders) > 0) {
-                    try {
-                        $customerDetails = DeliveryClient::where('idCliente', Auth::user()->idCliente)->get()->first();
-
-                        $nDelivery = new Delivery();
-                        $nDelivery->nomCliente = $customerDetails->nomEmpresa;
-                        $nDelivery->numIdentificacion = $customerDetails->numIdentificacion;
-                        $nDelivery->numCelular = $customerDetails->numTelefono;
-                        $date = date('Y-m-d', strtotime($hDelivery['fecha']));
-                        $time = date('H:i', strtotime($hDelivery['hora']));
-
-
-                        $datetime = $date . ' ' . $time;
-                        $nDelivery->fechaReserva = new Carbon($datetime);
-                        $nDelivery->dirRecogida = $hDelivery['dirRecogida'];
-                        $nDelivery->email = $customerDetails->email;
-                        $nDelivery->idCategoria = $hDelivery['idCategoria'];
-                        $nDelivery->idEstado = 34;
-                        $nDelivery->tarifaBase = $pago['baseRate'];
-                        $nDelivery->recargos = $pago['recargos'];
-                        $nDelivery->cargosExtra = $pago['cargosExtra'];
-                        $nDelivery->total = $pago['total'];
-                        $nDelivery->idCliente = Auth::user()->idCliente;
-                        $nDelivery->coordsOrigen = $hDelivery['coordsOrigen'];
-                        $nDelivery->instrucciones = $hDelivery['instrucciones'];
-                        $nDelivery->fechaRegistro = Carbon::now();
-                        $nDelivery->save();
-
-                        $lastId = Delivery::query()->max('idDelivery');
-
-                        foreach ($deliveryOrders as $detalle) {
-                            $nDetalle = new DetalleDelivery();
-                            $nDetalle->idDelivery = $lastId;
-                            $nDetalle->nFactura = $detalle['nFactura'];
-                            $nDetalle->nomDestinatario = $detalle['nomDestinatario'];
-                            $nDetalle->numCel = $detalle['numCel'];
-                            $nDetalle->direccion = $detalle['direccion'];
-                            $nDetalle->distancia = $detalle['distancia'];
-                            $nDetalle->tarifaBase = $detalle['tarifaBase'];
-                            $nDetalle->recargo = $detalle['recargo'];
-                            $nDetalle->cTotal = $detalle['cTotal'];
-                            $nDetalle->cargosExtra = $detalle['cargosExtra'];
-                            if (isset($detalle['idCargoExtra'])) {
-                                $nDetalle->idCargoExtra = $detalle['idCargoExtra'];
-                            }
-
-                            $nDetalle->tomarFoto = true;
-                            if (isset($detalle['idDetalleOpcion'])) {
-                                $nDetalle->idDetalleOpcion = $detalle['idDetalleOpcion'];
-                            }
-
-                            $nDetalle->instrucciones = $detalle['instrucciones'];
-                            $nDetalle->coordsDestino = $detalle['coordsDestino'];
-                            $nDetalle->save();
-                        }
-
-                        $receivers = $customerDetails->email;
-                        $this->sendmail($receivers, $lastId);
+            if (sizeof($deliveryOrders) > 0) {
+                try {
+                    $deliverySchedule = Schedule::where('idHorario', $request->deliveryForm["idHorario"])
+                        ->get()->first();
+                    //if(Carbon::now()->dayOfWeek != $deliverySchedule->cod){
+                        $datetime = Carbon::now()->dayName;
 
                         return response()->json([
-                            'error' => 0,
-                            'message' => 'Solicitud de Delivery enviada correctamente.
-                    Recibirás un email con los detalles de tu reserva. Nos pondremos en contacto contigo.',
-                            'nDelivery' => $lastId],
-                            200
-                        );
+                            'data' => $datetime
+                        ],500);
+                    //}
 
-                    } catch (Exception $ex) {
-                        Log::error($ex->getMessage(), array('User' => Auth::user()->cliente->nomEmpresa,
-                            'context' => $ex->getTrace()));
-                        return response()->json(
-                            [
-                                'error' => 1,
-                                'message' => 'Lo sentimos, ha ocurrido un error al procesar tu solicitud. Por favor intenta de nuevo.'
-                            ],
-                            500
-                        );
+                    $customerDetails = DeliveryClient::where('idCliente', Auth::user()->idCliente)->get()->first();
+
+                    $nDelivery = new Delivery();
+                    $nDelivery->nomCliente = $customerDetails->nomEmpresa;
+                    $nDelivery->numIdentificacion = $customerDetails->numIdentificacion;
+                    $nDelivery->numCelular = $customerDetails->numTelefono;
+
+                    $datetime = Carbon::create(Carbon::now()
+                        ->next($deliverySchedule->cod)
+                    ->toDateString());
+
+                    $date = date('Y-m-d', strtotime($hDelivery['fecha']));
+                    $time = date('H:i', strtotime($hDelivery['hora']));
+                    $datetime = $date . ' ' . $time;
+                    $nDelivery->fechaReserva = new Carbon($datetime);
+                    $nDelivery->dirRecogida = $hDelivery['dirRecogida'];
+                    $nDelivery->email = $customerDetails->email;
+                    $nDelivery->idCategoria = $hDelivery['idCategoria'];
+                    $nDelivery->idEstado = 34;
+                    $nDelivery->tarifaBase = $pago['baseRate'];
+                    $nDelivery->recargos = $pago['recargos'];
+                    $nDelivery->cargosExtra = $pago['cargosExtra'];
+                    $nDelivery->total = $pago['total'];
+                    $nDelivery->idCliente = Auth::user()->idCliente;
+                    $nDelivery->coordsOrigen = $hDelivery['coordsOrigen'];
+                    $nDelivery->instrucciones = $hDelivery['instrucciones'];
+                    $nDelivery->fechaRegistro = Carbon::now();
+                    $nDelivery->save();
+
+                    $lastId = Delivery::query()->max('idDelivery');
+
+                    foreach ($deliveryOrders as $detalle) {
+                        $nDetalle = new DetalleDelivery();
+                        $nDetalle->idDelivery = $lastId;
+                        $nDetalle->nFactura = $detalle['nFactura'];
+                        $nDetalle->nomDestinatario = $detalle['nomDestinatario'];
+                        $nDetalle->numCel = $detalle['numCel'];
+                        $nDetalle->direccion = $detalle['direccion'];
+                        $nDetalle->distancia = $detalle['distancia'];
+                        $nDetalle->tarifaBase = $detalle['tarifaBase'];
+                        $nDetalle->recargo = $detalle['recargo'];
+                        $nDetalle->cTotal = $detalle['cTotal'];
+                        $nDetalle->cargosExtra = $detalle['cargosExtra'];
+                        if (isset($detalle['idCargoExtra'])) {
+                            $nDetalle->idCargoExtra = $detalle['idCargoExtra'];
+                        }
+
+                        $nDetalle->tomarFoto = true;
+                        if (isset($detalle['idDetalleOpcion'])) {
+                            $nDetalle->idDetalleOpcion = $detalle['idDetalleOpcion'];
+                        }
+
+                        $nDetalle->instrucciones = $detalle['instrucciones'];
+                        $nDetalle->coordsDestino = $detalle['coordsDestino'];
+                        $nDetalle->save();
                     }
-                } else {
+
+                    $receivers = $customerDetails->email;
+                    $this->sendmail($receivers, $lastId);
+
+                    return response()->json([
+                        'error' => 0,
+                        'message' => 'Solicitud de Delivery enviada correctamente.
+                    Recibirás un email con los detalles de tu reserva. Nos pondremos en contacto contigo.',
+                        'nDelivery' => $lastId],
+                        200
+                    );
+
+                } catch (Exception $ex) {
+                    Log::error($ex->getMessage(), array('User' => Auth::user()->cliente->nomEmpresa,
+                        'context' => $ex->getTrace()));
                     return response()->json(
                         [
                             'error' => 1,
-                            'message' => 'Lo sentimos, ha ocurrido un error al procesar tu solicitud. Por favor intenta de nuevo.'
+                            'message' => $ex->getMessage()//'Lo sentimos, ha ocurrido un error al procesar tu solicitud. Por favor intenta de nuevo.'
                         ],
                         500
                     );
@@ -1071,8 +1050,7 @@ class DeliveriesController extends Controller
                 return response()->json(
                     [
                         'error' => 1,
-                        'message' => 'Lo sentimos, el día que intentas hacer la reservación está fuera del horario que cubre la tarifa consolidada.
-                        Por favor verifica los horarios que se te muestran y cambia el día.'
+                        'message' => 'Lo sentimos, ha ocurrido un error al procesar tu solicitud. Por favor intenta de nuevo.'
                     ],
                     500
                 );
