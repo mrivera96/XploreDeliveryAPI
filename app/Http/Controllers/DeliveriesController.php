@@ -990,6 +990,7 @@ class DeliveriesController extends Controller
                     $nDelivery->idCliente = Auth::user()->idCliente;
                     $nDelivery->coordsOrigen = $hDelivery['coordsOrigen'];
                     $nDelivery->instrucciones = $hDelivery['instrucciones'];
+                    $nDelivery->isConsilidada = true;
                     $nDelivery->fechaRegistro = Carbon::now();
                     $nDelivery->save();
 
