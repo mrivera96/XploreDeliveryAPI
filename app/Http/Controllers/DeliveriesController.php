@@ -14,6 +14,7 @@ use App\User;
 use Exception;
 use http\Env\Response;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -959,13 +960,14 @@ class DeliveriesController extends Controller
                 try {
                     $deliverySchedule = Schedule::where('idHorario', $request->deliveryForm["idHorario"])
                         ->get()->first();
-                    //if(Carbon::now()->dayOfWeek != $deliverySchedule->cod){
-                        $datetime = Carbon::now()->dayName;
+                    $mydate = Carbon::now();
+                    if (Carbon::now()->dayOfWeek != $deliverySchedule->cod) {
+                        $day = jddayofweek($deliverySchedule->cod - 1, 1);
+                        $date = date('Y-m-d', strtotime("next " . $day . "", strtotime($mydate)));
 
-                        return response()->json([
-                            'data' => $datetime
-                        ],500);
-                    //}
+                    }else{
+                        $date = date('Y-m-d', strtotime(strtotime($mydate)));
+                    }
 
                     $customerDetails = DeliveryClient::where('idCliente', Auth::user()->idCliente)->get()->first();
 
@@ -974,12 +976,7 @@ class DeliveriesController extends Controller
                     $nDelivery->numIdentificacion = $customerDetails->numIdentificacion;
                     $nDelivery->numCelular = $customerDetails->numTelefono;
 
-                    $datetime = Carbon::create(Carbon::now()
-                        ->next($deliverySchedule->cod)
-                    ->toDateString());
-
-                    $date = date('Y-m-d', strtotime($hDelivery['fecha']));
-                    $time = date('H:i', strtotime($hDelivery['hora']));
+                    $time = $deliverySchedule->inicio;
                     $datetime = $date . ' ' . $time;
                     $nDelivery->fechaReserva = new Carbon($datetime);
                     $nDelivery->dirRecogida = $hDelivery['dirRecogida'];
