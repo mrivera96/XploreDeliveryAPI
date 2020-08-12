@@ -945,6 +945,8 @@ class DeliveriesController extends Controller
             'deliveryForm.dirRecogida' => 'required',
             'deliveryForm.idCategoria' => 'required',
             'deliveryForm.coordsOrigen' => 'required',
+            'deliveryForm.fecha' => 'required',
+            'deliveryForm.hora' => 'required',
             'orders' => 'required|array|min:1',
             'pago' => 'required'
         ]);
@@ -958,16 +960,6 @@ class DeliveriesController extends Controller
 
             if (sizeof($deliveryOrders) > 0) {
                 try {
-                    $deliverySchedule = Schedule::where('idHorario', $request->deliveryForm["idHorario"])
-                        ->get()->first();
-                    $mydate = Carbon::now();
-                    if (Carbon::now()->dayOfWeek != $deliverySchedule->cod) {
-                        $day = jddayofweek($deliverySchedule->cod - 1, 1);
-                        $date = date('Y-m-d', strtotime("next " . $day . "", strtotime($mydate)));
-
-                    }else{
-                        $date = Carbon::parse($mydate)->format('Y-m-d');
-                    }
 
                     $customerDetails = DeliveryClient::where('idCliente', Auth::user()->idCliente)->get()->first();
 
@@ -976,7 +968,9 @@ class DeliveriesController extends Controller
                     $nDelivery->numIdentificacion = $customerDetails->numIdentificacion;
                     $nDelivery->numCelular = $customerDetails->numTelefono;
 
-                    $time = $deliverySchedule->inicio;
+                    $date = date('Y-m-d', strtotime($hDelivery['fecha']));
+                    $time = date('H:i', strtotime($hDelivery['hora']));
+
                     $datetime = $date . ' ' . $time;
                     $nDelivery->fechaReserva = new Carbon($datetime);
                     $nDelivery->dirRecogida = $hDelivery['dirRecogida'];
@@ -1086,9 +1080,9 @@ class DeliveriesController extends Controller
                     $nDelivery->nomCliente = $customerDetails->nomEmpresa;
                     $nDelivery->numIdentificacion = $customerDetails->numIdentificacion;
                     $nDelivery->numCelular = $customerDetails->numTelefono;
+
                     $date = date('Y-m-d', strtotime($hDelivery['fecha']));
                     $time = date('H:i', strtotime($hDelivery['hora']));
-
 
                     $datetime = $date . ' ' . $time;
                     $nDelivery->fechaReserva = new Carbon($datetime);
