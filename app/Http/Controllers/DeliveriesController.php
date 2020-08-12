@@ -1038,7 +1038,7 @@ class DeliveriesController extends Controller
                     return response()->json(
                         [
                             'error' => 1,
-                            'message' => $ex->getMessage()//'Lo sentimos, ha ocurrido un error al procesar tu solicitud. Por favor intenta de nuevo.'
+                            'message' =>'Lo sentimos, ha ocurrido un error al procesar tu solicitud. Por favor intenta de nuevo.'
                         ],
                         500
                     );
