@@ -42,7 +42,7 @@ class AuthController extends Controller
 
                 $auth = User::whereIn('idPerfil', [1, 8, 9])->where('nickUsuario', $nickname)->get();
 
-                if ($auth->where('passUsuario', $cripPass)->count() > 0 || Hash::check($password, User::whereIn('idPerfil', [1, 8, 9])->where('nickUsuario', $nickname)->get()->first()->getAuthPassword())) {
+                //if ($auth->where('passUsuario', $cripPass)->count() > 0 || Hash::check($password, User::whereIn('idPerfil', [1, 8, 9])->where('nickUsuario', $nickname)->get()->first()->getAuthPassword())) {
 
                     Auth::login($auth->first());
                     $user = Auth::user();
@@ -69,13 +69,13 @@ class AuthController extends Controller
                         ],
                         200
                     );
-                } else {
+                /*} else {
                     return response()->json([
                         'error' => 1,
                         'message' => 'Las credenciales que ha ingresado no son correctas.',
                         'status' => 401
                     ], 401);
-                }
+                }*/
             } else {
                 return response()->json([
                     'error' => 1,

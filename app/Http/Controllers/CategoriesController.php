@@ -61,42 +61,83 @@ class CategoriesController extends Controller
             $tarCust = RateCustomer::where('idCliente',$currCust)->get();
 
             if ($tarCust->count() > 0) {
-
-                $idArray = [];
-                foreach ($tarCust as $item) {
-                    if (!in_array($item->rate->idCategoria, $idArray) && $item->rate->idTipoTarifa == 1) {
-                        array_push($idArray, $item->rate->idCategoria);
-                    }
-                }
-
-                $categories = Category::with(['rate.schedules','rate.rateDetail','rate.consolidatedDetail'])
-                    ->where('isActivo', 1)
-                    ->whereIn('idCategoria', $idArray)
-                    ->orderBy('orden')->get();
-
-                $consolidatedRates = RateCustomer::where('idCliente',$currCust)
+                $onlyConsolidated = RateCustomer::where('idCliente',$currCust)
                     ->whereHas('rate', function ($q) {
                         $q->where('idTipoTarifa', 2);
-                    })->get();
-                if($consolidatedRates->count() > 0){
+                    })->count();
+
+                if($onlyConsolidated == $tarCust->count()){
                     $idArray = [];
-                    foreach ($consolidatedRates as $item) {
-                        if (!in_array($item->rate->idCategoria, $idArray)) {
+                    foreach ($tarCust as $item) {
+                        if (!in_array($item->rate->idCategoria, $idArray) && $item->rate->idTipoTarifa == 1) {
                             array_push($idArray, $item->rate->idCategoria);
                         }
                     }
+
+                    $categories = Category::where('isActivo', 1)->orderBy('orden')->get();
+
+                    $consolidatedRates = RateCustomer::where('idCliente',$currCust)
+                        ->whereHas('rate', function ($q) {
+                            $q->where('idTipoTarifa', 2);
+                        })->get();
+                    if($consolidatedRates->count() > 0){
+                        $idArray = [];
+                        foreach ($consolidatedRates as $item) {
+                            if (!in_array($item->rate->idCategoria, $idArray)) {
+                                array_push($idArray, $item->rate->idCategoria);
+                            }
+                        }
+                    }
+
+                    $consolidatedCategories = Category::with(['rate.schedules','rate.rateDetail','rate.consolidatedDetail'])
+                        ->where('isActivo', 1)
+                        ->whereIn('idCategoria', $idArray)
+                        ->orderBy('orden')->get();
+
+                    return response()->json([
+                        'error' => 0,
+                        'data' => $categories,
+                        'consolidatedCategories' => $consolidatedCategories
+                    ], 200);
+                }else{
+                    $idArray = [];
+                    foreach ($tarCust as $item) {
+                        if (!in_array($item->rate->idCategoria, $idArray) && $item->rate->idTipoTarifa == 1) {
+                            array_push($idArray, $item->rate->idCategoria);
+                        }
+                    }
+
+                    $categories = Category::with(['rate.schedules','rate.rateDetail','rate.consolidatedDetail'])
+                        ->where('isActivo', 1)
+                        ->whereIn('idCategoria', $idArray)
+                        ->orderBy('orden')->get();
+
+                    $consolidatedRates = RateCustomer::where('idCliente',$currCust)
+                        ->whereHas('rate', function ($q) {
+                            $q->where('idTipoTarifa', 2);
+                        })->get();
+                    if($consolidatedRates->count() > 0){
+                        $idArray = [];
+                        foreach ($consolidatedRates as $item) {
+                            if (!in_array($item->rate->idCategoria, $idArray)) {
+                                array_push($idArray, $item->rate->idCategoria);
+                            }
+                        }
+                    }
+
+                    $consolidatedCategories = Category::with(['rate.schedules','rate.rateDetail','rate.consolidatedDetail'])
+                        ->where('isActivo', 1)
+                        ->whereIn('idCategoria', $idArray)
+                        ->orderBy('orden')->get();
+
+                    return response()->json([
+                        'error' => 0,
+                        'data' => $categories,
+                        'consolidatedCategories' => $consolidatedCategories
+                    ], 200);
                 }
 
-                $consolidatedCategories = Category::with(['rate.schedules','rate.rateDetail','rate.consolidatedDetail'])
-                    ->where('isActivo', 1)
-                    ->whereIn('idCategoria', $idArray)
-                    ->orderBy('orden')->get();
 
-                return response()->json([
-                    'error' => 0,
-                    'data' => $categories,
-                    'consolidatedCategories' => $consolidatedCategories
-                ], 200);
             } else {
                 $categories = Category::where('isActivo', 1)->orderBy('orden')->get();
                 return response()->json([
