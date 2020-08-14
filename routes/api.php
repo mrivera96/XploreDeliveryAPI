@@ -126,6 +126,9 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('getCustomers', 'RatesController@getCustomers');
             Route::post('addCustomer', 'RatesController@addCustomer');
             Route::post('updateDetail', 'RatesController@updateRateDetail');
+            Route::post('removeSchedule', 'RatesController@removeSchedule');
+            Route::post('getRateSchedules', 'RatesController@getSchedules');
+
         });
 
         //Rutas Tipo Tarifas

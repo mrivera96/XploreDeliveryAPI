@@ -293,6 +293,60 @@ class RatesController extends Controller
         }
     }
 
+    public function getSchedules(Request $request)
+    {
+        $request->validate([
+            'idTarifa' => 'required'
+        ]);
+        $rateId = $request->idTarifa;
+        try {
+            $rateSchedules = Schedule::where('idTarifaDelivery', $rateId)
+                ->get();
+            foreach ($rateSchedules as $schedule) {
+                $schedule->inicio = Carbon::parse($schedule->inicio)->format('H:i');
+                $schedule->final = Carbon::parse($schedule->final)->format('H:i');
+            }
+
+            return response()->json([
+                'error' => 0,
+                'data' => $rateSchedules
+            ], 200);
+        } catch (\Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json([
+                'error' => 1,
+                'message' => 'Error al cargar los clientes de la tarifa.'
+            ], 500);
+        }
+    }
+
+    public function removeSchedule(Request $request)
+    {
+        $request->validate([
+            'idHorario' => 'required',
+            'idTarifa' => 'required'
+        ]);
+
+        $schdId = $request->idHorario;
+        $rateId = $request->idTarifa;
+        try {
+            Schedule::where('idTarifaDelivery', $rateId)
+                ->where('idHorario', $schdId)
+                ->delete();
+
+            return response()->json([
+                'error' => 0,
+                'message' => 'Horario eliminado de la tarifa correctamente'
+            ], 200);
+        } catch (\Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json([
+                'error' => 1,
+                'message' => 'Error al eliminar el horario.'
+            ], 500);
+        }
+    }
+
     public function addCustomer(Request $request)
     {
         $request->validate([
