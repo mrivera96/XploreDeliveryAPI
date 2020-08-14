@@ -49,6 +49,7 @@ class RatesController extends Controller
 
             if ($custRates->count() == 0) {
                 $tarifas = Tarifa::where('idCliente', 1)->where('idTipoTarifa', 1)->get();
+                $tarifasConsolidadas = Tarifa::where('idCliente',1)->where('idTipoTarifa',2)->get();
             } else {
                 $onlyConsolidated = RateCustomer::where('idCliente',$currCustomer)
                     ->whereHas('rate', function ($q) {
