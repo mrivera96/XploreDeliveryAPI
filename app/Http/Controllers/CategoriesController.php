@@ -132,7 +132,6 @@ class CategoriesController extends Controller
                         ->whereIn('idCategoria', $idArray)
                         ->orderBy('orden')->get();
 
-                    $schedules = [];
 
                     foreach ($consolidatedCategories as $category) {
                         $rateSchedules = $category->rate->schedules->sortBy('cod');
@@ -183,6 +182,13 @@ class CategoriesController extends Controller
                             }
 
                         }
+
+                        $dates = array();
+                        foreach ($datesToShow as $my_object) {
+                            $dates[] = $my_object->date; //any object field
+                        }
+
+                        array_multisort($dates, SORT_ASC, $datesToShow);
 
                         $category->datesToShow = $datesToShow;
 
