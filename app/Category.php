@@ -24,7 +24,7 @@ class Category extends Model
     }
 
     public function rate(){
-        return $this->belongsTo('App\Tarifa', 'idCategoria', 'idCategoria');
+        return $this->hasMany('App\Tarifa', 'idCategoria', 'idCategoria');
     }
 
 }
