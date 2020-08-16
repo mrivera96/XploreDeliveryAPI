@@ -213,9 +213,8 @@ class CategoriesController extends Controller
                     ->whereHas('rate', function ($q) {
                         $q->where('idTipoTarifa', 2);
                     })->get();
-
+                $idArray = [];
                 if ($consolidatedRates->count() > 0) {
-                    $idArray = [];
                     foreach ($consolidatedRates as $item) {
                         if (!in_array($item->rate->idCategoria, $idArray) && $item->rate->idTipoTarifa  == 2) {
                             array_push($idArray, $item->rate->idCategoria);
