@@ -154,6 +154,12 @@ class CategoriesController extends Controller
 
                     }
 
+                    return response()->json([
+                        'error' => 0,
+                        'data' => $categories,
+                        'consolidatedCategories' => $consolidatedCategories
+                    ], 200);
+
                 } else {
                     $idArray = [];
                     foreach ($tarCust as $item) {
@@ -246,6 +252,11 @@ class CategoriesController extends Controller
                         $category->datesToShow = $datesToShow;
 
                     }
+                    return response()->json([
+                        'error' => 0,
+                        'data' => $categories,
+                        'consolidatedCategories' => $consolidatedCategories
+                    ], 200);
 
                 }
 
@@ -332,13 +343,14 @@ class CategoriesController extends Controller
                     $category->datesToShow = $datesToShow;
 
                 }
+                return response()->json([
+                    'error' => 0,
+                    'data' => $categories,
+                    'consolidatedCategories' => $consolidatedCategories
+                ], 200);
 
             }
-            return response()->json([
-                'error' => 0,
-                'data' => $categories,
-                'consolidatedCategories' => $consolidatedCategories
-            ], 200);
+
 
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
