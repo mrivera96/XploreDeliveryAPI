@@ -188,7 +188,7 @@ class CategoriesController extends Controller
                     if ($consolidatedRates->count() > 0) {
                         $idArray = [];
                         foreach ($consolidatedRates as $item) {
-                            if (!in_array($item->rate->idCategoria, $idArray)) {
+                            if (!in_array($item->rate->idCategoria, $idArray) && $item->rate->idTipoTarifa == 2) {
                                 array_push($idArray, $item->rate->idCategoria);
                             }
                         }
