@@ -180,8 +180,9 @@ class CategoriesController extends Controller
                                 }
 
                             }
-
-                            array_push($ratesToShow, $rate);
+                            if($rate->idTipoTarifa == 2){
+                                array_push($ratesToShow, $rate);
+                            }
 
                         }
 
