@@ -51,11 +51,22 @@ class RatesController extends Controller
                     ->where('idTipoTarifa', 1)
                     ->get();
             } else {
-                foreach ($custRates as $value) {
-                    $tarifa = Tarifa::where('idTarifaDelivery', $value->idTarifaDelivery)
-                        ->where('idTipoTarifa', 1)->get()->first();
-                    array_push($tarifas, $tarifa);
+                $onlyConsolidated = RateCustomer::where('idCliente', $currCustomer)
+                    ->whereHas('rate', function ($q) {
+                        $q->where('idTipoTarifa', 2);
+                    })->count();
+                if($onlyConsolidated == $custRates->count()){
+                    $tarifas = Tarifa::where('idCliente', 1)
+                        ->where('idTipoTarifa', 1)
+                        ->get();
+                }else{
+                    foreach ($custRates as $value) {
+                        $tarifa = Tarifa::where('idTarifaDelivery', $value->idTarifaDelivery)
+                            ->where('idTipoTarifa', 1)->get()->first();
+                        array_push($tarifas, $tarifa);
+                    }
                 }
+
             }
 
             return response()->json(
