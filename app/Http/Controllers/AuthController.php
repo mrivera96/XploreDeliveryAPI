@@ -49,6 +49,17 @@ class AuthController extends Controller
                     $tkn = $user->createToken('XploreDeliverypApi')->accessToken;
                     $user->access_token = $tkn;
                     $user->cliente;
+                    $custConsolidatedRates = Tarifa::where('idTipoTarifa',2)
+                    ->whereHas('rateDetail', function ($q) use ($user) {
+                        $q->where('idCliente', $user->idCliente);
+                    })->count();
+
+                    $hasConsolidatedRate = false;
+                    if($custConsolidatedRates > 0){
+                        $hasConsolidatedRate = true;
+                    }
+
+                    $user->permiteConsolidada = $hasConsolidatedRate;
 
                     return response()->json(
                         [
