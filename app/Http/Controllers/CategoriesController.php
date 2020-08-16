@@ -102,10 +102,10 @@ class CategoriesController extends Controller
 
                         foreach ($rateSchedules as $schedule) {
                             if ($schedule->cod != $today) {
-                                $day = jddayofweek($schedule->cod - 1 , 1);
+                                $day = jddayofweek($schedule->cod - 1, 1);
 
                                 $closestDate = strtotime("next " . $day . "", strtotime(Carbon::now()));
-                                $date = (object) array();
+                                $date = (object)array();
                                 $date->date = Carbon::parse($closestDate)->format('Y-m-d');
                                 $date->day = utf8_encode(strtolower($schedule->dia));
                                 $date->cod = $schedule->cod;
@@ -137,7 +137,7 @@ class CategoriesController extends Controller
                                     }
                                 }
 
-                                if ($exists == 0 ) {
+                                if ($exists == 0) {
                                     array_push($datesToShow, $date);
                                 }
                             }
@@ -150,18 +150,10 @@ class CategoriesController extends Controller
                         }
 
                         array_multisort($dates, SORT_ASC, $datesToShow);
-
                         $category->datesToShow = $datesToShow;
 
                     }
 
-
-
-                    return response()->json([
-                        'error' => 0,
-                        'data' => $categories,
-                        'consolidatedCategories' => $consolidatedCategories
-                    ], 200);
                 } else {
                     $idArray = [];
                     foreach ($tarCust as $item) {
@@ -202,10 +194,10 @@ class CategoriesController extends Controller
 
                         foreach ($rateSchedules as $schedule) {
                             if ($schedule->cod != $today) {
-                                $day = jddayofweek($schedule->cod - 1 , 1);
+                                $day = jddayofweek($schedule->cod - 1, 1);
 
                                 $closestDate = strtotime("next " . $day . "", strtotime(Carbon::now()));
-                                $date = (object) array();
+                                $date = (object)array();
                                 $date->date = Carbon::parse($closestDate)->format('Y-m-d');
                                 $date->day = utf8_encode(strtolower($schedule->dia));
                                 $date->cod = $schedule->cod;
@@ -237,7 +229,7 @@ class CategoriesController extends Controller
                                     }
                                 }
 
-                                if ($exists == 0 ) {
+                                if ($exists == 0) {
                                     array_push($datesToShow, $date);
                                 }
                             }
@@ -255,21 +247,98 @@ class CategoriesController extends Controller
 
                     }
 
-                    return response()->json([
-                        'error' => 0,
-                        'data' => $categories,
-                        'consolidatedCategories' => $consolidatedCategories
-                    ], 200);
                 }
 
 
             } else {
                 $categories = Category::where('isActivo', 1)->orderBy('orden')->get();
-                return response()->json([
-                    'error' => 0,
-                    'data' => $categories
-                ], 200);
+
+                $consolidatedRates = RateCustomer::where('idCliente', 1)
+                    ->whereHas('rate', function ($q) {
+                        $q->where('idTipoTarifa', 2);
+                    })->get();
+
+                if ($consolidatedRates->count() > 0) {
+                    $idArray = [];
+                    foreach ($consolidatedRates as $item) {
+                        if (!in_array($item->rate->idCategoria, $idArray)) {
+                            array_push($idArray, $item->rate->idCategoria);
+                        }
+                    }
+                }
+
+                $consolidatedCategories = Category::with(['rate.schedules', 'rate.rateDetail', 'rate.consolidatedDetail'])
+                    ->where('isActivo', 1)
+                    ->whereIn('idCategoria', $idArray)
+                    ->orderBy('orden')->get();
+
+                foreach ($consolidatedCategories as $category) {
+                    $rateSchedules = $category->rate->schedules->sortBy('cod');
+
+                    $today = Carbon::now()->dayOfWeek;
+                    $datesToShow = [];
+
+                    foreach ($rateSchedules as $schedule) {
+                        if ($schedule->cod != $today) {
+                            $day = jddayofweek($schedule->cod - 1, 1);
+
+                            $closestDate = strtotime("next " . $day . "", strtotime(Carbon::now()));
+                            $date = (object)array();
+                            $date->date = Carbon::parse($closestDate)->format('Y-m-d');
+                            $date->day = utf8_encode(strtolower($schedule->dia));
+                            $date->cod = $schedule->cod;
+                            $date->label = $schedule->dia . ' ' . Carbon::parse($closestDate)->format('Y-m-d');
+
+                            $exists = 0;
+                            foreach ($datesToShow as $datets) {
+                                if ($datets->day == $date->day) {
+                                    $exists++;
+                                }
+                            }
+
+                            if ($exists == 0) {
+                                array_push($datesToShow, $date);
+                            }
+
+                        } else if ($schedule->cod == $today && $schedule->inicio >= date('H:i', strtotime(Carbon::now()))) {
+                            $closestDate = $schedule->dia . ' ' . Carbon::parse(Carbon::now())->format('Y-m-d');
+                            $date = (object)array(
+                                'date' => Carbon::parse(Carbon::now())->format('Y-m-d'),
+                                'day' => strtolower($schedule->dia),
+                                'cod' => $schedule->cod,
+                                'label' => $closestDate
+                            );
+                            $exists = 0;
+                            foreach ($datesToShow as $datets) {
+                                if ($datets->day == $date->day) {
+                                    $exists++;
+                                }
+                            }
+
+                            if ($exists == 0) {
+                                array_push($datesToShow, $date);
+                            }
+                        }
+
+                    }
+
+                    $dates = array();
+                    foreach ($datesToShow as $my_object) {
+                        $dates[] = $my_object->date; //any object field
+                    }
+
+                    array_multisort($dates, SORT_ASC, $datesToShow);
+
+                    $category->datesToShow = $datesToShow;
+
+                }
+
             }
+            return response()->json([
+                'error' => 0,
+                'data' => $categories,
+                'consolidatedCategories' => $consolidatedCategories
+            ], 200);
 
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
