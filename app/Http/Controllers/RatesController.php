@@ -45,56 +45,23 @@ class RatesController extends Controller
             $currCustomer = Auth::user()->idCliente;
             $custRates = RateCustomer::where('idCliente', $currCustomer)->get();
             $tarifas = [];
-            $tarifasConsolidadas = [];
 
             if ($custRates->count() == 0) {
-                $tarifas = Tarifa::where('idCliente', 1)->where('idTipoTarifa', 1)->get();
-                $tarifasConsolidadas = Tarifa::where('idCliente',1)->where('idTipoTarifa',2)->get();
+                $tarifas = Tarifa::where('idCliente', 1)
+                    ->where('idTipoTarifa', 1)
+                    ->get();
             } else {
-                $onlyConsolidated = RateCustomer::where('idCliente',$currCustomer)
-                    ->whereHas('rate', function ($q) {
-                        $q->where('idTipoTarifa', 2);
-                    })->count();
-
-                if($onlyConsolidated == $custRates->count()){
-                    $tarifas = Tarifa::where('idTipoTarifa', 1)->get();
-
-                    foreach ($custRates as $value) {
-                        $tarifasCons = Tarifa::with(['consolidatedDetail', 'schedules'])
-                            ->where('idTarifaDelivery', $value->idTarifaDelivery)
-                            ->where('idTipoTarifa', 2)->get()->first();
-                        if($tarifasCons != null){
-                            array_push($tarifasConsolidadas, $tarifasCons);
-                        }
-
-                    }
-                }else{
-                    foreach ($custRates as $value) {
-                        $tarifa = Tarifa::where('idTarifaDelivery', $value->idTarifaDelivery)
-                            ->where('idTipoTarifa', 1)->get()->first();
-                        if($tarifa != null){
-                            array_push($tarifas, $tarifa);
-                        }
-
-                        $tarifasCons = Tarifa::with(['consolidatedDetail', 'schedules'])
-                            ->where('idTarifaDelivery', $value->idTarifaDelivery)
-                            ->where('idTipoTarifa', 2)->get()->first();
-                        if($tarifasCons != null){
-                            array_push($tarifasConsolidadas, $tarifasCons);
-                        }
-
-                    }
+                foreach ($custRates as $value) {
+                    $tarifa = Tarifa::where('idTarifaDelivery', $value->idTarifaDelivery)
+                        ->where('idTipoTarifa', 1)->get()->first();
+                    array_push($tarifas, $tarifa);
                 }
-
-
             }
-
 
             return response()->json(
                 [
                     'error' => 0,
-                    'data' => $tarifas,
-                    'consolidadas' => $tarifasConsolidadas
+                    'data' => $tarifas
                 ],
                 200
             );
