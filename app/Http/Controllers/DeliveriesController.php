@@ -154,8 +154,8 @@ class DeliveriesController extends Controller
             $allDeliveries = Delivery::with(['category', 'detalle', 'estado'])
                 ->whereBetween('fechaReserva',
                     [
-                        Carbon::now()->startOfWeek(Carbon::MONDAY),
-                        Carbon::now()->endOfWeek(Carbon::SUNDAY)
+                        Carbon::now()->subDays(7),
+                        Carbon::now()
                     ])
                 ->get();
 
@@ -262,8 +262,8 @@ class DeliveriesController extends Controller
             $allDeliveries = DetalleDelivery::with(['delivery', 'estado', 'conductor', 'photography'])
                 ->whereHas('delivery', function ($q)  {
                     $q->whereBetween('fechaReserva', [
-                        Carbon::now()->startOfWeek(Carbon::MONDAY),
-                        Carbon::now()->endOfWeek(Carbon::SUNDAY)
+                        Carbon::now()->subDays(7),
+                        Carbon::now()
                     ]);
                 })
                 ->get();
