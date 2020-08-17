@@ -151,7 +151,13 @@ class DeliveriesController extends Controller
     {
         try {
 
-            $allDeliveries = Delivery::with(['category', 'detalle', 'estado'])->get();
+            $allDeliveries = Delivery::with(['category', 'detalle', 'estado'])
+                ->whereBetween('fechaReserva',
+                    [
+                        Carbon::now()->startOfWeek(Carbon::SUNDAY),
+                        Carbon::now()->endOfWeek(Carbon::SATURDAY)
+                    ])
+                ->get();
 
             foreach ($allDeliveries as $delivery) {
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d H:i');
@@ -253,7 +259,11 @@ class DeliveriesController extends Controller
     public function getAllOrders()
     {
         try {
-            $allDeliveries = DetalleDelivery::with(['delivery', 'estado', 'conductor', 'photography'])->get();
+            $allDeliveries = DetalleDelivery::with(['delivery', 'estado', 'conductor', 'photography'])
+                ->whereHas('delivery', function ($q)  {
+                    $q->whereBetween('fechaReserva', [Carbon::now()->startOfWeek(Carbon::SUNDAY), Carbon::now()->endOfWeek(Carbon::SATURDAY)]);
+                })
+                ->get();
             $todosPedidos = [];
 
             foreach ($allDeliveries as $dtl) {
