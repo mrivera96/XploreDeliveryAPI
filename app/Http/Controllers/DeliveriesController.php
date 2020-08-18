@@ -260,12 +260,12 @@ class DeliveriesController extends Controller
     {
         try {
             $allDeliveries = DetalleDelivery::with(['delivery', 'estado', 'conductor', 'photography'])
-                ->whereHas('delivery', function ($q)  {
+                /*->whereHas('delivery', function ($q)  {
                     $q->whereBetween('fechaReserva', [
                         Carbon::now()->subDays(7),
                         Carbon::now()
                     ]);
-                })
+                })*/
                 ->get();
             $todosPedidos = [];
 

@@ -191,6 +191,26 @@ class CategoriesController extends Controller
                             $dates[] = $my_object->date; //any object field
                         }
 
+                        foreach($datesToShow as $date){
+                            $hoursToShow = [] ;
+                            foreach($rate->schedules as $schedule){
+                                if ($schedule->cod == $date->cod) {
+    
+                                    $hour = (object) array();
+                                    $hour->hour = Carbon::parse('2020-8-18 '. $schedule->inicio)->format('H:i');                                
+                                    $hour->label =  Carbon::parse('2020-8-18 '. $schedule->inicio)->format('H:i a');
+                          
+                                    $datetime = $date->date. ' '. $hour->hour;
+                                    $currentDateTime = Carbon::now();
+                          
+                                    if ($datetime >= $currentDateTime) {
+                                        array_push($hoursToShow, $hour);                                  
+                                    }
+                          
+                                  }
+                            }
+                        }
+
                         array_multisort($dates, SORT_ASC, $datesToShow);
                         $rate->datesToShow = $datesToShow;
 
@@ -289,11 +309,33 @@ class CategoriesController extends Controller
                             $dates[] = $my_object->date; //any object field
                         }
 
+                        foreach($datesToShow as $date){
+                            $hoursToShow = [] ;
+                            foreach($rate->schedules as $schedule){
+                                if ($schedule->cod == $date->cod) {
+    
+                                    $hour = (object) array();
+                                    $hour->hour = Carbon::parse('2020-8-18 '. $schedule->inicio)->format('H:i');                                
+                                    $hour->label =  Carbon::parse('2020-8-18 '. $schedule->inicio)->format('H:i a');
+                          
+                                    $datetime = $date->date. ' '. $hour->hour;
+                                    $currentDateTime = Carbon::now();
+                          
+                                    if ($datetime >= $currentDateTime) {
+                                        array_push($hoursToShow, $hour);                                  
+                                    }
+                          
+                                  }
+                            }
+                        }
+
                         array_multisort($dates, SORT_ASC, $datesToShow);
                         $rate->datesToShow = $datesToShow;
 
                     }
                     $category->ratesToShow = $ratesToShow;
+
+                    
 
                 }
                 return response()->json([
