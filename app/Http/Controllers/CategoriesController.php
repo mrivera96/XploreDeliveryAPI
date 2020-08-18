@@ -209,6 +209,7 @@ class CategoriesController extends Controller
                           
                                   }
                             }
+                            $date->hoursToShow = $hoursToShow;
                         }
 
                         array_multisort($dates, SORT_ASC, $datesToShow);
@@ -327,6 +328,7 @@ class CategoriesController extends Controller
                           
                                   }
                             }
+                            $date->hoursToShow = $hoursToShow;
                         }
 
                         array_multisort($dates, SORT_ASC, $datesToShow);
