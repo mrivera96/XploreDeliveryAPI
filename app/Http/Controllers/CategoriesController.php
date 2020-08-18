@@ -198,7 +198,7 @@ class CategoriesController extends Controller
     
                                     $hour = (object) array();
                                     $hour->hour = Carbon::parse('2020-8-18 '. $schedule->inicio)->format('H:i');                                
-                                    $hour->label =  Carbon::parse('2020-8-18 '. $schedule->inicio)->format('H:i a');
+                                    $hour->label =  Carbon::parse('2020-8-18 '. $schedule->inicio)->format('h:i a');
                           
                                     $datetime = $date->date. ' '. $hour->hour;
                                     $currentDateTime = Carbon::now();
@@ -317,7 +317,7 @@ class CategoriesController extends Controller
     
                                     $hour = (object) array();
                                     $hour->hour = Carbon::parse('2020-8-18 '. $schedule->inicio)->format('H:i');                                
-                                    $hour->label =  Carbon::parse('2020-8-18 '. $schedule->inicio)->format('H:i a');
+                                    $hour->label =  Carbon::parse('2020-8-18 '. $schedule->inicio)->format('h:i a');
                           
                                     $datetime = $date->date. ' '. $hour->hour;
                                     $currentDateTime = Carbon::now();
