@@ -1574,6 +1574,44 @@ class DeliveriesController extends Controller
         }
     }
 
+    public function assignOrder(Request $request)
+    {
+        $idConductor = $request->idConductor;
+        $idDetalle = $request->idDetalle;
+        try {
+            
+            $detail = DetalleDelivery::where('idDetalle', $idDetalle);
+            $detail->update(['idEstado' => 41, 'idConductor' => $idConductor]);
+            $conductor = User::where('idUsuario', $idConductor)->get()->first();
+
+            $nCtrl = new CtrlEstadoDelivery();
+            $nCtrl->idDetalle = $idDetalle;
+            $nCtrl->idEstado = 41;
+            $nCtrl->idUsuario = Auth::user()->idUsuario;
+            $nCtrl->fechaRegistro = Carbon::now();
+            $nCtrl->save();
+
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => 'Envío asignado correctamente a: ' . $conductor->nomUsuario
+                ],
+                200
+            );
+
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => 'Ocurrió un error al asignar el envío'
+                ],
+                500
+            );
+        }
+    }
+
     public function changeOrderState(Request $request)
     {
         $request->validate([
