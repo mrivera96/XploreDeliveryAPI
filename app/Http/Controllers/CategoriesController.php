@@ -3,9 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Category;
-use App\DeliveryClient;
 use App\RateCustomer;
-use App\Tarifa;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -68,7 +66,10 @@ class CategoriesController extends Controller
 
                 if ($onlyConsolidated == $tarCust->count()) {
 
-                    $categories = Category::where('isActivo', 1)->orderBy('orden')->get();
+                    $categories = Category::with('categoryExtraCharges.extraCharge.options')
+                        ->where('isActivo', 1)
+                        ->orderBy('orden')
+                        ->get();
 
                     $consolidatedRates = RateCustomer::where('idCliente', $currCust)
                         ->whereHas('rate', function ($q) {
@@ -84,7 +85,10 @@ class CategoriesController extends Controller
                         }
                     }
 
-                    $consolidatedCategories = Category::with(['rate.schedules', 'rate.rateDetail', 'rate.consolidatedDetail'])
+                    $consolidatedCategories = Category::with(['categoryExtraCharges.extraCharge.options',
+                        'rate.schedules',
+                        'rate.rateDetail',
+                        'rate.consolidatedDetail'])
                         ->where('isActivo', 1)
                         ->whereIn('idCategoria', $idArray)
                         ->orderBy('orden')
@@ -97,7 +101,10 @@ class CategoriesController extends Controller
                         }
                     }
 
-                    $categories = Category::with(['rate.schedules', 'rate.rateDetail', 'rate.consolidatedDetail'])
+                    $categories = Category::with(['categoryExtraCharges.extraCharge.options',
+                        'rate.schedules',
+                        'rate.rateDetail',
+                        'rate.consolidatedDetail'])
                         ->where('isActivo', 1)
                         ->whereIn('idCategoria', $idArray)
                         ->orderBy('orden')->get();
@@ -115,7 +122,10 @@ class CategoriesController extends Controller
                         }
                     }
 
-                    $consolidatedCategories = Category::with(['rate.schedules', 'rate.rateDetail', 'rate.consolidatedDetail'])
+                    $consolidatedCategories = Category::with(['categoryExtraCharges.extraCharge.options',
+                        'rate.schedules',
+                        'rate.rateDetail',
+                        'rate.consolidatedDetail'])
                         ->where('isActivo', 1)
                         ->whereIn('idCategoria', $idArray)
                         ->orderBy('orden')->get();
@@ -195,18 +205,18 @@ class CategoriesController extends Controller
                             $hoursToShow = [] ;
                             foreach($rate->schedules as $schedule){
                                 if ($schedule->cod == $date->cod) {
-    
+
                                     $hour = (object) array();
-                                    $hour->hour = Carbon::parse('2020-8-18 '. $schedule->inicio)->format('H:i');                                
+                                    $hour->hour = Carbon::parse('2020-8-18 '. $schedule->inicio)->format('H:i');
                                     $hour->label =  Carbon::parse('2020-8-18 '. $schedule->inicio)->format('h:i a');
-                          
+
                                     $datetime = $date->date. ' '. $hour->hour;
                                     $currentDateTime = Carbon::now();
-                          
+
                                     if ($datetime >= $currentDateTime) {
-                                        array_push($hoursToShow, $hour);                                  
+                                        array_push($hoursToShow, $hour);
                                     }
-                          
+
                                   }
                             }
                             $date->hoursToShow = $hoursToShow;
@@ -228,7 +238,10 @@ class CategoriesController extends Controller
 
 
             } else {
-                $categories = Category::where('isActivo', 1)->orderBy('orden')->get();
+                $categories = Category::with('categoryExtraCharges.extraCharge.options')
+                    ->where('isActivo', 1)
+                    ->orderBy('orden')
+                    ->get();
 
                 $consolidatedRates = RateCustomer::where('idCliente', 1)
                     ->whereHas('rate', function ($q) {
@@ -243,10 +256,14 @@ class CategoriesController extends Controller
                     }
                 }
 
-                $consolidatedCategories = Category::with(['rate.schedules', 'rate.rateDetail', 'rate.consolidatedDetail'])
+                $consolidatedCategories = Category::with(['categoryExtraCharges.extraCharge.options',
+                    'rate.schedules',
+                    'rate.rateDetail',
+                    'rate.consolidatedDetail'])
                     ->where('isActivo', 1)
                     ->whereIn('idCategoria', $idArray)
-                    ->orderBy('orden')->get();
+                    ->orderBy('orden')
+                    ->get();
 
                 foreach ($consolidatedCategories as $category) {
                     $rates = $category->rate;
@@ -314,18 +331,18 @@ class CategoriesController extends Controller
                             $hoursToShow = [] ;
                             foreach($rate->schedules as $schedule){
                                 if ($schedule->cod == $date->cod) {
-    
+
                                     $hour = (object) array();
-                                    $hour->hour = Carbon::parse('2020-8-18 '. $schedule->inicio)->format('H:i');                                
+                                    $hour->hour = Carbon::parse('2020-8-18 '. $schedule->inicio)->format('H:i');
                                     $hour->label =  Carbon::parse('2020-8-18 '. $schedule->inicio)->format('h:i a');
-                          
+
                                     $datetime = $date->date. ' '. $hour->hour;
                                     $currentDateTime = Carbon::now();
-                          
+
                                     if ($datetime >= $currentDateTime) {
-                                        array_push($hoursToShow, $hour);                                  
+                                        array_push($hoursToShow, $hour);
                                     }
-                          
+
                                   }
                             }
                             $date->hoursToShow = $hoursToShow;
@@ -337,7 +354,7 @@ class CategoriesController extends Controller
                     }
                     $category->ratesToShow = $ratesToShow;
 
-                    
+
 
                 }
                 return response()->json([
