@@ -7,7 +7,7 @@ use App\CtrlEstadoDelivery;
 use App\Delivery;
 use App\DeliveryClient;
 use App\DetalleDelivery;
-agregaruse App\DetalleOpcionesCargosExtras;
+use App\DetalleOpcionesCargosExtras;
 use App\Estado;
 use App\ExtraCharge;
 use App\Schedule;
@@ -271,12 +271,12 @@ class DeliveriesController extends Controller
     {
         try {
             $allDeliveries = DetalleDelivery::with(['delivery', 'estado', 'conductor', 'photography'])
-                /*->whereHas('delivery', function ($q)  {
+                ->whereHas('delivery', function ($q)  {
                     $q->whereBetween('fechaReserva', [
                         Carbon::now()->subDays(7),
                         Carbon::now()
                     ]);
-                })*/
+                })
                 ->get();
             $todosPedidos = [];
 
