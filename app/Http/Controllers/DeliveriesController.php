@@ -7,7 +7,9 @@ use App\CtrlEstadoDelivery;
 use App\Delivery;
 use App\DeliveryClient;
 use App\DetalleDelivery;
+agregaruse App\DetalleOpcionesCargosExtras;
 use App\Estado;
+use App\ExtraCharge;
 use App\Schedule;
 use App\Tarifa;
 use App\User;
@@ -36,7 +38,7 @@ class DeliveriesController extends Controller
                     ->where('idDelivery', $request->id)->with(['category', 'detalle'])
                     ->get()->first();
             } else {
-                $delivery = Delivery::with(['estado', 'detalle.conductor', 'detalle.estado', 'detalle.photography','category'])
+                $delivery = Delivery::with(['estado', 'detalle.conductor', 'detalle.estado', 'detalle.photography', 'category'])
                     ->where('idCliente', Auth::user()->idCliente)->where('idDelivery', $request->id)
                     ->get()->first();
             }
@@ -54,16 +56,18 @@ class DeliveriesController extends Controller
                 $detail->cTotal = number_format($detail->cTotal, 2);
             }
 
-            return response()->json([
-                'error' => 0,
-                'data' => $delivery],
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => $delivery
+                ],
                 200
             );
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array(
-                    'User' => Auth::user()->nomUsuario,
-                    'context' => $ex->getTrace())
-            );
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
             return response()->json(
                 [
                     'error' => 1,
@@ -91,17 +95,18 @@ class DeliveriesController extends Controller
                 $delivery->total = number_format($delivery->total, 2);
             }
 
-            return response()->json([
-                'error' => 0,
-                'data' => $deliveriesDia
-            ],
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => $deliveriesDia
+                ],
                 200
             );
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array(
-                    'User' => Auth::user()->nomUsuario,
-                    'context' => $ex->getTrace())
-            );
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
             return response()->json(
                 [
                     'error' => 1,
@@ -126,17 +131,18 @@ class DeliveriesController extends Controller
                 $delivery->total = number_format($delivery->total, 2);
             }
 
-            return response()->json([
-                'error' => 0,
-                'data' => $deliveriesTomorrow
-            ],
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => $deliveriesTomorrow
+                ],
                 200
             );
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array(
-                    'User' => Auth::user()->nomUsuario,
-                    'context' => $ex->getTrace())
-            );
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
             return response()->json(
                 [
                     'error' => 1,
@@ -152,11 +158,13 @@ class DeliveriesController extends Controller
         try {
 
             $allDeliveries = Delivery::with(['category', 'detalle', 'estado'])
-                ->whereBetween('fechaReserva',
+                ->whereBetween(
+                    'fechaReserva',
                     [
                         Carbon::now()->subDays(7),
                         Carbon::now()
-                    ])
+                    ]
+                )
                 ->get();
 
             foreach ($allDeliveries as $delivery) {
@@ -167,17 +175,18 @@ class DeliveriesController extends Controller
                 $delivery->total = number_format($delivery->total, 2);
             }
 
-            return response()->json([
-                'error' => 0,
-                'data' => $allDeliveries
-            ],
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => $allDeliveries
+                ],
                 200
             );
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array(
-                    'User' => Auth::user()->nomUsuario,
-                    'context' => $ex->getTrace())
-            );
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
             return response()->json(
                 [
                     'error' => 1,
@@ -195,16 +204,18 @@ class DeliveriesController extends Controller
             foreach ($pendingDeliveries as $delivery) {
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d H:i');
             }
-            return response()->json([
-                'error' => 0,
-                'data' => $pendingDeliveries],
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => $pendingDeliveries
+                ],
                 500
             );
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array(
-                    'User' => Auth::user()->nomUsuario,
-                    'context' => $ex->getTrace())
-            );
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
             return response()->json(
                 [
                     'error' => 1,
@@ -243,9 +254,9 @@ class DeliveriesController extends Controller
             );
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array(
-                    'User' => Auth::user()->nomUsuario,
-                    'context' => $ex->getTrace())
-            );
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
             return response()->json(
                 [
                     'error' => 1,
@@ -287,9 +298,9 @@ class DeliveriesController extends Controller
             );
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array(
-                    'User' => Auth::user()->nomUsuario,
-                    'context' => $ex->getTrace())
-            );
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
             return response()->json(
                 [
                     'error' => 1,
@@ -353,7 +364,6 @@ class DeliveriesController extends Controller
                             if ($exist == 0) {
                                 array_push($outputData, $dataObj);
                             }
-
                         }
                     }
                 }
@@ -394,7 +404,6 @@ class DeliveriesController extends Controller
                     ],
                     200
                 );
-
             } else if ($driver == -1 && !$isSameDay) {
                 $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->orderBy('fechaEntrega', 'desc')->get()
@@ -424,13 +433,9 @@ class DeliveriesController extends Controller
                                 if ($exist == 0) {
                                     array_push($outputData, $dataObj);
                                 }
-
                             }
-
                         }
-
                     }
-
                 }
 
                 return response()->json(
@@ -440,8 +445,6 @@ class DeliveriesController extends Controller
                     ],
                     200
                 );
-
-
             } else if ($driver != -1 && $isSameDay) {
                 $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])->where('idConductor', $driver)
                     ->whereDate('fechaEntrega', $initDate)->get();
@@ -473,8 +476,6 @@ class DeliveriesController extends Controller
                     ],
                     200
                 );
-
-
             } else {
                 $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])->where('idConductor', $driver)
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->orderBy('fechaEntrega', 'desc')->get()
@@ -501,16 +502,15 @@ class DeliveriesController extends Controller
                     200
                 );
             }
-
         } catch (Exception $ex) {
             return response()->json(
-                ['error' => 1,
-                    'message' => $ex->getMessage()//'Ocurrió un error al cargar los datos'
+                [
+                    'error' => 1,
+                    'message' => $ex->getMessage() //'Ocurrió un error al cargar los datos'
                 ],
                 500
             );
         }
-
     }
 
     //Report order by customer
@@ -719,8 +719,6 @@ class DeliveriesController extends Controller
                                 array_push($outputData, $dataObj);
                             }
                         }
-
-
                     }
                     $tempSurSum = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                         ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
@@ -743,7 +741,6 @@ class DeliveriesController extends Controller
                     $totalSurcharges = number_format($tempSurSum, 2);
                     $totalCosts = number_format($tempCostSum, 2);
                     $totalExtraCharges = number_format($tempECSum, 2);
-
                 }
 
                 return response()->json(
@@ -762,8 +759,6 @@ class DeliveriesController extends Controller
                     ],
                     200
                 );
-
-
             } else if ($customer != -1 && !$isSameDay) {
                 $orders = DetalleDelivery::with(['estado'])->whereIn('idEstado', [44, 46, 47])
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
@@ -789,12 +784,10 @@ class DeliveriesController extends Controller
                             ->whereHas('delivery', function ($q) use ($customerDetails) {
                                 $q->where('idCliente', $customerDetails->idCliente);
                             })->count();
-
                     }
                     if ($data->orders > 0) {
                         array_push($outputData, $data);
                     }
-
                 }
 
                 $initDateTime = new Carbon(date('Y-m-d', strtotime($form['initDate'])) . ' 00:00:00');
@@ -850,15 +843,15 @@ class DeliveriesController extends Controller
                     200
                 );
             }
-
         } catch (Exception $ex) {
             return response()->json(
-                ['error' => 1,
-                    'message' => $ex->getTrace()],
+                [
+                    'error' => 1,
+                    'message' => $ex->getTrace()
+                ],
                 500
             );
         }
-
     }
 
     /*********************************
@@ -929,14 +922,15 @@ class DeliveriesController extends Controller
             $receivers = $hDelivery['email'];
             $this->sendmail($receivers, $lastId);
 
-            return response()->json([
-                'error' => 0,
-                'message' => 'Solicitud de Delivery enviada correctamente.
+            return response()->json(
+                [
+                    'error' => 0,
+                    'message' => 'Solicitud de Delivery enviada correctamente.
                     Recibirás un email con los detalles de tu reserva. Nos pondremos en contacto contigo.',
-                'nDelivery' => $lastId],
+                    'nDelivery' => $lastId
+                ],
                 200
             );
-
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array('context' => $ex->getTrace()));
             return response()->json(
@@ -1032,21 +1026,24 @@ class DeliveriesController extends Controller
                     $receivers = $customerDetails->email;
                     $this->sendmail($receivers, $lastId);
 
-                    return response()->json([
-                        'error' => 0,
-                        'message' => 'Solicitud de Delivery enviada correctamente.
+                    return response()->json(
+                        [
+                            'error' => 0,
+                            'message' => 'Solicitud de Delivery enviada correctamente.
                     Recibirás un email con los detalles de tu reserva. Nos pondremos en contacto contigo.',
-                        'nDelivery' => $lastId],
+                            'nDelivery' => $lastId
+                        ],
                         200
                     );
-
                 } catch (Exception $ex) {
-                    Log::error($ex->getMessage(), array('User' => Auth::user()->cliente->nomEmpresa,
-                        'context' => $ex->getTrace()));
+                    Log::error($ex->getMessage(), array(
+                        'User' => Auth::user()->cliente->nomEmpresa,
+                        'context' => $ex->getTrace()
+                    ));
                     return response()->json(
                         [
                             'error' => 1,
-                            'message' => $ex->getMessage()//'Lo sentimos, ha ocurrido un error al procesar tu solicitud. Por favor intenta de nuevo.'
+                            'message' => $ex->getMessage() //'Lo sentimos, ha ocurrido un error al procesar tu solicitud. Por favor intenta de nuevo.'
                         ],
                         500
                     );
@@ -1060,8 +1057,6 @@ class DeliveriesController extends Controller
                     500
                 );
             }
-
-
         } else {
             $hDelivery = $request->deliveryForm;
             $deliveryOrders = $request->orders;
@@ -1072,8 +1067,10 @@ class DeliveriesController extends Controller
             $todaySchedule = Schedule::where('cod', $deliveryDayCode)->where('idTarifaDelivery', null)->get()->first();
 
 
-            if (date('H:i', strtotime($hDelivery['hora'])) < $todaySchedule->inicio ||
-                date('H:i', strtotime($hDelivery['hora'])) > $todaySchedule->final) {
+            if (
+                date('H:i', strtotime($hDelivery['hora'])) < $todaySchedule->inicio ||
+                date('H:i', strtotime($hDelivery['hora'])) > $todaySchedule->final
+            ) {
                 return response()->json(
                     [
                         'error' => 1,
@@ -1144,17 +1141,20 @@ class DeliveriesController extends Controller
                     $receivers = $customerDetails->email;
                     $this->sendmail($receivers, $lastId);
 
-                    return response()->json([
-                        'error' => 0,
-                        'message' => 'Solicitud de Delivery enviada correctamente.
+                    return response()->json(
+                        [
+                            'error' => 0,
+                            'message' => 'Solicitud de Delivery enviada correctamente.
                     Recibirás un email con los detalles de tu reserva. Nos pondremos en contacto contigo.',
-                        'nDelivery' => $lastId],
+                            'nDelivery' => $lastId
+                        ],
                         200
                     );
-
                 } catch (Exception $ex) {
-                    Log::error($ex->getMessage(), array('User' => Auth::user()->cliente->nomEmpresa,
-                        'context' => $ex->getTrace()));
+                    Log::error($ex->getMessage(), array(
+                        'User' => Auth::user()->cliente->nomEmpresa,
+                        'context' => $ex->getTrace()
+                    ));
                     return response()->json(
                         [
                             'error' => 1,
@@ -1173,8 +1173,6 @@ class DeliveriesController extends Controller
                 );
             }
         }
-
-
     }
 
     //CHANGE DELIVERY HOUR
@@ -1199,8 +1197,10 @@ class DeliveriesController extends Controller
             $todaySchedule = Schedule::where('cod', $deliveryDayCode)->get()->first();
 
 
-            if (Auth::user()->idPerfil != 1 && $time < $todaySchedule->inicio || Auth::user()->idPerfil != 1 &&
-                $time > $todaySchedule->final) {
+            if (
+                Auth::user()->idPerfil != 1 && $time < $todaySchedule->inicio || Auth::user()->idPerfil != 1 &&
+                $time > $todaySchedule->final
+            ) {
                 return response()->json(
                     [
                         'error' => 1,
@@ -1219,9 +1219,11 @@ class DeliveriesController extends Controller
 
             $this->sendChangeNotification($currDelivery->email, $currDelivery->idDelivery);
 
-            return response()->json([
-                'error' => 0,
-                'message' => 'Hora de recogida actualizada correctamente'],
+            return response()->json(
+                [
+                    'error' => 0,
+                    'message' => 'Hora de recogida actualizada correctamente'
+                ],
                 200
             );
         } catch (Exception $ex) {
@@ -1234,7 +1236,6 @@ class DeliveriesController extends Controller
                 500
             );
         }
-
     }
 
     public function getTodayCustomerOrders()
@@ -1276,7 +1277,6 @@ class DeliveriesController extends Controller
                 500
             );
         }
-
     }
 
     public function getAllCustomerOrders()
@@ -1297,7 +1297,6 @@ class DeliveriesController extends Controller
                 $dtl->cargosExtra = number_format($dtl->cargosExtra, 2);
                 $dtl->cTotal = number_format($dtl->cTotal, 2);
                 array_push($todosPedidos, $dtl);
-
             }
 
             return response()->json(
@@ -1317,7 +1316,6 @@ class DeliveriesController extends Controller
                 500
             );
         }
-
     }
 
     public function getTodayCustomerDeliveries()
@@ -1334,14 +1332,14 @@ class DeliveriesController extends Controller
                 $delivery->recargos = number_format($delivery->recargos, 2);
                 $delivery->cargosExtra = number_format($delivery->cargosExtra, 2);
                 $delivery->total = number_format($delivery->total, 2);
-
             }
 
 
-            return response()->json([
-                'error' => 0,
-                'data' => $deliveriesDia
-            ],
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => $deliveriesDia
+                ],
                 200
             );
         } catch (Exception $ex) {
@@ -1373,10 +1371,11 @@ class DeliveriesController extends Controller
                 $delivery->total = number_format($delivery->total, 2);
             }
 
-            return response()->json([
-                'error' => 0,
-                'data' => $allDeliveries
-            ],
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => $allDeliveries
+                ],
                 200
             );
         } catch (Exception $ex) {
@@ -1427,7 +1426,6 @@ class DeliveriesController extends Controller
                 ],
                 200
             );
-
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array('User' => Auth::user()->nomUsuario, 'context' => $ex->getTrace()));
             return response()->json(
@@ -1520,7 +1518,6 @@ class DeliveriesController extends Controller
                 ],
                 200
             );
-
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json(
@@ -1561,7 +1558,6 @@ class DeliveriesController extends Controller
                 ],
                 200
             );
-
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json(
@@ -1579,7 +1575,7 @@ class DeliveriesController extends Controller
         $idConductor = $request->idConductor;
         $idDetalle = $request->idDetalle;
         try {
-            
+
             $detail = DetalleDelivery::where('idDetalle', $idDetalle);
             $detail->update(['idEstado' => 41, 'idConductor' => $idConductor]);
             $conductor = User::where('idUsuario', $idConductor)->get()->first();
@@ -1599,13 +1595,82 @@ class DeliveriesController extends Controller
                 ],
                 200
             );
-
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json(
                 [
                     'error' => 1,
                     'message' => 'Ocurrió un error al asignar el envío'
+                ],
+                500
+            );
+        }
+    }
+
+    public function addOrderExtracharge(Request $request)
+    {
+        $request->validate([
+            'form' => 'required',
+            'form.idDetalle' => 'required',
+            'form.idCargoExtra' => 'required'
+        ]);
+
+        $ecId = $request->form['idCargoExtra'];
+        $orderId = $request->form['idDetalle'];
+
+        try {
+            $currOrder = DetalleDelivery::where('idDetalle', $orderId);
+
+            if (isset($request->form['idOpcionExtra'])) {
+                $ecOption = DetalleOpcionesCargosExtras::where('idDetalleOpcion', $request->form['idOpcionExtra'])
+                ->get()
+                ->first();
+
+                $currOrder->update([
+                    'idDetalleOpcion' => $request->form['idOpcionExtra'],
+                    'idCargoExtra' => $ecId,
+                    'cargosExtra' => $currOrder->get()->first()->cargosExtra + $ecOption->costo,
+                    'cTotal' => $currOrder->get()->first()->cTotal + $ecOption->costo
+                ]);
+
+                $currDelivery = $currOrder->get()->first()->delivery;
+                $currDelivery->update([
+                    'cargosExtra' => $currDelivery->cargosExtra + $ecOption->costo,
+                    'total' => $currDelivery->total + $ecOption->costo
+                ]);
+                
+            } else {
+                $ec = ExtraCharge::where('idCargoExtra', $ecId)
+                ->get()
+                ->first();
+
+                $currOrder->update([
+                    'idCargoExtra' => $ecId,
+                    'cargosExtra' => $currOrder->get()->first()->cargosExtra + $ec->costo,
+                    'cTotal' => $currOrder->get()->first()->cTotal + $ec->costo
+                ]);
+
+                $currDelivery = $currOrder->get()->first()->delivery;
+                $currDelivery->update([
+                    'cargosExtra' =>  $currDelivery->cargosExtra + $ec->costo,
+                    'total' => $currDelivery->total + $ec->costo
+                ]);
+            }
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'message' => 'Se agregó correctamente el cargo extra al envío'
+                ],
+                200
+            );
+
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => $ex->getMessage()//'Ocurrió un error al agregar el cargo extra'
                 ],
                 500
             );
@@ -1675,7 +1740,6 @@ class DeliveriesController extends Controller
                 ],
                 200
             );
-
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json(
@@ -1713,7 +1777,6 @@ class DeliveriesController extends Controller
                 ],
                 200
             );
-
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json(
@@ -1748,7 +1811,6 @@ class DeliveriesController extends Controller
                 ],
                 200
             );
-
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json(
@@ -1767,17 +1829,20 @@ class DeliveriesController extends Controller
             'idDetalle' => 'required',
             'idConductor' => ' required',
             'nomRecibio' => 'required',
-            'fechaEntrega' => 'required']);
+            'fechaEntrega' => 'required'
+        ]);
         $idDetalle = $request->idDetalle;
         $idConductor = $request->idConductor;
         $nomRecibio = $request->nomRecibio;
         $fechaEntrega = new Carbon($request->fechaEntrega);
         try {
             $detail = DetalleDelivery::where('idDetalle', $idDetalle);
-            $detail->update(['idConductor' => $idConductor,
+            $detail->update([
+                'idConductor' => $idConductor,
                 'nomRecibio' => $nomRecibio,
                 'fechaEntrega' => $fechaEntrega,
-                'entregado' => true]);
+                'entregado' => true
+            ]);
 
             return response()->json(
                 [
@@ -1791,7 +1856,6 @@ class DeliveriesController extends Controller
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json(['codError' => 1, 'messageError' => $ex->getMessage()], 500);
         }
-
     }
 
     /*****
@@ -1804,7 +1868,6 @@ class DeliveriesController extends Controller
         $orderDelivery = DetalleDelivery::where('idDelivery', $delivery->idDelivery)->get();
 
         return view('deliveryContract', compact('delivery', 'orderDelivery'));
-
     }
 
     /*public function testReserveFormat(Request $request)
@@ -1882,6 +1945,4 @@ class DeliveriesController extends Controller
             return true;
         }
     }
-
-
 }

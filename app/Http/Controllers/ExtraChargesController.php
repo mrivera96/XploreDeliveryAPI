@@ -15,7 +15,7 @@ class ExtraChargesController extends Controller
     public function get()
     {
         try {
-            $extraCharges = ExtraCharge::all();
+            $extraCharges = ExtraCharge::with(['options'])->get();
 
             return response()
                 ->json([

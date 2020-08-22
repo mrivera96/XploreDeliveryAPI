@@ -14,6 +14,8 @@ class DetalleDelivery extends Model
         'nFactura',
         'nomDestinatario',
         'numCel',
+        'cargosExtra',
+        'cTotal',
         'direccion'
     ];
 

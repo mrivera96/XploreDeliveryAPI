@@ -21,6 +21,7 @@ class Delivery extends Model
         'idEstado',
         'tarifaBase',
         'recargos',
+        'cargosExtra',
         'total'
     ];
 
