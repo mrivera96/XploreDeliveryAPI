@@ -173,7 +173,7 @@ class CategoriesController extends Controller
                                     $closestDate = $schedule->dia . ' ' . Carbon::parse(Carbon::now())->format('Y-m-d');
                                     $date = (object)array(
                                         'date' => Carbon::parse(Carbon::now())->format('Y-m-d'),
-                                        'day' => strtolower($schedule->dia),
+                                        'day' => utf8_encode(strtolower($schedule->dia)),
                                         'cod' => $schedule->cod,
                                         'label' => $closestDate
                                     );
@@ -364,7 +364,6 @@ class CategoriesController extends Controller
                 ], 200);
 
             }
-
 
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
