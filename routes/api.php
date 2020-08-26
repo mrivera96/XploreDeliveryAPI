@@ -268,3 +268,4 @@ Route::get('testCript', 'DeliveryUsersController@testEncryption');
 Route::get('testDeCript', 'DeliveryUsersController@testDecryption');
 Route::get('testAuthCript', 'AuthController@testGettingCript');
 Route::post('testReport', 'DeliveriesController@reportOrdersByDriver');
+Route::post('sendMail', 'DeliveriesController@resendMail');

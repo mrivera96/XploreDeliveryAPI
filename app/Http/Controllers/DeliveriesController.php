@@ -26,6 +26,16 @@ use Illuminate\Support\Facades\Auth;
 class DeliveriesController extends Controller
 {
 
+    public function resendMail(Request $request)
+    {
+        $request->validate([
+            'mail' => 'required',
+            'deliveryId' => 'required'
+        ]);
+
+        $this->sendmail($request->mail,$request->deliveryId);
+    }
+
     /*********************************
      * FUNCIONES COMPARTIDAS
      ********************************/
@@ -271,7 +281,7 @@ class DeliveriesController extends Controller
     {
         try {
             $allDeliveries = DetalleDelivery::with(['delivery', 'estado', 'conductor', 'photography'])
-                ->whereHas('delivery', function ($q)  {
+                ->whereHas('delivery', function ($q) {
                     $q->whereBetween('fechaReserva', [
                         Carbon::now()->subDays(7),
                         Carbon::now()
@@ -1005,6 +1015,7 @@ class DeliveriesController extends Controller
                         $nDetalle->numCel = $detalle['numCel'];
                         $nDetalle->direccion = $detalle['direccion'];
                         $nDetalle->distancia = $detalle['distancia'];
+                        //$nDetalle->tiempo = $detalle['tiempo'];
                         $nDetalle->tarifaBase = $detalle['tarifaBase'];
                         $nDetalle->recargo = $detalle['recargo'];
                         $nDetalle->cTotal = $detalle['cTotal'];
@@ -1043,7 +1054,7 @@ class DeliveriesController extends Controller
                     return response()->json(
                         [
                             'error' => 1,
-                            'message' => $ex->getMessage() //'Lo sentimos, ha ocurrido un error al procesar tu solicitud. Por favor intenta de nuevo.'
+                            'message' => 'Lo sentimos, ha ocurrido un error al procesar tu solicitud. Por favor intenta de nuevo.'
                         ],
                         500
                     );
@@ -1120,6 +1131,7 @@ class DeliveriesController extends Controller
                         $nDetalle->numCel = $detalle['numCel'];
                         $nDetalle->direccion = $detalle['direccion'];
                         $nDetalle->distancia = $detalle['distancia'];
+                        //$nDetalle->tiempo = $detalle['tiempo'];
                         $nDetalle->tarifaBase = $detalle['tarifaBase'];
                         $nDetalle->recargo = $detalle['recargo'];
                         $nDetalle->cTotal = $detalle['cTotal'];
@@ -1623,8 +1635,8 @@ class DeliveriesController extends Controller
 
             if (isset($request->form['idOpcionExtra'])) {
                 $ecOption = DetalleOpcionesCargosExtras::where('idDetalleOpcion', $request->form['idOpcionExtra'])
-                ->get()
-                ->first();
+                    ->get()
+                    ->first();
 
                 $currOrder->update([
                     'idDetalleOpcion' => $request->form['idOpcionExtra'],
@@ -1638,11 +1650,10 @@ class DeliveriesController extends Controller
                     'cargosExtra' => $currDelivery->cargosExtra + $ecOption->costo,
                     'total' => $currDelivery->total + $ecOption->costo
                 ]);
-                
             } else {
                 $ec = ExtraCharge::where('idCargoExtra', $ecId)
-                ->get()
-                ->first();
+                    ->get()
+                    ->first();
 
                 $currOrder->update([
                     'idCargoExtra' => $ecId,
@@ -1664,13 +1675,12 @@ class DeliveriesController extends Controller
                 ],
                 200
             );
-
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getMessage()//'Ocurrió un error al agregar el cargo extra'
+                    'message' => $ex->getMessage() //'Ocurrió un error al agregar el cargo extra'
                 ],
                 500
             );

@@ -14,7 +14,7 @@ class AddTiempoToTblDetalleDelivery extends Migration
     public function up()
     {
         Schema::table('tblDetalleDelivery', function (Blueprint $table) {
-            //
+            $table->string('tiempo',30)->nullable();
         });
     }
 
@@ -26,7 +26,7 @@ class AddTiempoToTblDetalleDelivery extends Migration
     public function down()
     {
         Schema::table('tblDetalleDelivery', function (Blueprint $table) {
-            //
+            $table->dropColumn('tiempo');
         });
     }
 }

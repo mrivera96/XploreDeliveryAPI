@@ -16,7 +16,8 @@ class DetalleDelivery extends Model
         'numCel',
         'cargosExtra',
         'cTotal',
-        'direccion'
+        'direccion',
+        //'tiempo'
     ];
 
     public function delivery(){
