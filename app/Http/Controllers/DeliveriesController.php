@@ -1015,7 +1015,7 @@ class DeliveriesController extends Controller
                         $nDetalle->numCel = $detalle['numCel'];
                         $nDetalle->direccion = $detalle['direccion'];
                         $nDetalle->distancia = $detalle['distancia'];
-                        //$nDetalle->tiempo = $detalle['tiempo'];
+                        $nDetalle->tiempo = $detalle['tiempo'];
                         $nDetalle->tarifaBase = $detalle['tarifaBase'];
                         $nDetalle->recargo = $detalle['recargo'];
                         $nDetalle->cTotal = $detalle['cTotal'];
@@ -1131,7 +1131,7 @@ class DeliveriesController extends Controller
                         $nDetalle->numCel = $detalle['numCel'];
                         $nDetalle->direccion = $detalle['direccion'];
                         $nDetalle->distancia = $detalle['distancia'];
-                        //$nDetalle->tiempo = $detalle['tiempo'];
+                        $nDetalle->tiempo = $detalle['tiempo'];
                         $nDetalle->tarifaBase = $detalle['tarifaBase'];
                         $nDetalle->recargo = $detalle['recargo'];
                         $nDetalle->cTotal = $detalle['cTotal'];

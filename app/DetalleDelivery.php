@@ -17,7 +17,7 @@ class DetalleDelivery extends Model
         'cargosExtra',
         'cTotal',
         'direccion',
-        //'tiempo'
+        'tiempo'
     ];
 
     public function delivery(){
