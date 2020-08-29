@@ -27,8 +27,8 @@ class Category extends Model
         return $this->hasMany('App\Tarifa', 'idCategoria', 'idCategoria');
     }
 
-    public function surcharge(){
-        return $this->belongsToMany('App\RecargoDelivery', 'idCategoria', 'idCategoria');
+    public function surcharges(){
+        return $this->hasMany('App\RecargoDelivery', 'idCategoria', 'idCategoria');
     }
 
 }

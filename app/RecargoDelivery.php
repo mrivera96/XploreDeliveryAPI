@@ -16,6 +16,6 @@ class RecargoDelivery extends Model
     }
 
     public function category(){
-        return $this->hasOne('App\Category', 'idCategoria', 'idCategoria');
+        return $this->belongsTo('App\Category', 'idCategoria', 'idCategoria');
     }
 }

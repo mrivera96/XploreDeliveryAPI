@@ -66,7 +66,9 @@ class CategoriesController extends Controller
 
                 if ($onlyConsolidated == $tarCust->count()) {
 
-                    $categories = Category::with('categoryExtraCharges.extraCharge.options')
+                    $categories = Category::with([
+                        'categoryExtraCharges.extraCharge.options',
+                        'surcharges'])
                         ->where('isActivo', 1)
                         ->orderBy('orden')
                         ->get();
@@ -88,7 +90,8 @@ class CategoriesController extends Controller
                     $consolidatedCategories = Category::with(['categoryExtraCharges.extraCharge.options',
                         'rate.schedules',
                         'rate.rateDetail',
-                        'rate.consolidatedDetail'])
+                        'rate.consolidatedDetail',
+                        'surcharges'])
                         ->where('isActivo', 1)
                         ->whereIn('idCategoria', $idArray)
                         ->orderBy('orden')
@@ -104,7 +107,8 @@ class CategoriesController extends Controller
                     $categories = Category::with(['categoryExtraCharges.extraCharge.options',
                         'rate.schedules',
                         'rate.rateDetail',
-                        'rate.consolidatedDetail'])
+                        'rate.consolidatedDetail',
+                        'surcharges'])
                         ->where('isActivo', 1)
                         ->whereIn('idCategoria', $idArray)
                         ->orderBy('orden')->get();
@@ -125,7 +129,8 @@ class CategoriesController extends Controller
                     $consolidatedCategories = Category::with(['categoryExtraCharges.extraCharge.options',
                         'rate.schedules',
                         'rate.rateDetail',
-                        'rate.consolidatedDetail'])
+                        'rate.consolidatedDetail',
+                        'surcharges'])
                         ->where('isActivo', 1)
                         ->whereIn('idCategoria', $idArray)
                         ->orderBy('orden')->get();
@@ -238,7 +243,9 @@ class CategoriesController extends Controller
 
 
             } else {
-                $categories = Category::with('categoryExtraCharges.extraCharge.options')
+                $categories = Category::with([
+                    'categoryExtraCharges.extraCharge.options',
+                    'surcharges'])
                     ->where('isActivo', 1)
                     ->orderBy('orden')
                     ->get();
@@ -259,7 +266,8 @@ class CategoriesController extends Controller
                 $consolidatedCategories = Category::with(['categoryExtraCharges.extraCharge.options',
                     'rate.schedules',
                     'rate.rateDetail',
-                    'rate.consolidatedDetail'])
+                    'rate.consolidatedDetail',
+                    'surcharges'])
                     ->where('isActivo', 1)
                     ->whereIn('idCategoria', $idArray)
                     ->orderBy('orden')
