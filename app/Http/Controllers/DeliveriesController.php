@@ -33,7 +33,7 @@ class DeliveriesController extends Controller
             'deliveryId' => 'required'
         ]);
 
-        $this->sendmail($request->mail,$request->deliveryId);
+        $this->sendmail($request->mail, $request->deliveryId);
     }
 
     /*********************************
@@ -1655,17 +1655,33 @@ class DeliveriesController extends Controller
                     ->get()
                     ->first();
 
-                $currOrder->update([
-                    'idCargoExtra' => $ecId,
-                    'cargosExtra' => $currOrder->get()->first()->cargosExtra + $ec->costo,
-                    'cTotal' => $currOrder->get()->first()->cTotal + $ec->costo
-                ]);
+                if (isset($request->form['montoCargoVariable'])) {
+                    $currOrder->update([
+                        'idCargoExtra' => $ecId,
+                        'cargosExtra' => $currOrder->get()->first()->cargosExtra + $request->form['montoCargoVariable'],
+                        'cTotal' => $currOrder->get()->first()->cTotal + $request->form['montoCargoVariable']
+                    ]);
+    
+                    $currDelivery = $currOrder->get()->first()->delivery;
+                    $currDelivery->update([
+                        'cargosExtra' =>  $currDelivery->cargosExtra + $request->form['montoCargoVariable'],
+                        'total' => $currDelivery->total + $request->form['montoCargoVariable']
+                    ]);
+                }else{
+                    $currOrder->update([
+                        'idCargoExtra' => $ecId,
+                        'cargosExtra' => $currOrder->get()->first()->cargosExtra + $ec->costo,
+                        'cTotal' => $currOrder->get()->first()->cTotal + $ec->costo
+                    ]);
+    
+                    $currDelivery = $currOrder->get()->first()->delivery;
+                    $currDelivery->update([
+                        'cargosExtra' =>  $currDelivery->cargosExtra + $ec->costo,
+                        'total' => $currDelivery->total + $ec->costo
+                    ]);
+                }
 
-                $currDelivery = $currOrder->get()->first()->delivery;
-                $currDelivery->update([
-                    'cargosExtra' =>  $currDelivery->cargosExtra + $ec->costo,
-                    'total' => $currDelivery->total + $ec->costo
-                ]);
+                
             }
 
             return response()->json(

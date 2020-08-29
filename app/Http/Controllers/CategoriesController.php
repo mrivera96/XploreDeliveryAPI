@@ -67,7 +67,6 @@ class CategoriesController extends Controller
                 if ($onlyConsolidated == $tarCust->count()) {
 
                     $categories = Category::with([
-                        'categoryExtraCharges.extraCharge.options',
                         'surcharges'])
                         ->where('isActivo', 1)
                         ->orderBy('orden')
@@ -87,7 +86,7 @@ class CategoriesController extends Controller
                         }
                     }
 
-                    $consolidatedCategories = Category::with(['categoryExtraCharges.extraCharge.options',
+                    $consolidatedCategories = Category::with([
                         'rate.schedules',
                         'rate.rateDetail',
                         'rate.consolidatedDetail',
@@ -104,7 +103,7 @@ class CategoriesController extends Controller
                         }
                     }
 
-                    $categories = Category::with(['categoryExtraCharges.extraCharge.options',
+                    $categories = Category::with([
                         'rate.schedules',
                         'rate.rateDetail',
                         'rate.consolidatedDetail',
@@ -126,7 +125,7 @@ class CategoriesController extends Controller
                         }
                     }
 
-                    $consolidatedCategories = Category::with(['categoryExtraCharges.extraCharge.options',
+                    $consolidatedCategories = Category::with([
                         'rate.schedules',
                         'rate.rateDetail',
                         'rate.consolidatedDetail',
@@ -137,6 +136,14 @@ class CategoriesController extends Controller
                 }
 
                 foreach ($consolidatedCategories as $category) {
+                    $category->categoryExtraCharges = $category->categoryExtraCharges()->whereHas('extraCharge', function ($q) {
+                        $q->where('tipoCargo', 'F');
+                    })->get();
+
+                    foreach($category->categoryExtraCharges as $cEC){
+                        $cEC->extraCharge->options;
+                    }
+                
                     $rates = $category->rate;
                     $ratesToShow = [];
                     foreach ($rates as $rate) {
@@ -235,6 +242,16 @@ class CategoriesController extends Controller
 
                 }
 
+                foreach($categories as $category){
+                    $category->categoryExtraCharges = $category->categoryExtraCharges()->whereHas('extraCharge', function ($q) {
+                        $q->where('tipoCargo', 'F');
+                    })->get();
+
+                    foreach($category->categoryExtraCharges as $cEC){
+                        $cEC->extraCharge->options;
+                    }
+                }
+
                 return response()->json([
                     'error' => 0,
                     'data' => $categories,
@@ -244,7 +261,6 @@ class CategoriesController extends Controller
 
             } else {
                 $categories = Category::with([
-                    'categoryExtraCharges.extraCharge.options',
                     'surcharges'])
                     ->where('isActivo', 1)
                     ->orderBy('orden')
@@ -263,7 +279,7 @@ class CategoriesController extends Controller
                     }
                 }
 
-                $consolidatedCategories = Category::with(['categoryExtraCharges.extraCharge.options',
+                $consolidatedCategories = Category::with([
                     'rate.schedules',
                     'rate.rateDetail',
                     'rate.consolidatedDetail',
@@ -276,6 +292,14 @@ class CategoriesController extends Controller
                 foreach ($consolidatedCategories as $category) {
                     $rates = $category->rate;
                     $ratesToShow = [];
+                    $category->categoryExtraCharges = $category->categoryExtraCharges()->whereHas('extraCharge', function ($q) {
+                        $q->where('tipoCargo', 'F');
+                    })->get();
+
+                    foreach($category->categoryExtraCharges as $cEC){
+                        $cEC->extraCharge->options;
+                    }
+                
                     foreach ($rates as $rate) {
                         $today = Carbon::now()->dayOfWeek;
                         $datesToShow = [];
@@ -362,8 +386,17 @@ class CategoriesController extends Controller
                     }
                     $category->ratesToShow = $ratesToShow;
 
+                }
 
+                foreach($categories as $category){
+                    $category->categoryExtraCharges = $category->categoryExtraCharges()->whereHas('extraCharge', function ($q) {
+                        $q->where('tipoCargo', 'F');
+                    })->get();
 
+                    foreach($category->categoryExtraCharges as $cEC){
+                        $cEC->extraCharge->options;
+                    }
+                
                 }
                 return response()->json([
                     'error' => 0,
