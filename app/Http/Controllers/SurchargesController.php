@@ -12,7 +12,7 @@ class SurchargesController extends Controller
     public function getSurcharges()
     {
         try {
-            $recargos = RecargoDelivery::with('customer')->get();
+            $recargos = RecargoDelivery::with(['customer','category'])->get();
             foreach ($recargos as $recargo) {
                 $recargo->monto = number_format($recargo->monto, 2);
                 $recargo->kilomMinimo = number_format($recargo->kilomMinimo, 2);
@@ -79,6 +79,7 @@ class SurchargesController extends Controller
         $klmax = $request->form["kilomMaximo"];
         $monto = $request->form["monto"];
         $cliente = $request->form["idCliente"];
+        $category = $request->form["idCategoria"];
         try {
             $currRate = RecargoDelivery::where('idRecargo', $idSurcharge);
             $currRate->update([
@@ -86,7 +87,8 @@ class SurchargesController extends Controller
                     'kilomMinimo' => $klmin,
                     'kilomMaximo' => $klmax,
                     'monto' => $monto,
-                    'idCliente' => $cliente]
+                    'idCliente' => $cliente,
+                    'idCategoria' => $category]
             );
 
             return response()->json([
@@ -109,6 +111,7 @@ class SurchargesController extends Controller
         $klmax = $request->form["kilomMaximo"];
         $monto = $request->form["monto"];
         $cliente = $request->form["idCliente"];
+        $category = $request->form["idCategoria"];
         try {
             $currsurcharge = new RecargoDelivery();
             $currsurcharge->descRecargo = $desc;
@@ -116,6 +119,7 @@ class SurchargesController extends Controller
             $currsurcharge->kilomMaximo = $klmax;
             $currsurcharge->monto = $monto;
             $currsurcharge->idCliente = $cliente;
+            $currsurcharge->idCategoria = $category;
             $currsurcharge->save();
 
             return response()->json([

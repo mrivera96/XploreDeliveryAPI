@@ -194,6 +194,15 @@ class RatesController extends Controller
                 $nRateDetail->idTarifaDelivery = $lastIndex;
                 $nRateDetail->radioMaximo = $maxRad;
                 $nRateDetail->dirRecogida = $addrs;
+
+                if(isset($request->detail["dirEntrega"])){
+                    $nRateDetail->dirEntrega = $request->detail["dirEntrega"];
+                }
+
+                if(isset($request->detail["radioMaximoEntrega"])){
+                    $nRateDetail->radioMaximoEntrega = $request->detail["radioMaximoEntrega"];
+                }
+
                 $nRateDetail->save();
 
                 foreach ($rateSchedules as $schedule) {
