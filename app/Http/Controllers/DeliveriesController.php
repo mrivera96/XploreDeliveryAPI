@@ -239,7 +239,8 @@ class DeliveriesController extends Controller
     public function getTodayOrders()
     {
         try {
-            $deliveriesDia = DetalleDelivery::with(['delivery', 'estado', 'conductor', 'photography'])
+            $deliveriesDia = DetalleDelivery::with(['delivery', 'estado', 'conductor', 'photography',
+            'ExtraCharge'])
                 ->whereHas('delivery', function ($q) {
                     $q->whereDate('fechaReserva', Carbon::today());
                 })->get();
@@ -280,7 +281,7 @@ class DeliveriesController extends Controller
     public function getAllOrders()
     {
         try {
-            $allDeliveries = DetalleDelivery::with(['delivery', 'estado', 'conductor', 'photography'])
+            $allDeliveries = DetalleDelivery::with(['delivery', 'estado', 'conductor', 'photography','ExtraCharge'])
                 ->whereHas('delivery', function ($q) {
                     $q->whereBetween('fechaReserva', [
                         Carbon::now()->subDays(7),
