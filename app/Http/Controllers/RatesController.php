@@ -57,7 +57,7 @@ class RatesController extends Controller
             } else {
                 $onlyConsolidated = RateCustomer::where('idCliente', $currCustomer)
                     ->whereHas('rate', function ($q) {
-                        $q->where('idTipoTarifa', 2);
+                        $q->whereIn('idTipoTarifa', [2,4]);
                     })->count();
                 if($onlyConsolidated == $custRates->count()){
                     $tarifas = Tarifa::where('idCliente', 1)

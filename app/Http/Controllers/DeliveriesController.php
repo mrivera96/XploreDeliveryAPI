@@ -959,8 +959,6 @@ class DeliveriesController extends Controller
 
     public function createCustomerDelivery(Request $request)
     {
-
-
         $request->validate([
             'deliveryForm' => 'required',
             'deliveryForm.dirRecogida' => 'required',
@@ -981,7 +979,6 @@ class DeliveriesController extends Controller
 
             if (sizeof($deliveryOrders) > 0) {
                 try {
-
                     $customerDetails = DeliveryClient::where('idCliente', Auth::user()->idCliente)->get()->first();
 
                     $nDelivery = new Delivery();
@@ -1024,18 +1021,27 @@ class DeliveriesController extends Controller
                         $nDetalle->recargo = $detalle['recargo'];
                         $nDetalle->cTotal = $detalle['cTotal'];
                         $nDetalle->cargosExtra = $detalle['cargosExtra'];
-                        if (isset($detalle['idCargoExtra'])) {
-                            $nDetalle->idCargoExtra = $detalle['idCargoExtra'];
-                        }
-
                         $nDetalle->tomarFoto = true;
-                        if (isset($detalle['idDetalleOpcion'])) {
-                            $nDetalle->idDetalleOpcion = $detalle['idDetalleOpcion'];
-                        }
-
                         $nDetalle->instrucciones = $detalle['instrucciones'];
                         $nDetalle->coordsDestino = $detalle['coordsDestino'];
                         $nDetalle->save();
+
+                        if (isset($detalle['idCargoExtra'])) {
+                            if (isset($detalle['idDetalleOpcion'])) {
+                                $nECOrder = new ExtraChargesOrders();
+                                $nECOrder->idDetalle = $nDetalle->idDetalle;
+                                $nECOrder->idCargoExtra = $detalle['idCargoExtra'];
+                                $nECOrder->idDetalleOpcion = $detalle['idDetalleOpcion'];
+                                $nECOrder->save();
+
+                            } else {
+                                $nECOrder = new ExtraChargesOrders();
+                                $nECOrder->idDetalle = $nDetalle->idDetalle;
+                                $nECOrder->idCargoExtra = $detalle['idCargoExtra'];
+                                $nECOrder->save();
+                            }
+
+                        }
                     }
 
                     $receivers = $customerDetails->email;
@@ -1140,18 +1146,27 @@ class DeliveriesController extends Controller
                         $nDetalle->recargo = $detalle['recargo'];
                         $nDetalle->cTotal = $detalle['cTotal'];
                         $nDetalle->cargosExtra = $detalle['cargosExtra'];
-                        if (isset($detalle['idCargoExtra'])) {
-                            $nDetalle->idCargoExtra = $detalle['idCargoExtra'];
-                        }
-
                         $nDetalle->tomarFoto = true;
-                        if (isset($detalle['idDetalleOpcion'])) {
-                            $nDetalle->idDetalleOpcion = $detalle['idDetalleOpcion'];
-                        }
-
                         $nDetalle->instrucciones = $detalle['instrucciones'];
                         $nDetalle->coordsDestino = $detalle['coordsDestino'];
                         $nDetalle->save();
+
+                        if (isset($detalle['idCargoExtra'])) {
+                            if (isset($detalle['idDetalleOpcion'])) {
+                                $nECOrder = new ExtraChargesOrders();
+                                $nECOrder->idDetalle = $nDetalle->idDetalle;
+                                $nECOrder->idCargoExtra = $detalle['idCargoExtra'];
+                                $nECOrder->idDetalleOpcion = $detalle['idDetalleOpcion'];
+                                $nECOrder->save();
+
+                            } else {
+                                $nECOrder = new ExtraChargesOrders();
+                                $nECOrder->idDetalle = $nDetalle->idDetalle;
+                                $nECOrder->idCargoExtra = $detalle['idCargoExtra'];
+                                $nECOrder->save();
+                            }
+
+                        }
                     }
 
                     $receivers = $customerDetails->email;
@@ -1680,10 +1695,10 @@ class DeliveriesController extends Controller
                             'cargosExtra' => $currOrder->get()->first()->cargosExtra + $request->form['montoCargoVariable'],
                             'cTotal' => $currOrder->get()->first()->cTotal + $request->form['montoCargoVariable']
                         ]);
-    
+
                         $currDelivery = $currOrder->get()->first()->delivery;
                         $currDelivery->update([
-                            'cargosExtra' =>  $currDelivery->cargosExtra + $request->form['montoCargoVariable'],
+                            'cargosExtra' => $currDelivery->cargosExtra + $request->form['montoCargoVariable'],
                             'total' => $currDelivery->total + $request->form['montoCargoVariable']
                         ]);
                     } else {
@@ -1691,10 +1706,10 @@ class DeliveriesController extends Controller
                             'cargosExtra' => $currOrder->get()->first()->cargosExtra + $ec->costo,
                             'cTotal' => $currOrder->get()->first()->cTotal + $ec->costo
                         ]);
-    
+
                         $currDelivery = $currOrder->get()->first()->delivery;
                         $currDelivery->update([
-                            'cargosExtra' =>  $currDelivery->cargosExtra + $ec->costo,
+                            'cargosExtra' => $currDelivery->cargosExtra + $ec->costo,
                             'total' => $currDelivery->total + $ec->costo
                         ]);
                     }
@@ -1705,7 +1720,7 @@ class DeliveriesController extends Controller
                     $nECOrder->save();
                 }
 
-                
+
             }
 
             return response()->json(
