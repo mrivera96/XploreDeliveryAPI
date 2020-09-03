@@ -10,6 +10,7 @@ use App\DetalleDelivery;
 use App\DetalleOpcionesCargosExtras;
 use App\Estado;
 use App\ExtraCharge;
+use App\ExtraChargesOrders;
 use App\Schedule;
 use App\Tarifa;
 use App\User;
@@ -239,8 +240,10 @@ class DeliveriesController extends Controller
     public function getTodayOrders()
     {
         try {
-            $deliveriesDia = DetalleDelivery::with(['delivery', 'estado', 'conductor', 'photography',
-            'ExtraCharge'])
+            $deliveriesDia = DetalleDelivery::with([
+                'delivery', 'estado', 'conductor', 'photography',
+                'ExtraCharge'
+            ])
                 ->whereHas('delivery', function ($q) {
                     $q->whereDate('fechaReserva', Carbon::today());
                 })->get();
@@ -281,7 +284,7 @@ class DeliveriesController extends Controller
     public function getAllOrders()
     {
         try {
-            $allDeliveries = DetalleDelivery::with(['delivery', 'estado', 'conductor', 'photography','ExtraCharge'])
+            $allDeliveries = DetalleDelivery::with(['delivery', 'estado', 'conductor', 'photography', 'ExtraCharge'])
                 ->whereHas('delivery', function ($q) {
                     $q->whereBetween('fechaReserva', [
                         Carbon::now()->subDays(7),
@@ -1635,51 +1638,71 @@ class DeliveriesController extends Controller
             $currOrder = DetalleDelivery::where('idDetalle', $orderId);
 
             if (isset($request->form['idOpcionExtra'])) {
-                $ecOption = DetalleOpcionesCargosExtras::where('idDetalleOpcion', $request->form['idOpcionExtra'])
-                    ->get()
-                    ->first();
+                $exist = ExtraChargesOrders::where('idDetalle', $orderId)
+                    ->where('idCargoExtra', $ecId)
+                    ->where('idDetalleOpcion', $request->form['idOpcionExtra'])
+                    ->count();
 
-                $currOrder->update([
-                    'idDetalleOpcion' => $request->form['idOpcionExtra'],
-                    'idCargoExtra' => $ecId,
-                    'cargosExtra' => $currOrder->get()->first()->cargosExtra + $ecOption->costo,
-                    'cTotal' => $currOrder->get()->first()->cTotal + $ecOption->costo
-                ]);
+                if ($exist == 0) {
+                    $ecOption = DetalleOpcionesCargosExtras::where('idDetalleOpcion', $request->form['idOpcionExtra'])
+                        ->get()
+                        ->first();
 
-                $currDelivery = $currOrder->get()->first()->delivery;
-                $currDelivery->update([
-                    'cargosExtra' => $currDelivery->cargosExtra + $ecOption->costo,
-                    'total' => $currDelivery->total + $ecOption->costo
-                ]);
+                    $currOrder->update([
+
+                        'cargosExtra' => $currOrder->get()->first()->cargosExtra + $ecOption->costo,
+                        'cTotal' => $currOrder->get()->first()->cTotal + $ecOption->costo
+                    ]);
+
+                    $currDelivery = $currOrder->get()->first()->delivery;
+                    $currDelivery->update([
+                        'cargosExtra' => $currDelivery->cargosExtra + $ecOption->costo,
+                        'total' => $currDelivery->total + $ecOption->costo
+                    ]);
+                    $nECOrder = new ExtraChargesOrders();
+                    $nECOrder->idDetalle = $orderId;
+                    $nECOrder->idCargoExtra = $ecId;
+                    $nECOrder->idDetalleOpcion = $request->form['idOpcionExtra'];
+                    $nECOrder->save();
+                }
             } else {
                 $ec = ExtraCharge::where('idCargoExtra', $ecId)
                     ->get()
                     ->first();
 
-                if (isset($request->form['montoCargoVariable'])) {
-                    $currOrder->update([
-                        'idCargoExtra' => $ecId,
-                        'cargosExtra' => $currOrder->get()->first()->cargosExtra + $request->form['montoCargoVariable'],
-                        'cTotal' => $currOrder->get()->first()->cTotal + $request->form['montoCargoVariable']
-                    ]);
+                $exist = ExtraChargesOrders::where('idDetalle', $orderId)
+                    ->where('idCargoExtra', $ecId)
+                    ->count();
+
+                if ($exist == 0) {
+                    if (isset($request->form['montoCargoVariable'])) {
+                        $currOrder->update([
+                            'cargosExtra' => $currOrder->get()->first()->cargosExtra + $request->form['montoCargoVariable'],
+                            'cTotal' => $currOrder->get()->first()->cTotal + $request->form['montoCargoVariable']
+                        ]);
     
-                    $currDelivery = $currOrder->get()->first()->delivery;
-                    $currDelivery->update([
-                        'cargosExtra' =>  $currDelivery->cargosExtra + $request->form['montoCargoVariable'],
-                        'total' => $currDelivery->total + $request->form['montoCargoVariable']
-                    ]);
-                }else{
-                    $currOrder->update([
-                        'idCargoExtra' => $ecId,
-                        'cargosExtra' => $currOrder->get()->first()->cargosExtra + $ec->costo,
-                        'cTotal' => $currOrder->get()->first()->cTotal + $ec->costo
-                    ]);
+                        $currDelivery = $currOrder->get()->first()->delivery;
+                        $currDelivery->update([
+                            'cargosExtra' =>  $currDelivery->cargosExtra + $request->form['montoCargoVariable'],
+                            'total' => $currDelivery->total + $request->form['montoCargoVariable']
+                        ]);
+                    } else {
+                        $currOrder->update([
+                            'cargosExtra' => $currOrder->get()->first()->cargosExtra + $ec->costo,
+                            'cTotal' => $currOrder->get()->first()->cTotal + $ec->costo
+                        ]);
     
-                    $currDelivery = $currOrder->get()->first()->delivery;
-                    $currDelivery->update([
-                        'cargosExtra' =>  $currDelivery->cargosExtra + $ec->costo,
-                        'total' => $currDelivery->total + $ec->costo
-                    ]);
+                        $currDelivery = $currOrder->get()->first()->delivery;
+                        $currDelivery->update([
+                            'cargosExtra' =>  $currDelivery->cargosExtra + $ec->costo,
+                            'total' => $currDelivery->total + $ec->costo
+                        ]);
+                    }
+
+                    $nECOrder = new ExtraChargesOrders();
+                    $nECOrder->idDetalle = $orderId;
+                    $nECOrder->idCargoExtra = $ecId;
+                    $nECOrder->save();
                 }
 
                 

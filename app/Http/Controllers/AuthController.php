@@ -53,13 +53,23 @@ class AuthController extends Controller
                     ->whereHas('rateDetail', function ($q) use ($user) {
                         $q->where('idCliente', $user->idCliente);
                     })->count();
+                    $custForConsolidatedRates = Tarifa::where('idTipoTarifa',4)
+                        ->whereHas('rateDetail', function ($q) use ($user) {
+                            $q->where('idCliente', $user->idCliente);
+                        })->count();
 
                     $hasConsolidatedRate = false;
                     if($custConsolidatedRates > 0){
                         $hasConsolidatedRate = true;
                     }
 
+                    $hasFConsolidatedRate = false;
+                    if($custForConsolidatedRates > 0){
+                        $hasFConsolidatedRate = true;
+                    }
+
                     $user->permiteConsolidada = $hasConsolidatedRate;
+                    $user->permiteConsolidadaForanea = $hasFConsolidatedRate;
 
                     return response()->json(
                         [

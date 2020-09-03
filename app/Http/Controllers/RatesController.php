@@ -19,6 +19,10 @@ class RatesController extends Controller
             $tarifas = Tarifa::with(['category', 'customer', 'rateType', 'consolidatedDetail', 'schedules'])->get();
             foreach ($tarifas as $tarifa) {
                 $tarifa->precio = number_format($tarifa->precio, 2);
+                foreach ($tarifa->schedules as $schedule){
+                    $schedule->inicio = Carbon::parse($schedule->inicio)->format('H:i');
+                    $schedule->final = Carbon::parse($schedule->final)->format('H:i');
+                }
             }
             return response()->json(
                 [
