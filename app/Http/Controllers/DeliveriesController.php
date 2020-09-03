@@ -325,6 +325,56 @@ class DeliveriesController extends Controller
         }
     }
 
+    public function  getFilteredOrders(Request $request){
+        $request->validate([
+            'form' => 'required',
+            'form.initDate' => 'required',
+            'form.finDate' => 'required'
+        ]);
+
+        try {
+            $orders = DetalleDelivery::with(['delivery', 'estado', 'conductor', 'photography', 'ExtraCharge'])
+                ->whereHas('delivery', function ($q) use ($request) {
+                    $q->whereBetween('fechaReserva', [
+                        $request->form['initDate'].' 00:00:00',
+                        $request->form['finDate'].' 23:59:59'
+                    ]);
+                })
+                ->get();
+            $todosPedidos = [];
+
+            foreach ($orders as $dtl) {
+                $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
+                $dtl->tarifaBase = number_format($dtl->tarifaBase, 2);
+                $dtl->recargo = number_format($dtl->recargo, 2);
+                $dtl->cargosExtra = number_format($dtl->cargosExtra, 2);
+                $dtl->cTotal = number_format($dtl->cTotal, 2);
+                array_push($todosPedidos, $dtl);
+            }
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => $todosPedidos
+                ],
+                200
+            );
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), array(
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => 'Ocurrió un error al cargar los datos'
+                ],
+                500
+            );
+        }
+
+    }
+
     //Report Orders By Driver
 
     public function reportOrdersByDriver(Request $request)

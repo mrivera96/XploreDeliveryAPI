@@ -118,6 +118,7 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('getOrdersByCustomer', 'DeliveriesController@getOrdersByCustomer');
             Route::post('assign', 'DeliveriesController@assignOrder');
             Route::post('addExtracharge', 'DeliveriesController@addOrderExtracharge');
+            Route::post('filter', 'DeliveriesController@getFilteredOrders');
         });
 
         //Rutas Tarifas
