@@ -242,7 +242,7 @@ class DeliveriesController extends Controller
         try {
             $deliveriesDia = DetalleDelivery::with([
                 'delivery', 'estado', 'conductor', 'photography',
-                'ExtraCharge'
+                'extraCharges.extracharge', 'extraCharges.option'
             ])
                 ->whereHas('delivery', function ($q) {
                     $q->whereDate('fechaReserva', Carbon::today());
@@ -284,7 +284,8 @@ class DeliveriesController extends Controller
     public function getAllOrders()
     {
         try {
-            $allDeliveries = DetalleDelivery::with(['delivery', 'estado', 'conductor', 'photography', 'ExtraCharge'])
+            $allDeliveries = DetalleDelivery::with(['delivery', 'estado', 'conductor',
+                'photography', 'extraCharges.extracharge', 'extraCharges.option'])
                 ->whereHas('delivery', function ($q) {
                     $q->whereBetween('fechaReserva', [
                         Carbon::now()->subDays(7),
@@ -318,14 +319,15 @@ class DeliveriesController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => 'Ocurrió un error al cargar los datos'
+                    'message' => $ex->getTrace()//'Ocurrió un error al cargar los datos'
                 ],
                 500
             );
         }
     }
 
-    public function  getFilteredOrders(Request $request){
+    public function getFilteredOrders(Request $request)
+    {
         $request->validate([
             'form' => 'required',
             'form.initDate' => 'required',
@@ -333,11 +335,12 @@ class DeliveriesController extends Controller
         ]);
 
         try {
-            $orders = DetalleDelivery::with(['delivery', 'estado', 'conductor', 'photography', 'ExtraCharge'])
+            $orders = DetalleDelivery::with(['delivery', 'estado', 'conductor', 'photography',
+                'extraCharges.extracharge', 'extraCharges.option'])
                 ->whereHas('delivery', function ($q) use ($request) {
                     $q->whereBetween('fechaReserva', [
-                        $request->form['initDate'].' 00:00:00',
-                        $request->form['finDate'].' 23:59:59'
+                        $request->form['initDate'] . ' 00:00:00',
+                        $request->form['finDate'] . ' 23:59:59'
                     ]);
                 })
                 ->get();
@@ -1777,6 +1780,83 @@ class DeliveriesController extends Controller
                 [
                     'error' => 0,
                     'message' => 'Se agregó correctamente el cargo extra al envío'
+                ],
+                200
+            );
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => 'Ocurrió un error al agregar el cargo extra'
+                ],
+                500
+            );
+        }
+    }
+
+    public function removeOrderExtracharge(Request $request)
+    {
+        $request->validate([
+            'idDetalle' => 'required',
+            'id' => 'required'
+        ]);
+
+        $ecOrderId = $request->id;
+        $orderId = $request->idDetalle;
+
+        try {
+            $currOrder = DetalleDelivery::where('idDetalle', $orderId);
+            $currEcOrder = ExtraChargesOrders::where('id', $ecOrderId);
+
+            if ($currEcOrder->get()->first()->idDetalleOpcion != null) {
+                $ecOption = $currEcOrder->get()->first()->option;
+
+                $currOrder->update([
+                    'cargosExtra' => $currOrder->get()->first()->cargosExtra - $ecOption->costo,
+                    'cTotal' => $currOrder->get()->first()->cTotal - $ecOption->costo
+                ]);
+
+                $currDelivery = $currOrder->get()->first()->delivery;
+                $currDelivery->update([
+                    'cargosExtra' => $currDelivery->cargosExtra - $ecOption->costo,
+                    'total' => $currDelivery->total - $ecOption->costo
+                ]);
+                $currEcOrder->delete();
+            } else {
+                $ec = $currEcOrder->get()->first()->extracharge;
+                if (isset($request->form['montoCargoVariable'])) {
+                    $currOrder->update([
+                        'cargosExtra' => $currOrder->get()->first()->cargosExtra - $request->form['montoCargoVariable'],
+                        'cTotal' => $currOrder->get()->first()->cTotal - $request->form['montoCargoVariable']
+                    ]);
+
+                    $currDelivery = $currOrder->get()->first()->delivery;
+                    $currDelivery->update([
+                        'cargosExtra' => $currDelivery->cargosExtra - $request->form['montoCargoVariable'],
+                        'total' => $currDelivery->total - $request->form['montoCargoVariable']
+                    ]);
+                } else {
+                    $currOrder->update([
+                        'cargosExtra' => $currOrder->get()->first()->cargosExtra - $ec->costo,
+                        'cTotal' => $currOrder->get()->first()->cTotal - $ec->costo
+                    ]);
+
+                    $currDelivery = $currOrder->get()->first()->delivery;
+                    $currDelivery->update([
+                        'cargosExtra' => $currDelivery->cargosExtra - $ec->costo,
+                        'total' => $currDelivery->total - $ec->costo
+                    ]);
+                }
+
+                $currEcOrder->delete();
+
+            }
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'message' => 'Se eliminó correctamente el cargo extra del envío'
                 ],
                 200
             );

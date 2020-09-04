@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class ExtraChargesOrders extends Model
 {
     protected $table = 'tblCargosExtraEnvios';
+
+    protected  $primaryKey = 'id';
     protected $fillable = ['idDetalle', 'idCargoExtra','idDetalleOpcion'];
     public $timestamps = false;
 
@@ -15,10 +17,10 @@ class ExtraChargesOrders extends Model
     }
 
     public function extracharge(){
-        return $this->belongsTo('App\ExtraCharge','idDetalle','idDetalle');
+        return $this->hasOne('App\ExtraCharge','idCargoExtra','idCargoExtra');
     }
 
     public function option(){
-        return $this->belongsTo('App\DetalleOpcionesCargosExtras','idDetalleOpcion','idDetalleOpcion');
+        return $this->hasOne('App\DetalleOpcionesCargosExtras','idDetalleOpcion','idDetalleOpcion');
     }
 }
