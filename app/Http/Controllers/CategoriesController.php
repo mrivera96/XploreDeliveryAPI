@@ -146,18 +146,18 @@ class CategoriesController extends Controller
                         ->whereHas('rate', function ($q) {
                             $q->where('idTipoTarifa', 4);
                         })->get();
-
+                    $idArray = [];
                     if ($consolidatedRates->count() > 0) {
-                        $idArray = [];
+
                         foreach ($consolidatedRates as $item) {
                             if (!in_array($item->rate->idCategoria, $idArray) && $item->rate->idTipoTarifa == 2) {
                                 array_push($idArray, $item->rate->idCategoria);
                             }
                         }
                     }
-
+                    $idArrayF = [];
                     if ($consolidatedForeignRates->count() > 0) {
-                        $idArrayF = [];
+
                         foreach ($consolidatedForeignRates as $item) {
                             if (!in_array($item->rate->idCategoria, $idArrayF) && $item->rate->idTipoTarifa == 4) {
                                 array_push($idArrayF, $item->rate->idCategoria);
