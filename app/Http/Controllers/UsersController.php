@@ -38,7 +38,7 @@ class UsersController extends Controller
                 $driverLLogin = Carbon::parse($driver->lastLogin)->format('Y-m-d');
                 if ($driver->lastLogin != null && $driverLLogin == Carbon::today()->format('Y-m-d')) {
                     if ($driverOrdersPending > 0 || $driverOrdersTransit > 0) {
-                        $driver->state = 'Ocupado / Entregas: '.$driverOrdersTransit.' en tránsito,  '.' + '.$driverOrdersPending.' pendiente(s)';
+                        $driver->state = 'Ocupado / Entregas: '.$driverOrdersPending.' pendiente(s), '.$driverOrdersTransit.' en tránsito';
                     } else {
                         $driver->state = 'Disponible';
                     }
