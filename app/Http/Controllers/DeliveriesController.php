@@ -573,7 +573,7 @@ class DeliveriesController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getMessage() //'Ocurrió un error al cargar los datos'
+                    'message' => 'Ocurrió un error al cargar los datos'
                 ],
                 500
             );
@@ -914,7 +914,173 @@ class DeliveriesController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getTrace()
+                    'message' => 'Ocurrió un error al obtener los datos'
+                ],
+                500
+            );
+        }
+    }
+
+    //Reporte de envíos
+    public function deliveriesReport(Request $request)
+    {
+        $request->validate([
+            'form' => 'required',
+            'form.initDate' => 'required',
+            'form.finDate' => 'required'
+        ]);
+
+        $form = $request->form;
+
+        $initDate = date('Y-m-d', strtotime($form['initDate']));
+        $finDate = date('Y-m-d', strtotime($form['finDate']));
+        $isSameDay = $initDate == $finDate;
+        $initDateTime = new Carbon(date('Y-m-d', strtotime($form['initDate'])) . ' 00:00:00');
+        $finDateTime = new Carbon(date('Y-m-d', strtotime($form['finDate'])) . ' 23:59:59');
+
+        try {
+            $outputData = [];
+
+            $categories = Category::where('isActivo', 1)->get();
+            $customers = DeliveryClient::where('isActivo', 1)->get();
+            $ordersByCatArray = [];
+
+            foreach ($categories as $category) {
+                $mydataObj = (object)array();
+                $mydataObj->category = $category->descCategoria;
+                $mydataObj->orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->whereHas('delivery', function ($q) use ($category) {
+                        $q->where('idCategoria', $category->idCategoria);
+                    })->count();
+
+                $mydataObj->totalSurcharges = number_format(DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->whereHas('delivery', function ($q) use ($category) {
+                        $q->where('idCategoria', $category->idCategoria);
+                    })->sum('recargo'), 2);
+
+                $mydataObj->totalExtraCharges = number_format(DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->whereHas('delivery', function ($q) use ($category) {
+                        $q->where('idCategoria', $category->idCategoria);
+                    })->sum('cargosExtra'), 2);
+
+                $mydataObj->cTotal = number_format(DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->whereHas('delivery', function ($q) use ($category) {
+                        $q->where('idCategoria', $category->idCategoria);
+                    })->sum('cTotal'), 2);
+
+                if ($mydataObj->orders > 0) {
+                    $exists = 0;
+                    foreach ($outputData as $output) {
+                        if ($mydataObj->category == $output->category) {
+                            $exists++;
+                        }
+                    }
+
+                    if ($exists == 0) {
+                        array_push($ordersByCatArray, $mydataObj);
+                    }
+                }
+            }
+
+            $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                ->get();
+            $ordersInRange = sizeof($orders);
+            foreach ($orders as $order) {
+                $order->recargo = number_format($order->recargo, 2);
+                $order->cargosExtra = number_format($order->cargosExtra, 2);
+                $order->cTotal = number_format($order->cTotal, 2);
+            }
+
+            $tempSurSum = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                ->sum('recargo');
+
+            $tempECSum = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                ->sum('cargosExtra');
+
+            $tempCostSum = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                ->sum('cTotal');
+
+            $totalSurcharges = number_format($tempSurSum, 2);
+            $totalCosts = number_format($tempCostSum, 2);
+            $totalExtraCharges = number_format($tempECSum, 2);
+
+            $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                ->orderBy('fechaEntrega', 'desc')
+                ->get()
+                ->groupBy(function ($val) {
+                    return Carbon::parse($val->fechaEntrega)->format('Y-m-d');
+                });
+
+            foreach ($customers as $customer) {
+                foreach ($orders as $order) {
+                    for ($i = 0; $i < sizeof($order); $i++) {
+                        if ($customer->idCliente == $order[$i]->delivery->idCliente) {
+                            $dataObj = (object)array();
+                            $dataObj->customer = $customer->nomEmpresa;
+                            $dataObj->fecha = Carbon::parse($order[$i]->fechaEntrega)->format('Y-m-d');
+                            $initDateTime = new Carbon(date('Y-m-d', strtotime($dataObj->fecha)) . ' 00:00:00');
+                            $finDateTime = new Carbon(date('Y-m-d', strtotime($dataObj->fecha)) . ' 23:59:59');
+                            $dataObj->orders = DetalleDelivery::whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                                ->whereIn('idEstado', [44, 46, 47])
+                                ->whereHas('delivery', function ($q) use ($customer) {
+                                    $q->where('idCliente', $customer->idCliente);
+                                })->count();
+                            $exist = 0;
+                            foreach ($outputData as $output) {
+                                if ($dataObj->fecha == $output->fecha && $dataObj->customer == $output->customer) {
+                                    $exist++;
+                                }
+                            }
+
+                            if ($exist == 0) {
+                                array_push($outputData, $dataObj);
+                            }
+                        }
+                    }
+                }
+            }
+
+            $dates = array();
+            foreach ($outputData as $my_object) {
+                $dates[] = $my_object->fecha; //any object field
+            }
+
+            array_multisort($dates, SORT_ASC, $outputData);
+
+
+
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => array(
+                        'ordersReport' => $outputData,
+                        //'totalOrders' => $totalOrders,
+                        'ordersByCategory' => $ordersByCatArray,
+                        'totalSurcharges' => $totalSurcharges,
+                        'totalExtraCharges' => $totalExtraCharges,
+                        'totalCosts' => $totalCosts,
+                        'ordersInRange' => $ordersInRange,
+                        //'orders' => $orders
+                    )
+                ],
+                200
+            );
+
+        } catch (Exception $ex) {
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => 'Ocurrió un error al obtener los datos'
                 ],
                 500
             );
@@ -1022,7 +1188,6 @@ class DeliveriesController extends Controller
             'orders' => 'required|array|min:1',
             'pago' => 'required'
         ]);
-
 
         if (isset($request->deliveryForm["idTarifa"])) {
             $hDelivery = $request->deliveryForm;
