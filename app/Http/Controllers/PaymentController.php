@@ -157,6 +157,55 @@ class PaymentController extends Controller
         }
     }
 
+    public function getPaymentsReport(Request $request)
+    {
+        $request->validate([
+            'form' => 'required',
+            'form.initDate' => 'required',
+            'form.finDate' => 'required'
+        ]);
+
+        $form = $request->form;
+
+        $initDate = date('Y-m-d', strtotime($form['initDate']));
+        $finDate = date('Y-m-d', strtotime($form['finDate']));
+        $initDateTime = new Carbon(date('Y-m-d', strtotime($form['initDate'])) . ' 00:00:00');
+        $finDateTime = new Carbon(date('Y-m-d', strtotime($form['finDate'])) . ' 23:59:59');
+
+        try {
+            $payments = Payment::with(['customer', 'paymentType'])
+                ->whereBetween('fechaPago',[$initDateTime, $finDateTime])
+                ->get();
+
+            foreach ($payments as $payment) {
+                $payment->fechaPago = Carbon::parse($payment->fechaPago)->format('Y-m-d');
+                $payment->monto = number_format($payment->monto, 2);
+            }
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => $payments
+                ],
+                200
+            );
+
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), array([
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ]));
+
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => $ex->getMessage()
+                ],
+                500
+            );
+        }
+    }
+
     public function getPaymentTypes()
     {
         try {
