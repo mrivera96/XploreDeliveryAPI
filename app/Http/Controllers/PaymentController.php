@@ -175,6 +175,7 @@ class PaymentController extends Controller
         try {
             $payments = Payment::with(['customer', 'paymentType'])
                 ->whereBetween('fechaPago',[$initDateTime, $finDateTime])
+                ->orderBy('fechaPago')
                 ->get();
 
             foreach ($payments as $payment) {
@@ -182,10 +183,14 @@ class PaymentController extends Controller
                 $payment->monto = number_format($payment->monto, 2);
             }
 
+            $totalAmount = number_format(Payment::whereBetween('fechaPago',[$initDateTime, $finDateTime])
+                ->sum('monto'), 2);
+
             return response()->json(
                 [
                     'error' => 0,
-                    'data' => $payments
+                    'data' => $payments,
+                    'totalAmount' => $totalAmount
                 ],
                 200
             );
