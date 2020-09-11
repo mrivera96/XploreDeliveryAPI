@@ -403,9 +403,61 @@ class DeliveriesController extends Controller
 
         try {
             $outputData = [];
-            $drivers = User::where('idPerfil', 7)->get();
 
-            if ($driver == -1 && $isSameDay) {
+            $categories = Category::where('isActivo', 1)->get();
+            $ordersByCatArray = [];
+
+            foreach ($categories as $category) {
+                $mydataObj = (object)array();
+                $mydataObj->category = $category->descCategoria;
+                $mydataObj->orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->where('idConductor', $driver)
+                    ->whereHas('delivery', function ($q) use ( $category) {
+                        $q->where('idCategoria', $category->idCategoria);
+                    })
+                    ->count();
+
+                $mydataObj->totalSurcharges = number_format(DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->where('idConductor', $driver)
+                    ->whereHas('delivery', function ($q) use ( $category) {
+                        $q->where('idCategoria', $category->idCategoria);
+                    })
+                    ->sum('recargo'), 2);
+
+                $mydataObj->totalExtraCharges = number_format(DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->where('idConductor', $driver)
+                    ->whereHas('delivery', function ($q) use ( $category) {
+                        $q->where('idCategoria', $category->idCategoria);
+                    })
+                    ->sum('cargosExtra'), 2);
+
+                $mydataObj->cTotal = number_format(DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->where('idConductor', $driver)
+                    ->whereHas('delivery', function ($q) use ( $category) {
+                        $q->where('idCategoria', $category->idCategoria);
+                    })
+                    ->sum('cTotal'), 2);
+
+                if ($mydataObj->orders > 0) {
+                    $exists = 0;
+                    foreach ($ordersByCatArray as $output) {
+                        if ($mydataObj->category == $output->category) {
+                            $exists++;
+                        }
+                    }
+
+                    if ($exists == 0) {
+                        array_push($ordersByCatArray, $mydataObj);
+                    }
+                }
+            }
+
+
+            /*if ($driver == -1 && $isSameDay) {
                 $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                     ->get()
@@ -463,61 +515,65 @@ class DeliveriesController extends Controller
 
                  }*/
 
+            /*
+                            return response()->json(
+                                [
+                                    'error' => 0,
+                                    'data' => $outputData
+                                ],
+                                200
+                            );
+                        } else if ($driver == -1 && !$isSameDay) {
+                            $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->orderBy('fechaEntrega', 'desc')->get()
+                                ->groupBy(function ($val) {
+                                    return Carbon::parse($val->fechaEntrega)->format('Y-m-d');
+                                });
 
-                return response()->json(
-                    [
-                        'error' => 0,
-                        'data' => $outputData
-                    ],
-                    200
-                );
-            } else if ($driver == -1 && !$isSameDay) {
-                $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->orderBy('fechaEntrega', 'desc')->get()
-                    ->groupBy(function ($val) {
-                        return Carbon::parse($val->fechaEntrega)->format('Y-m-d');
-                    });
+                            foreach ($drivers as $driver) {
+                                foreach ($orders as $order) {
+                                    for ($i = 0; $i < sizeof($order); $i++) {
+                                        if ($driver->idUsuario == $order[$i]->idConductor) {
+                                            $dataObj = (object)array();
+                                            $dataObj->driver = $driver->nomUsuario;
+                                            $dataObj->fecha = Carbon::parse($order[$i]->fechaEntrega)->format('Y-m-d');
+                                            $initDateTime = new Carbon(date('Y-m-d', strtotime($dataObj->fecha)) . ' 00:00:00');
+                                            $finDateTime = new Carbon(date('Y-m-d', strtotime($dataObj->fecha)) . ' 23:59:59');
+                                            $dataObj->orders = DetalleDelivery::whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                                                ->whereIn('idEstado', [44, 46, 47])
+                                                ->where('idConductor', $driver->idUsuario)->count();
+                                            $exist = 0;
+                                            foreach ($outputData as $output) {
+                                                if ($dataObj->fecha == $output->fecha && $dataObj->driver == $output->driver) {
+                                                    $exist++;
+                                                }
+                                            }
 
-                foreach ($drivers as $driver) {
-                    foreach ($orders as $order) {
-                        for ($i = 0; $i < sizeof($order); $i++) {
-                            if ($driver->idUsuario == $order[$i]->idConductor) {
-                                $dataObj = (object)array();
-                                $dataObj->driver = $driver->nomUsuario;
-                                $dataObj->fecha = Carbon::parse($order[$i]->fechaEntrega)->format('Y-m-d');
-                                $initDateTime = new Carbon(date('Y-m-d', strtotime($dataObj->fecha)) . ' 00:00:00');
-                                $finDateTime = new Carbon(date('Y-m-d', strtotime($dataObj->fecha)) . ' 23:59:59');
-                                $dataObj->orders = DetalleDelivery::whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                                    ->whereIn('idEstado', [44, 46, 47])
-                                    ->where('idConductor', $driver->idUsuario)->count();
-                                $exist = 0;
-                                foreach ($outputData as $output) {
-                                    if ($dataObj->fecha == $output->fecha && $dataObj->driver == $output->driver) {
-                                        $exist++;
+                                            if ($exist == 0) {
+                                                array_push($outputData, $dataObj);
+                                            }
+                                        }
                                     }
                                 }
-
-                                if ($exist == 0) {
-                                    array_push($outputData, $dataObj);
-                                }
                             }
-                        }
-                    }
-                }
 
-                return response()->json(
-                    [
-                        'error' => 0,
-                        'data' => $outputData
-                    ],
-                    200
-                );
-            } else if ($driver != -1 && $isSameDay) {
-                $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])->where('idConductor', $driver)
-                    ->whereDate('fechaEntrega', $initDate)->get();
+                            return response()->json(
+                                [
+                                    'error' => 0,
+                                    'data' => $outputData
+                                ],
+                                200
+                            );
+                        } else*/ /*if ($driver != -1 && $isSameDay) {
+
+                $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                    ->where('idConductor', $driver)
+                    ->whereDate('fechaEntrega', $initDate)
+                    ->get();
 
                 if (sizeof($orders) > 0) {
                     foreach ($orders as $order) {
+
                         $dataObj = (object)array();
                         $dataObj->driver = $driverDetails->nomUsuario;
                         $dataObj->fecha = Carbon::parse($order->fechaEntrega)->format('Y-m-d');
@@ -536,39 +592,65 @@ class DeliveriesController extends Controller
                     }
                 }
 
-                return response()->json(
-                    [
-                        'error' => 0,
-                        'data' => $outputData
-                    ],
-                    200
-                );
-            } else {
-                $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])->where('idConductor', $driver)
-                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->orderBy('fechaEntrega', 'desc')->get()
-                    ->groupBy(function ($val) {
-                        return Carbon::parse($val->fechaEntrega)->format('Y-m-d');
-                    });
 
-                foreach ($orders as $order) {
+            } else {*/
+            $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])->where('idConductor', $driver)
+                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->orderBy('fechaEntrega', 'desc')
+                ->get()
+                ->groupBy(function ($val) {
+                    return Carbon::parse($val->fechaEntrega)->format('Y-m-d');
+                });
 
-                    for ($i = 0; $i < sizeof($order); $i++) {
-                        $data = (object)array();
-                        $data->driver = $driverDetails->nomUsuario;
-                        $data->fecha = Carbon::parse($order[$i]->fechaEntrega)->format('Y-m-d');
-                        $data->orders = sizeof($order);
-                    }
-                    array_push($outputData, $data);
+            foreach ($orders as $order) {
+
+                for ($i = 0; $i < sizeof($order); $i++) {
+                    $data = (object)array();
+                    $data->driver = $driverDetails->nomUsuario;
+                    $data->fecha = Carbon::parse($order[$i]->fechaEntrega)->format('Y-m-d');
+                    $data->orders = sizeof($order);
                 }
-
-                return response()->json(
-                    [
-                        'error' => 0,
-                        'data' => $outputData
-                    ],
-                    200
-                );
+                array_push($outputData, $data);
             }
+
+            //}
+
+            $tempSurSum = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                ->where('idConductor', $driver)
+                ->sum('recargo');
+
+            $tempECSum = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                ->where('idConductor', $driver)
+                ->sum('cargosExtra');
+
+            $tempCostSum = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                ->where('idConductor', $driver)
+                ->sum('cTotal');
+
+            $totalSurcharges = number_format($tempSurSum, 2);
+            $totalCosts = number_format($tempCostSum, 2);
+            $totalExtraCharges = number_format($tempECSum, 2);
+
+            $ordersInRange = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                ->where('idConductor', $driver)
+                ->count();
+
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => $outputData,
+                    'ordersByCat' => $ordersByCatArray,
+                    'totalSurcharges' => $totalSurcharges,
+                    'totalExtraCharges' => $totalExtraCharges,
+                    'totalCosts' => $totalCosts,
+                    'ordersInRange' => $ordersInRange,
+                ],
+                200
+            );
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array(
                 'User' => Auth::user()->nomUsuario,
@@ -577,7 +659,7 @@ class DeliveriesController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => 'Ocurrió un error al cargar los datos'
+                    'message' => $ex->getTrace()//'Ocurrió un error al cargar los datos'
                 ],
                 500
             );
@@ -1063,8 +1145,6 @@ class DeliveriesController extends Controller
             }
 
             array_multisort($dates, SORT_ASC, $outputData);
-
-
 
 
             return response()->json(
