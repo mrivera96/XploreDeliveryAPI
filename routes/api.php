@@ -176,7 +176,7 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('ordersByCustomer', 'DeliveriesController@reportOrdersByCustomer');
             Route::post('deliveriesReport', 'DeliveriesController@deliveriesReport');
             Route::post('paymentsReport', 'PaymentController@getPaymentsReport');
-
+            Route::post('customersBalanceReport', 'DeliveryUsersController@getCustomersBalanceReport');
         });
 
         //Rutas Pagos

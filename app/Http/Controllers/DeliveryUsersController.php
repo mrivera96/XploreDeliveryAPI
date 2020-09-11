@@ -295,8 +295,8 @@ class DeliveryUsersController extends Controller
 
             $paymentsGet = $payments->get();
 
-            foreach($paymentsGet as $payment){
-                $payment->monto = number_format($payment->monto,2);
+            foreach ($paymentsGet as $payment) {
+                $payment->monto = number_format($payment->monto, 2);
             }
 
             return response()->json(
@@ -306,7 +306,7 @@ class DeliveryUsersController extends Controller
                     'footSurcharges' => number_format($finishedOrders->sum('recargo'), 2),
                     'footExtraCharges' => number_format($finishedOrders->sum('cargosExtra'), 2),
                     'footCTotal' => number_format($finishedOrders->sum('cTotal'), 2),
-                    'footMonto' => number_format($payments->sum('monto'),2),
+                    'footMonto' => number_format($payments->sum('monto'), 2),
                     'subtotal' => number_format($subtotal, 2),
                     'paid' => number_format($paid, 2),
                     'balance' => number_format($balance, 2),
@@ -327,5 +327,84 @@ class DeliveryUsersController extends Controller
                 500
             );
         }
+    }
+
+    public function getCustomersBalanceReport(Request $request)
+    {
+        $request->validate([
+            'form' => 'required',
+            'form.initDate' => 'required',
+            'form.finDate' => 'required'
+        ]);
+
+        $form = $request->form;
+
+        $initDate = date('Y-m-d', strtotime($form['initDate']));
+        $finDate = date('Y-m-d', strtotime($form['finDate']));
+        $initDateTime = new Carbon(date('Y-m-d', strtotime($form['initDate'])) . ' 00:00:00');
+        $finDateTime = new Carbon(date('Y-m-d', strtotime($form['finDate'])) . ' 23:59:59');
+
+        try {
+            $outputData = [];
+            $customers = DeliveryClient::where('isActivo', 1)->get();
+
+            foreach ($customers as $customer) {
+                $dataObj = (object)array();
+                $dataObj->customer = $customer;
+                $dataObj->orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->whereHas('delivery', function ($q) use ($customer) {
+                        $q->where('idCliente', $customer->idCliente);
+                    })->count();
+                $dataObj->payments = number_format(Payment::where('idCliente', $customer->idCliente)
+                    ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
+                    ->sum('monto'), 2);
+                $dataObj->balance = number_format(DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                        ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                        ->whereHas('delivery', function ($q) use ($customer) {
+                            $q->where('idCliente', $customer->idCliente);
+                        })->sum('cTotal') - Payment::where('idCliente', $customer->idCliente)
+                        ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
+                        ->sum('monto'), 2);
+
+                if ($dataObj->orders > 0) {
+                    array_push($outputData, $dataObj);
+                }
+            }
+
+            $totalOrders = 0;
+            $totalPayments = 0;
+            $totalBalance = 0;
+
+            foreach ($outputData as $output) {
+                $totalOrders += $output->orders;
+                $totalPayments += $output->payments;
+                $totalBalance += $output->balance;
+            }
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => $outputData,
+                    'totalOrders' => $totalOrders,
+                    'totalPayments' => number_format($totalPayments,2),
+                    'totalBalance' => number_format($totalBalance,2)
+                ],
+                200
+            );
+
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), array(
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => 'Ocurrió un error al cargar los datos'
+                ],
+                500
+            );
+        }
+
     }
 }

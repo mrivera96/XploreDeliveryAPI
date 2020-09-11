@@ -570,6 +570,10 @@ class DeliveriesController extends Controller
                 );
             }
         } catch (Exception $ex) {
+            Log::error($ex->getMessage(), array(
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
             return response()->json(
                 [
                     'error' => 1,
@@ -911,10 +915,14 @@ class DeliveriesController extends Controller
                 );
             }
         } catch (Exception $ex) {
+            Log::error($ex->getMessage(), array(
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => 'Ocurrió un error al obtener los datos'
+                    'message' => 'Ocurrió un error al cargar los datos'
                 ],
                 500
             );
@@ -1077,10 +1085,14 @@ class DeliveriesController extends Controller
             );
 
         } catch (Exception $ex) {
+            Log::error($ex->getMessage(), array(
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => 'Ocurrió un error al obtener los datos'
+                    'message' => 'Ocurrió un error al cargar los datos'
                 ],
                 500
             );
