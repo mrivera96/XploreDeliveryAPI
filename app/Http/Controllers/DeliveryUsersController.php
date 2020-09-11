@@ -348,6 +348,10 @@ class DeliveryUsersController extends Controller
             $outputData = [];
             $customers = DeliveryClient::where('isActivo', 1)->get();
 
+            $totalOrders = 0;
+            $totalPayments = 0;
+            $totalBalance = 0;
+
             foreach ($customers as $customer) {
                 $dataObj = (object)array();
                 $dataObj->customer = $customer;
@@ -369,25 +373,28 @@ class DeliveryUsersController extends Controller
 
                 if ($dataObj->orders > 0) {
                     array_push($outputData, $dataObj);
+                    $totalOrders += $dataObj->orders;
+                    $totalPayments += Payment::where('idCliente', $customer->idCliente)
+                        ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
+                        ->sum('monto');
+                    $totalBalance += DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                            ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                            ->whereHas('delivery', function ($q) use ($customer) {
+                                $q->where('idCliente', $customer->idCliente);
+                            })->sum('cTotal') - Payment::where('idCliente', $customer->idCliente)
+                            ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
+                            ->sum('monto');
                 }
             }
 
-            $totalOrders = 0;
-            $totalPayments = 0;
-            $totalBalance = 0;
 
-            foreach ($outputData as $output) {
-                $totalOrders += $output->orders;
-                $totalPayments += $output->payments;
-                $totalBalance += $output->balance;
-            }
             return response()->json(
                 [
                     'error' => 0,
                     'data' => $outputData,
                     'totalOrders' => $totalOrders,
-                    'totalPayments' => number_format($totalPayments,2),
-                    'totalBalance' => number_format($totalBalance,2)
+                    'totalPayments' => number_format($totalPayments, 2),
+                    'totalBalance' => number_format($totalBalance, 2)
                 ],
                 200
             );
@@ -400,7 +407,7 @@ class DeliveryUsersController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => 'Ocurrió un error al cargar los datos'
+                    'message' => $ex->getTrace()//'Ocurrió un error al cargar los datos'
                 ],
                 500
             );
