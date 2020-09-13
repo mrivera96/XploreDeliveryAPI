@@ -177,6 +177,7 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('deliveriesReport', 'DeliveriesController@deliveriesReport');
             Route::post('paymentsReport', 'PaymentController@getPaymentsReport');
             Route::post('customersBalanceReport', 'DeliveryUsersController@getCustomersBalanceReport');
+            Route::post('customersTrackingReport', 'DeliveryUsersController@getCustomersTrackingReport');
         });
 
         //Rutas Pagos
@@ -203,8 +204,8 @@ Route::group(['prefix' => 'admins'], function () {
 });
 
 
-Route::get('generatePassword','AuthController@generatePassword');
-Route::get('testPassword','AuthController@testPassword');
+Route::get('generatePassword', 'AuthController@generatePassword');
+Route::get('testPassword', 'AuthController@testPassword');
 /***************************
  * RUTAS PARA WS DE CLIENTES
  * ***************************/

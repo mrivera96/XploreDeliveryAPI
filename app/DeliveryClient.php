@@ -46,4 +46,8 @@ class DeliveryClient extends Model
     public function deliveries(){
         return $this->hasMany('App\Delivery', 'idCliente', 'idCliente');
     }
+
+    public function workLines(){
+        return $this->hasMany('App\DeliveryCustomerWorkLines', 'idCliente', 'idCliente');
+    }
 }

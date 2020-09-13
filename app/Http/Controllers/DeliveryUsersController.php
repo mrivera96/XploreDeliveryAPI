@@ -9,6 +9,7 @@ use App\Payment;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
+use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -339,8 +340,8 @@ class DeliveryUsersController extends Controller
 
         $form = $request->form;
 
-        $initDate = date('Y-m-d', strtotime($form['initDate']));
-        $finDate = date('Y-m-d', strtotime($form['finDate']));
+        /*$initDate = date('Y-m-d', strtotime($form['initDate']));
+        $finDate = date('Y-m-d', strtotime($form['finDate']));*/
         $initDateTime = new Carbon(date('Y-m-d', strtotime($form['initDate'])) . ' 00:00:00');
         $finDateTime = new Carbon(date('Y-m-d', strtotime($form['finDate'])) . ' 23:59:59');
 
@@ -407,11 +408,85 @@ class DeliveryUsersController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getTrace()//'Ocurrió un error al cargar los datos'
+                    'message' => 'Ocurrió un error al cargar los datos'
                 ],
                 500
             );
         }
 
+    }
+
+    public function getCustomersTrackingReport(Request $request)
+    {
+        $request->validate([
+            'form' => 'required',
+            'form.numMinEnvios' => 'required',
+            'form.initDate' => 'required',
+            'form.finDate' => 'required',
+            'form.initDateWO' => 'required',
+            'form.finDateWO' => 'required',
+        ]);
+
+        try {
+            $form = $request->form;
+            $minOrders = $form['numMinEnvios'];
+
+            $initDateTime = new Carbon(date('Y-m-d', strtotime($form['initDate'])) . ' 00:00:00');
+            $finDateTime = new Carbon(date('Y-m-d', strtotime($form['finDate'])) . ' 23:59:59');
+
+            $initDateTimeWO = new Carbon(date('Y-m-d', strtotime($form['initDateWO'])) . ' 00:00:00');
+            $finDateTimeWO = new Carbon(date('Y-m-d', strtotime($form['finDateWO'])) . ' 23:59:59');
+
+            $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime]);
+
+            if ($orders->count() >= $minOrders) {
+                $customersArray = [];
+                foreach ($orders->get() as $order) {
+                    if (!in_array($order->delivery->cliente, $customersArray)) {
+                        array_push($customersArray, $order->delivery->cliente);
+                    }
+                }
+
+                $finalCustomersArray = [];
+
+                foreach ($customersArray as $customer) {
+                    $mydataObj = (object)array();
+                    $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                        ->whereBetween('fechaEntrega', [$initDateTimeWO, $finDateTimeWO])
+                        ->whereHas('delivery', function ($q) use ($customer) {
+                            $q->where('idCliente', $customer->idCliente);
+                        })->count();
+
+                    if ($orders == 0) {
+                        $mydataObj->customer = $customer;
+                        $mydataObj->lastOrder = Carbon::parse(DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                            ->whereHas('delivery', function ($q) use ($customer) {
+                                $q->where('idCliente', $customer->idCliente);
+                            })->max('fechaEntrega'))->format('Y-m-d');
+                        array_push($finalCustomersArray, $mydataObj);
+                    }
+
+                }
+
+                return response()
+                    ->json([
+                        'data' => $finalCustomersArray
+                    ]);
+            }
+
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), array(
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => $ex->getTrace()//'Ocurrió un error al cargar los datos'
+                ],
+                500
+            );
+        }
     }
 }
