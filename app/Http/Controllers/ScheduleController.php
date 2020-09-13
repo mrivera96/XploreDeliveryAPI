@@ -40,7 +40,7 @@ class ScheduleController extends Controller
     {
         $request->validate([
             'form' => 'required',
-            'form.descHorario' => 'required',
+            //'form.descHorario' => 'required',
             'form.scheduleId' => 'required',
             'form.inicio' => 'required',
             'form.final' => 'required',
@@ -51,14 +51,14 @@ class ScheduleController extends Controller
             $schId = $request->form['scheduleId'];
             $init = date('H:i', strtotime($request->form['inicio']));
             $fin = date('H:i', strtotime($request->form['final']));
-            $schDesc = $request->form['descHorario'];
+            //$schDesc = $request->form['descHorario'];
 
             $currSch = Schedule::where('idHorario', $schId);
             if(isset($request->form["idTarifaDelivery"])){
                 $currSch->update([
                     'inicio' => $init,
                     'final' => $fin,
-                    'descHorario' => $schDesc,
+                    'descHorario' => $request->form['descHorario'],
                     'cod' => $request->form["cod"],
                     'idTarifaDelivery' => $request->form["idTarifaDelivery"]
                 ]);
@@ -66,7 +66,7 @@ class ScheduleController extends Controller
                 $currSch->update([
                     'inicio' => $init,
                     'final' => $fin,
-                    'descHorario' => $schDesc
+                   // 'descHorario' => $schDesc
                 ]);
             }
 
