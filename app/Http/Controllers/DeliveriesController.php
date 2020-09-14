@@ -635,9 +635,13 @@ class DeliveriesController extends Controller
 
             $ordersInRange = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                 ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                ->where('idConductor', $driver)
-                ->count();
+                ->where('idConductor', $driver);
 
+            $ordersPrint = $ordersInRange->get();
+
+            foreach ($ordersPrint as $order){
+                $order->time = 10 + intval($order->tiempo) + 10;
+            }
 
             return response()->json(
                 [
@@ -647,7 +651,8 @@ class DeliveriesController extends Controller
                     'totalSurcharges' => $totalSurcharges,
                     'totalExtraCharges' => $totalExtraCharges,
                     'totalCosts' => $totalCosts,
-                    'ordersInRange' => $ordersInRange,
+                    'orders' => $ordersPrint,
+                    'ordersInRange' => $ordersInRange->count(),
                 ],
                 200
             );
@@ -659,7 +664,7 @@ class DeliveriesController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getTrace()//'Ocurrió un error al cargar los datos'
+                    'message' => 'Ocurrió un error al cargar los datos'
                 ],
                 500
             );

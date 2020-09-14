@@ -197,6 +197,14 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('new', 'DeliveryUsersController@newCustomer');
             Route::post('update', 'DeliveryUsersController@updateCustomer');
             Route::post('changePassword', 'DeliveryUsersController@changePassword');
+            Route::post('workLines', 'DeliveryUsersController@getCustomerWorkLines');
+        });
+
+        //Rutas Rubros
+        Route::group(['prefix' => 'workLines'], function () {
+            Route::post('get', 'WorkLinesController@list');
+            Route::post('addCustomer', 'WorkLinesController@addCustomer');
+            Route::post('removeCustomer', 'WorkLinesController@removeCustomer');
         });
 
     });

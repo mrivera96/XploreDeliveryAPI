@@ -14,4 +14,8 @@ class DeliveryWorkLine extends Model
         'isActivo',
         'fechaRegistro'
     ];
+
+    public function deliveryCustomerWorkLines(){
+        return $this->belongsTo('App\DeliveryCustomerWorkLines','idRubro','idRubro');
+    }
 }

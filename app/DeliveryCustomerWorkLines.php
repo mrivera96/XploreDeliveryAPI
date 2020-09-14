@@ -13,9 +13,8 @@ class DeliveryCustomerWorkLines extends Model
         'idCliente'
     ];
 
-
-    public function workLines(){
-        return $this->belongsTo('App\DeliveryClient', 'idCliente', 'idCliente');
+    public function workLine(){
+        return $this->hasOne('App\DeliveryWorkLine', 'idRubro', 'idRubro');
     }
 
 }

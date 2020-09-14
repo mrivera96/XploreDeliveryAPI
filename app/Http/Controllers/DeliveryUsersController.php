@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\DeliveryClient;
+use App\DeliveryCustomerWorkLines;
 use App\DetalleDelivery;
 use App\User;
 use App\Payment;
@@ -35,6 +36,37 @@ class DeliveryUsersController extends Controller
                     'error' => 1,
                     'message' => 'Ocurrió un error al cargar los datos'
                 ], 500);
+        }
+    }
+
+    public function getCustomerWorkLines(Request $request){
+        try {
+            $request->validate([
+                'customerId' => 'required'
+            ]);
+
+            $customerWL = DeliveryCustomerWorkLines::with('workLine')
+                ->where('idCliente', $request->customerId)
+                ->get();
+
+            return response()
+                ->json([
+                    'error' => 0,
+                    'data' => $customerWL
+                ], 200);
+
+        }catch (\Exception $ex){
+            Log::error($ex->getMessage(), array(
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => $ex->getMessage()//'Ocurrió un error al cargar los datos'
+                ],
+                500
+            );
         }
     }
 
