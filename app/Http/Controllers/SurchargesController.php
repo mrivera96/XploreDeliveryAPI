@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\CustomerSurcharges;
 use App\RecargoDelivery;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -118,9 +120,32 @@ class SurchargesController extends Controller
             $currsurcharge->kilomMinimo = $klmin;
             $currsurcharge->kilomMaximo = $klmax;
             $currsurcharge->monto = $monto;
-            $currsurcharge->idCliente = $cliente;
+            if ($request->form['idCliente'] == 1) {
+                $currsurcharge->idCliente = 1;
+            }
             $currsurcharge->idCategoria = $category;
             $currsurcharge->save();
+
+            $lastIndex = RecargoDelivery::query()->max('idRecargo');
+
+            if (isset($request->customers)) {
+                $customers = $request->customers;
+                if (sizeof($customers) > 0) {
+                    for ($i = 0; $i < sizeof($customers); $i++) {
+                        $exists = CustomerSurcharges::where('idRecargo', $lastIndex)
+                            ->where('idCliente',$customers[$i]['idCliente'])
+                            ->count();
+
+                        if ($exists == 0) {
+                            $nCustSurcharge = new CustomerSurcharges();
+                            $nCustSurcharge->idRecargo = $lastIndex;
+                            $nCustSurcharge->idCliente = $customers[$i]['idCliente'];
+                            $nCustSurcharge->fechaRegistro = Carbon::now();
+                            $nCustSurcharge->save();
+                        }
+                    }
+                }
+            }
 
             return response()->json([
                 'error' => 0,
@@ -131,6 +156,100 @@ class SurchargesController extends Controller
             return response()->json([
                 'error' => 1,
                 'message' => 'Error al agregar el recargo.'
+            ], 500);
+        }
+    }
+
+    public function addCustomer(Request $request)
+    {
+        $request->validate([
+            'idCliente' => 'required',
+            'idRecargo' => 'required'
+        ]);
+
+        $customerId = $request->idCliente;
+        $surchargeId = $request->idRecargo;
+        try {
+            $exists = CustomerSurcharges::where('idRecargo', $surchargeId)
+                ->where('idCliente', $customerId)
+                ->count();
+
+            if ($exists == 0) {
+                $nCustSurcharge = new CustomerSurcharges();
+                $nCustSurcharge->idRecargo = $surchargeId;
+                $nCustSurcharge->idCliente = $customerId;
+                $nCustSurcharge->fechaRegistro = Carbon::now();
+                $nCustSurcharge->save();
+
+                return response()->json([
+                    'error' => 0,
+                    'message' => 'El recargo ha sido asignado correctamente'
+                ], 200);
+
+            } else {
+                return response()->json([
+                    'error' => 1,
+                    'message' => 'El cliente ya tiene asignado este recargo'
+                ], 500);
+            }
+
+
+        } catch (\Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json([
+                'error' => 1,
+                'message' => 'Ha ocurrido un error al agregar el cliente'
+            ], 500);
+        }
+    }
+
+    public function removeCustomer(Request $request)
+    {
+        $request->validate([
+            'idCliente' => 'required',
+            'idRecargo' => 'required'
+        ]);
+
+        $customerId = $request->idCliente;
+        $surchargeId = $request->idRecargo;
+        try {
+            CustomerSurcharges::where('idRecargo', $surchargeId)
+                ->where('idCliente', $customerId)
+                ->delete();
+
+            return response()->json([
+                'error' => 0,
+                'message' => 'Cliente eliminado del recargo correctamente'
+            ], 200);
+        } catch (\Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json([
+                'error' => 1,
+                'message' => 'Error al eliminar el cliente.'
+            ], 500);
+        }
+    }
+
+    public function getCustomers(Request $request)
+    {
+        $request->validate([
+            'idRecargo' => 'required'
+        ]);
+        $surchargeId = $request->idRecargo;
+        try {
+            $surchargeCustomers = CustomerSurcharges::with('customer')
+                ->where('idRecargo', $surchargeId)
+                ->get();
+
+            return response()->json([
+                'error' => 0,
+                'data' => $surchargeCustomers
+            ], 200);
+        } catch (\Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json([
+                'error' => 1,
+                'message' => 'Error al cargar los clientes del recargo.'
             ], 500);
         }
     }

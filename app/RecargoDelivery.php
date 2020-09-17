@@ -9,13 +9,20 @@ class RecargoDelivery extends Model
     protected $table = 'clsRecargosDelivery';
     protected $primaryKey = 'idRecargo';
     public $timestamps = false;
-    protected $fillable = ['kilomMinimo', 'kilomMaximo', 'monto', 'idCliente','idCategoria'];
+    protected $fillable = ['kilomMinimo', 'kilomMaximo', 'monto', 'idCliente', 'idCategoria'];
 
-    public function customer(){
+    public function customer()
+    {
         return $this->belongsTo('App\DeliveryClient', 'idCliente', 'idCliente');
     }
 
-    public function category(){
+    public function category()
+    {
         return $this->belongsTo('App\Category', 'idCategoria', 'idCategoria');
+    }
+
+    public function customerSurcharges()
+    {
+        return $this->belongsTo('App\CustomerSurcharges', 'idRecargo', 'idRecargo');
     }
 }

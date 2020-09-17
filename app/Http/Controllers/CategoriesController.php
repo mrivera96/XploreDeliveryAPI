@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Category;
+use App\CustomerSurcharges;
 use App\RateCustomer;
+use App\RecargoDelivery;
 use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
@@ -62,14 +64,13 @@ class CategoriesController extends Controller
                 $onlyConsolidated = RateCustomer::where('idCliente', $currCust)
                     ->whereHas('rate', function ($q) {
                         $q->where('idTipoTarifa', 2)
-                        ->orWhere('idTipoTarifa',4);
-                    })->count();
+                            ->orWhere('idTipoTarifa', 4);
+                    })
+                    ->count();
 
                 if ($onlyConsolidated == $tarCust->count()) {
 
-                    $categories = Category::with([
-                        'surcharges'])
-                        ->where('isActivo', 1)
+                    $categories = Category::where('isActivo', 1)
                         ->orderBy('orden')
                         ->get();
 
@@ -104,8 +105,7 @@ class CategoriesController extends Controller
                     $consolidatedCategories = Category::with([
                         'rate.schedules',
                         'rate.rateDetail',
-                        'rate.consolidatedDetail',
-                        'surcharges'])
+                        'rate.consolidatedDetail'])
                         ->where('isActivo', 1)
                         ->whereIn('idCategoria', $idArray)
                         ->orderBy('orden')
@@ -114,8 +114,7 @@ class CategoriesController extends Controller
                     $consolidatedForeignCategories = Category::with([
                         'rate.schedules',
                         'rate.rateDetail',
-                        'rate.consolidatedDetail',
-                        'surcharges'])
+                        'rate.consolidatedDetail'])
                         ->where('isActivo', 1)
                         ->whereIn('idCategoria', $idArrayCF)
                         ->orderBy('orden')
@@ -132,7 +131,7 @@ class CategoriesController extends Controller
                         'rate.schedules',
                         'rate.rateDetail',
                         'rate.consolidatedDetail',
-                        'surcharges'])
+                    ])
                         ->where('isActivo', 1)
                         ->whereIn('idCategoria', $idArray)
                         ->orderBy('orden')->get();
@@ -146,18 +145,18 @@ class CategoriesController extends Controller
                         ->whereHas('rate', function ($q) {
                             $q->where('idTipoTarifa', 4);
                         })->get();
+
                     $idArray = [];
                     if ($consolidatedRates->count() > 0) {
-
                         foreach ($consolidatedRates as $item) {
                             if (!in_array($item->rate->idCategoria, $idArray) && $item->rate->idTipoTarifa == 2) {
                                 array_push($idArray, $item->rate->idCategoria);
                             }
                         }
                     }
+
                     $idArrayF = [];
                     if ($consolidatedForeignRates->count() > 0) {
-
                         foreach ($consolidatedForeignRates as $item) {
                             if (!in_array($item->rate->idCategoria, $idArrayF) && $item->rate->idTipoTarifa == 4) {
                                 array_push($idArrayF, $item->rate->idCategoria);
@@ -168,8 +167,7 @@ class CategoriesController extends Controller
                     $consolidatedCategories = Category::with([
                         'rate.schedules',
                         'rate.rateDetail',
-                        'rate.consolidatedDetail',
-                        'surcharges'])
+                        'rate.consolidatedDetail'])
                         ->where('isActivo', 1)
                         ->whereIn('idCategoria', $idArray)
                         ->orderBy('orden')->get();
@@ -177,20 +175,35 @@ class CategoriesController extends Controller
                     $consolidatedForeignCategories = Category::with([
                         'rate.schedules',
                         'rate.rateDetail',
-                        'rate.consolidatedDetail',
-                        'surcharges'])
+                        'rate.consolidatedDetail'])
                         ->where('isActivo', 1)
                         ->whereIn('idCategoria', $idArrayF)
                         ->orderBy('orden')->get();
                 }
 
                 foreach ($consolidatedCategories as $category) {
-                    $category->categoryExtraCharges = $category->categoryExtraCharges()->whereHas('extraCharge', function ($q) {
-                        $q->where('tipoCargo', 'F');
-                    })->get();
+                    $category->categoryExtraCharges = $category->categoryExtraCharges()
+                        ->whereHas('extraCharge', function ($q) {
+                            $q->where('tipoCargo', 'F');
+                        })
+                        ->get();
 
-                    foreach($category->categoryExtraCharges as $cEC){
+                    foreach ($category->categoryExtraCharges as $cEC) {
                         $cEC->extraCharge->options;
+                    }
+
+                    $customerSurcharges = RecargoDelivery::where('idCategoria', $category->idCategoria)
+                        ->whereHas('customerSurcharges', function ($q) use ($currCust) {
+                            $q->where('idCliente', $currCust);
+                        });
+
+                    if ($customerSurcharges->count() > 0) {
+                        $category->surcharges = $customerSurcharges->get();
+                    } else {
+                        $category->surcharges = RecargoDelivery::where(
+                            'idCategoria', $category->idCategoria)
+                            ->where('idCliente', 1)
+                            ->get();
                     }
 
                     $rates = $category->rate;
@@ -251,7 +264,7 @@ class CategoriesController extends Controller
                                 }
 
                             }
-                            if($rate->idTipoTarifa == 2){
+                            if ($rate->idTipoTarifa == 2) {
                                 array_push($ratesToShow, $rate);
                             }
 
@@ -262,23 +275,23 @@ class CategoriesController extends Controller
                             $dates[] = $my_object->date; //any object field
                         }
 
-                        foreach($datesToShow as $date){
-                            $hoursToShow = [] ;
-                            foreach($rate->schedules as $schedule){
+                        foreach ($datesToShow as $date) {
+                            $hoursToShow = [];
+                            foreach ($rate->schedules as $schedule) {
                                 if ($schedule->cod == $date->cod) {
 
-                                    $hour = (object) array();
-                                    $hour->hour = Carbon::parse('2020-8-18 '. $schedule->inicio)->format('H:i');
-                                    $hour->label =  Carbon::parse('2020-8-18 '. $schedule->inicio)->format('h:i a');
+                                    $hour = (object)array();
+                                    $hour->hour = Carbon::parse('2020-8-18 ' . $schedule->inicio)->format('H:i');
+                                    $hour->label = Carbon::parse('2020-8-18 ' . $schedule->inicio)->format('h:i a');
 
-                                    $datetime = $date->date. ' '. $hour->hour;
+                                    $datetime = $date->date . ' ' . $hour->hour;
                                     $currentDateTime = Carbon::now();
 
                                     if ($datetime >= $currentDateTime) {
                                         array_push($hoursToShow, $hour);
                                     }
 
-                                  }
+                                }
                             }
                             $date->hoursToShow = $hoursToShow;
                         }
@@ -292,12 +305,27 @@ class CategoriesController extends Controller
                 }
 
                 foreach ($consolidatedForeignCategories as $category) {
-                    $category->categoryExtraCharges = $category->categoryExtraCharges()->whereHas('extraCharge', function ($q) {
-                        $q->where('tipoCargo', 'F');
-                    })->get();
+                    $category->categoryExtraCharges = $category->categoryExtraCharges()
+                        ->whereHas('extraCharge', function ($q) {
+                            $q->where('tipoCargo', 'F');
+                        })->get();
 
-                    foreach($category->categoryExtraCharges as $cEC){
+                    foreach ($category->categoryExtraCharges as $cEC) {
                         $cEC->extraCharge->options;
+                    }
+
+                    $customerSurcharges = RecargoDelivery::where('idCategoria', $category->idCategoria)
+                        ->whereHas('customerSurcharges', function ($q) use ($currCust) {
+                            $q->where('idCliente', $currCust);
+                        });
+
+                    if ($customerSurcharges->count() > 0) {
+                        $category->surcharges = $customerSurcharges->get();
+                    } else {
+                        $category->surcharges = RecargoDelivery::where(
+                            'idCategoria', $category->idCategoria)
+                            ->where('idCliente', 1)
+                            ->get();
                     }
 
                     $rates = $category->rate;
@@ -358,7 +386,7 @@ class CategoriesController extends Controller
                                 }
 
                             }
-                            if($rate->idTipoTarifa == 4){
+                            if ($rate->idTipoTarifa == 4) {
                                 array_push($ratesToShow, $rate);
                             }
 
@@ -369,16 +397,16 @@ class CategoriesController extends Controller
                             $dates[] = $my_object->date; //any object field
                         }
 
-                        foreach($datesToShow as $date){
-                            $hoursToShow = [] ;
-                            foreach($rate->schedules as $schedule){
+                        foreach ($datesToShow as $date) {
+                            $hoursToShow = [];
+                            foreach ($rate->schedules as $schedule) {
                                 if ($schedule->cod == $date->cod) {
 
-                                    $hour = (object) array();
-                                    $hour->hour = Carbon::parse('2020-8-18 '. $schedule->inicio)->format('H:i');
-                                    $hour->label =  Carbon::parse('2020-8-18 '. $schedule->inicio)->format('h:i a');
+                                    $hour = (object)array();
+                                    $hour->hour = Carbon::parse('2020-8-18 ' . $schedule->inicio)->format('H:i');
+                                    $hour->label = Carbon::parse('2020-8-18 ' . $schedule->inicio)->format('h:i a');
 
-                                    $datetime = $date->date. ' '. $hour->hour;
+                                    $datetime = $date->date . ' ' . $hour->hour;
                                     $currentDateTime = Carbon::now();
 
                                     if ($datetime >= $currentDateTime) {
@@ -395,31 +423,36 @@ class CategoriesController extends Controller
 
                     }
                     $category->ratesToShow = $ratesToShow;
-
                 }
 
-                foreach($categories as $category){
-                    $category->categoryExtraCharges = $category->categoryExtraCharges()->whereHas('extraCharge', function ($q) {
-                        $q->where('tipoCargo', 'F');
-                    })->get();
+                foreach ($categories as $category) {
+                    $category->categoryExtraCharges = $category->categoryExtraCharges()
+                        ->whereHas('extraCharge', function ($q) {
+                            $q->where('tipoCargo', 'F');
+                        })
+                        ->get();
 
-                    foreach($category->categoryExtraCharges as $cEC){
+                    $customerSurcharges = RecargoDelivery::where('idCategoria', $category->idCategoria)
+                        ->whereHas('customerSurcharges', function ($q) use ($currCust) {
+                            $q->where('idCliente', $currCust);
+                        });
+
+                    if ($customerSurcharges->count() > 0) {
+                        $category->surcharges = $customerSurcharges->get();
+                    } else {
+                        $category->surcharges = RecargoDelivery::where(
+                            'idCategoria', $category->idCategoria)
+                            ->where('idCliente', 1)
+                            ->get();
+                    }
+
+                    foreach ($category->categoryExtraCharges as $cEC) {
                         $cEC->extraCharge->options;
                     }
                 }
 
-                return response()->json([
-                    'error' => 0,
-                    'data' => $categories,
-                    'consolidatedCategories' => $consolidatedCategories,
-                    'consolidatedForeignCategories' => $consolidatedForeignCategories
-                ], 200);
-
-
             } else {
-                $categories = Category::with([
-                    'surcharges'])
-                    ->where('isActivo', 1)
+                $categories = Category::where('isActivo', 1)
                     ->orderBy('orden')
                     ->get();
 
@@ -434,7 +467,7 @@ class CategoriesController extends Controller
                 $idArray = [];
                 if ($consolidatedRates->count() > 0) {
                     foreach ($consolidatedRates as $item) {
-                        if (!in_array($item->rate->idCategoria, $idArray) && $item->rate->idTipoTarifa  == 2) {
+                        if (!in_array($item->rate->idCategoria, $idArray) && $item->rate->idTipoTarifa == 2) {
                             array_push($idArray, $item->rate->idCategoria);
                         }
                     }
@@ -443,7 +476,7 @@ class CategoriesController extends Controller
                 $idArrayF = [];
                 if ($consolidatedRates->count() > 0) {
                     foreach ($consolidatedForeignRates as $item) {
-                        if (!in_array($item->rate->idCategoria, $idArrayF) && $item->rate->idTipoTarifa  == 4) {
+                        if (!in_array($item->rate->idCategoria, $idArrayF) && $item->rate->idTipoTarifa == 4) {
                             array_push($idArrayF, $item->rate->idCategoria);
                         }
                     }
@@ -452,8 +485,7 @@ class CategoriesController extends Controller
                 $consolidatedCategories = Category::with([
                     'rate.schedules',
                     'rate.rateDetail',
-                    'rate.consolidatedDetail',
-                    'surcharges'])
+                    'rate.consolidatedDetail'])
                     ->where('isActivo', 1)
                     ->whereIn('idCategoria', $idArray)
                     ->orderBy('orden')
@@ -462,8 +494,7 @@ class CategoriesController extends Controller
                 $consolidatedForeignCategories = Category::with([
                     'rate.schedules',
                     'rate.rateDetail',
-                    'rate.consolidatedDetail',
-                    'surcharges'])
+                    'rate.consolidatedDetail'])
                     ->where('isActivo', 1)
                     ->whereIn('idCategoria', $idArrayF)
                     ->orderBy('orden')
@@ -476,8 +507,22 @@ class CategoriesController extends Controller
                         $q->where('tipoCargo', 'F');
                     })->get();
 
-                    foreach($category->categoryExtraCharges as $cEC){
+                    foreach ($category->categoryExtraCharges as $cEC) {
                         $cEC->extraCharge->options;
+                    }
+
+                    $customerSurcharges = RecargoDelivery::where('idCategoria', $category->idCategoria)
+                        ->whereHas('customerSurcharges', function ($q) use ($currCust) {
+                            $q->where('idCliente', $currCust);
+                        });
+
+                    if ($customerSurcharges->count() > 0) {
+                        $category->surcharges = $customerSurcharges->get();
+                    } else {
+                        $category->surcharges = RecargoDelivery::where(
+                            'idCategoria', $category->idCategoria)
+                            ->where('idCliente', 1)
+                            ->get();
                     }
 
                     foreach ($rates as $rate) {
@@ -539,23 +584,23 @@ class CategoriesController extends Controller
                             $dates[] = $my_object->date; //any object field
                         }
 
-                        foreach($datesToShow as $date){
-                            $hoursToShow = [] ;
-                            foreach($rate->schedules as $schedule){
+                        foreach ($datesToShow as $date) {
+                            $hoursToShow = [];
+                            foreach ($rate->schedules as $schedule) {
                                 if ($schedule->cod == $date->cod) {
 
-                                    $hour = (object) array();
-                                    $hour->hour = Carbon::parse('2020-8-18 '. $schedule->inicio)->format('H:i');
-                                    $hour->label =  Carbon::parse('2020-8-18 '. $schedule->inicio)->format('h:i a');
+                                    $hour = (object)array();
+                                    $hour->hour = Carbon::parse('2020-8-18 ' . $schedule->inicio)->format('H:i');
+                                    $hour->label = Carbon::parse('2020-8-18 ' . $schedule->inicio)->format('h:i a');
 
-                                    $datetime = $date->date. ' '. $hour->hour;
+                                    $datetime = $date->date . ' ' . $hour->hour;
                                     $currentDateTime = Carbon::now();
 
                                     if ($datetime >= $currentDateTime) {
                                         array_push($hoursToShow, $hour);
                                     }
 
-                                  }
+                                }
                             }
                             $date->hoursToShow = $hoursToShow;
                         }
@@ -571,12 +616,27 @@ class CategoriesController extends Controller
                 foreach ($consolidatedForeignCategories as $category) {
                     $rates = $category->rate;
                     $ratesToShow = [];
-                    $category->categoryExtraCharges = $category->categoryExtraCharges()->whereHas('extraCharge', function ($q) {
-                        $q->where('tipoCargo', 'F');
-                    })->get();
+                    $category->categoryExtraCharges = $category->categoryExtraCharges()
+                        ->whereHas('extraCharge', function ($q) {
+                            $q->where('tipoCargo', 'F');
+                        })->get();
 
-                    foreach($category->categoryExtraCharges as $cEC){
+                    foreach ($category->categoryExtraCharges as $cEC) {
                         $cEC->extraCharge->options;
+                    }
+
+                    $customerSurcharges = RecargoDelivery::where('idCategoria', $category->idCategoria)
+                        ->whereHas('customerSurcharges', function ($q) use ($currCust) {
+                            $q->where('idCliente', $currCust);
+                        });
+
+                    if ($customerSurcharges->count() > 0) {
+                        $category->surcharges = $customerSurcharges->get();
+                    } else {
+                        $category->surcharges = RecargoDelivery::where(
+                            'idCategoria', $category->idCategoria)
+                            ->where('idCliente', 1)
+                            ->get();
                     }
 
                     foreach ($rates as $rate) {
@@ -638,16 +698,16 @@ class CategoriesController extends Controller
                             $dates[] = $my_object->date; //any object field
                         }
 
-                        foreach($datesToShow as $date){
-                            $hoursToShow = [] ;
-                            foreach($rate->schedules as $schedule){
+                        foreach ($datesToShow as $date) {
+                            $hoursToShow = [];
+                            foreach ($rate->schedules as $schedule) {
                                 if ($schedule->cod == $date->cod) {
 
-                                    $hour = (object) array();
-                                    $hour->hour = Carbon::parse('2020-8-18 '. $schedule->inicio)->format('H:i');
-                                    $hour->label =  Carbon::parse('2020-8-18 '. $schedule->inicio)->format('h:i a');
+                                    $hour = (object)array();
+                                    $hour->hour = Carbon::parse('2020-8-18 ' . $schedule->inicio)->format('H:i');
+                                    $hour->label = Carbon::parse('2020-8-18 ' . $schedule->inicio)->format('h:i a');
 
-                                    $datetime = $date->date. ' '. $hour->hour;
+                                    $datetime = $date->date . ' ' . $hour->hour;
                                     $currentDateTime = Carbon::now();
 
                                     if ($datetime >= $currentDateTime) {
@@ -667,24 +727,41 @@ class CategoriesController extends Controller
 
                 }
 
-                foreach($categories as $category){
-                    $category->categoryExtraCharges = $category->categoryExtraCharges()->whereHas('extraCharge', function ($q) {
-                        $q->where('tipoCargo', 'F');
-                    })->get();
+                foreach ($categories as $category) {
+                    $category->categoryExtraCharges = $category->categoryExtraCharges()
+                        ->whereHas('extraCharge', function ($q) {
+                            $q->where('tipoCargo', 'F');
+                        })
+                        ->get();
 
-                    foreach($category->categoryExtraCharges as $cEC){
+                    $customerSurcharges = RecargoDelivery::where('idCategoria', $category->idCategoria)
+                        ->whereHas('customerSurcharges', function ($q) use ($currCust) {
+                            $q->where('idCliente', $currCust);
+                        });
+
+                    if ($customerSurcharges->count() > 0) {
+                        $category->surcharges = $customerSurcharges->get();
+                    } else {
+                        $category->surcharges = RecargoDelivery::where(
+                            'idCategoria', $category->idCategoria)
+                            ->where('idCliente', 1)
+                            ->get();
+                    }
+
+                    foreach ($category->categoryExtraCharges as $cEC) {
                         $cEC->extraCharge->options;
                     }
 
                 }
-                return response()->json([
-                    'error' => 0,
-                    'data' => $categories,
-                    'consolidatedCategories' => $consolidatedCategories,
-                    'consolidatedForeignCategories' => $consolidatedForeignCategories
-                ], 200);
 
             }
+
+            return response()->json([
+                'error' => 0,
+                'data' => $categories,
+                'consolidatedCategories' => $consolidatedCategories,
+                'consolidatedForeignCategories' => $consolidatedForeignCategories
+            ], 200);
 
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);

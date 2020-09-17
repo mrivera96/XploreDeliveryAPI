@@ -144,6 +144,10 @@ Route::group(['prefix' => 'admins'], function () {
         Route::group(['prefix' => 'surcharges'], function () {
             Route::post('update', 'SurchargesController@updateSurcharge');
             Route::post('create', 'SurchargesController@createSurcharge');
+            Route::post('addCustomer', 'SurchargesController@addCustomer');
+            Route::post('removeCustomer', 'SurchargesController@removeCustomer');
+            Route::post('getCustomers', 'SurchargesController@getCustomers');
+
         });
 
         //Rutas Categorias

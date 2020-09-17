@@ -34,20 +34,23 @@ class DeliveryClient extends Model
         return $this->hasMany('App\Tarifa', 'idCliente', 'idCliente');
     }
 
-    public function surcharges()
+    public function payments()
     {
-        return $this->hasMany('App\RecargoDelivery', 'idCliente', 'idCliente');
-    }
-
-    public function payments(){
         return $this->hasMany('App\Payment', 'idCliente', 'idCliente');
     }
 
-    public function deliveries(){
+    public function deliveries()
+    {
         return $this->hasMany('App\Delivery', 'idCliente', 'idCliente');
     }
 
-    public function workLines(){
+    public function workLines()
+    {
         return $this->hasMany('App\DeliveryCustomerWorkLines', 'idCliente', 'idCliente');
+    }
+
+    public function surcharges()
+    {
+        return $this->belongsTo('App\CustomerSurcharges', 'idCliente', 'idCliente');
     }
 }
