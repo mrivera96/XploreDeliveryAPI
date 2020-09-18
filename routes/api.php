@@ -207,10 +207,11 @@ Route::group(['prefix' => 'admins'], function () {
         //Rutas Rubros
         Route::group(['prefix' => 'workLines'], function () {
             Route::post('get', 'WorkLinesController@list');
+            Route::post('getAll', 'WorkLinesController@listAll');
             Route::post('addCustomer', 'WorkLinesController@addCustomer');
             Route::post('removeCustomer', 'WorkLinesController@removeCustomer');
-            Route::post('update', 'WorkLinesController@createWorkLine');
-            Route::post('create', 'WorkLinesController@updateWorkLine');
+            Route::post('update', 'WorkLinesController@updateWorkLine');
+            Route::post('create', 'WorkLinesController@createWorkLine');
         
         });
 

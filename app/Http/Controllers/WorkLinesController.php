@@ -40,6 +40,34 @@ class WorkLinesController extends Controller
         }
     }
 
+    public function listAll()
+    {
+        try {
+            $workLines = DeliveryWorkLine::all();
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => $workLines
+                ],
+                200
+            );
+
+        } catch (\Exception $ex) {
+            Log::error($ex->getMessage(), array(
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => 'Ocurrió un error al cargar los datos'
+                ],
+                500
+            );
+        }
+    }
+
     public function addCustomer(Request $request)
     {
         $request->validate([
@@ -150,7 +178,7 @@ class WorkLinesController extends Controller
         }
     }
 
-    public function updateCategory(Request $request)
+    public function updateWorkLine(Request $request)
     {
         $request->validate(
             [
