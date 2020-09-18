@@ -7,6 +7,8 @@ use App\DeliveryWorkLine;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
+use Exception;
 
 class WorkLinesController extends Controller
 {
@@ -110,6 +112,77 @@ class WorkLinesController extends Controller
                 [
                     'error' => 1,
                     'message' => 'Ocurrió un error al eliminar el rubro'
+                ],
+                500
+            );
+        }
+    }
+
+    public function createWorkLine(Request $request)
+    {
+        $request->validate(
+            [
+                'form' => 'required',
+                'form.nomRubro' => 'required',
+                'form.descRubro' => 'required'
+            ]
+        );
+        $rWL = $request->form;
+        try {
+            $nWorkLine = new DeliveryWorkLine();
+            $nWorkLine->nomRubro = $rWL['nomRubro'];
+            $nWorkLine->descRubro = $rWL['descRubro'];
+            $nWorkLine->fechaRegistro = Carbon::now();
+            $nWorkLine->isActivo = 1;
+            $nWorkLine->save();
+
+            return response()->json([
+                'error' => 0,
+                'message' => 'Rubro agregado correctamente.'
+            ], 200);
+
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json([
+                'error' => 1,
+                'message' => 'Error al agregar el rubro.'
+            ], 500);
+        }
+    }
+
+    public function updateCategory(Request $request)
+    {
+        $request->validate(
+            [
+                'form' => 'required',
+                'form.idRubro' => 'required',
+                'form.nomRubro' => 'required',
+                'form.descRubro' => 'required'
+            ]
+        );
+        $idWL = $request->form["idRubro"];
+        
+        try {
+            $currWL = DeliveryWorkLine::where('idRubro', $idWL);
+            $currWL->update([
+                'nomRubro' => $request->form["nomRubro"],
+                'descRubro' => $request->form["descRubro"],
+                'isActivo' => $request->form['isActivo']
+            ]);
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'message' => 'Rubro actualizado correctamente.'
+                ],
+                200
+            );
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => 'Error al actualizar el rubro.'
                 ],
                 500
             );

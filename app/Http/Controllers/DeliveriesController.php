@@ -400,352 +400,405 @@ class DeliveriesController extends Controller
 
         $initDate = date('Y-m-d', strtotime($form['initDate']));
         $finDate = date('Y-m-d', strtotime($form['finDate']));
-        $isSameDay = $initDate == $finDate;
         $initDateTime = new Carbon(date('Y-m-d', strtotime($form['initDate'])) . ' 00:00:00');
         $finDateTime = new Carbon(date('Y-m-d', strtotime($form['finDate'])) . ' 23:59:59');
 
         try {
             $outputData = [];
 
-            /*if ($driver == -1 && $isSameDay) {
+            if ($driver == -1) {
+                $drivers = User::where('idPerfil', 7)->get();
                 $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->orderBy('fechaEntrega', 'desc')->get()
+                    ->groupBy(function ($val) {
+                        return Carbon::parse($val->fechaEntrega)->format('Y-m-d');
+                    });
+
+                foreach ($drivers as $driver) {
+                    foreach ($orders as $order) {
+                        for ($i = 0; $i < sizeof($order); $i++) {
+                            if ($driver->idUsuario == $order[$i]->idConductor) {
+                                $dataObj = (object)array();
+                                $dataObj->driver = $driver->nomUsuario;
+                                $dataObj->fecha = Carbon::parse($order[$i]->fechaEntrega)->format('Y-m-d');
+                                $initDateTime = new Carbon(date('Y-m-d', strtotime($dataObj->fecha)) . ' 00:00:00');
+                                $finDateTime = new Carbon(date('Y-m-d', strtotime($dataObj->fecha)) . ' 23:59:59');
+
+                                $dataObj->moto = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                                    ->where([
+                                        'idConductor' => $order[$i]->idConductor,
+                                    ])
+                                    ->whereDate('fechaEntrega', $dataObj->fecha)
+                                    ->whereHas('delivery', function ($q) {
+                                        $q->where('idCategoria', 6);
+                                    })
+                                    ->count();
+
+                                $motoTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                                    ->where([
+                                        'idConductor' => $order[$i]->idConductor,
+                                    ])
+                                    ->whereDate('fechaEntrega', $dataObj->fecha)
+                                    ->whereHas('delivery', function ($q) {
+                                        $q->where('idCategoria', 6);
+                                    })
+                                    ->get('tiempo');
+
+                                $tCounter = 0;
+                                foreach ($motoTime as $time) {
+                                    $time->tiempo = 10 + intval($time->tiempo) + 10;
+                                    $tCounter = $tCounter + intval($time->tiempo);
+                                }
+                                $dataObj->motoTime = $tCounter;
+
+                                $dataObj->turismo = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                                    ->where([
+                                        'idConductor' => $order[$i]->idConductor,
+                                    ])
+                                    ->whereDate('fechaEntrega', $dataObj->fecha)
+                                    ->whereHas('delivery', function ($q) {
+                                        $q->where('idCategoria', 1);
+                                    })
+                                    ->count();
+
+                                $turismoTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                                    ->where([
+                                        'idConductor' => $order[$i]->idConductor,
+                                    ])
+                                    ->whereDate('fechaEntrega', $dataObj->fecha)
+                                    ->whereHas('delivery', function ($q) {
+                                        $q->where('idCategoria', 1);
+                                    })
+                                    ->get('tiempo');
+
+
+                                $tCounterT = 0;
+                                foreach ($turismoTime as $time) {
+                                    $time->tiempo = 10 + intval($time->tiempo) + 10;
+                                    $tCounterT = $tCounterT + intval($time->tiempo);
+                                }
+                                $dataObj->turismoTime = $tCounterT;
+
+                                $dataObj->pickup = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                                    ->where([
+                                        'idConductor' => $order[$i]->idConductor,
+                                    ])
+                                    ->whereDate('fechaEntrega', $dataObj->fecha)
+                                    ->whereHas('delivery', function ($q) {
+                                        $q->where('idCategoria', 2);
+                                    })
+                                    ->count();
+
+                                $pickUpTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                                    ->where([
+                                        'idConductor' => $order[$i]->idConductor,
+                                    ])
+                                    ->whereDate('fechaEntrega', $dataObj->fecha)
+                                    ->whereHas('delivery', function ($q) {
+                                        $q->where('idCategoria', 2);
+                                    })
+                                    ->get('tiempo');
+
+                                $tCounterP = 0;
+                                foreach ($pickUpTime as $time) {
+                                    $time->tiempo = 10 + intval($time->tiempo) + 10;
+                                    $tCounterP = $tCounterP + intval($time->tiempo);
+                                }
+                                $dataObj->pickupTime = $tCounterP;
+
+                                $dataObj->panel = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                                    ->where([
+                                        'idConductor' => $order[$i]->idConductor,
+                                    ])
+                                    ->whereDate('fechaEntrega', $dataObj->fecha)
+                                    ->whereHas('delivery', function ($q) {
+                                        $q->where('idCategoria', 3);
+                                    })
+                                    ->count();
+
+                                $panelTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                                    ->where([
+                                        'idConductor' => $order[$i]->idConductor,
+                                    ])
+                                    ->whereDate('fechaEntrega', $dataObj->fecha)
+                                    ->whereHas('delivery', function ($q) {
+                                        $q->where('idCategoria', 3);
+                                    })
+                                    ->get('tiempo');
+
+                                $tCounterPnl = 0;
+                                foreach ($panelTime as $time) {
+                                    $time->tiempo = 10 + intval($time->tiempo) + 10;
+                                    $tCounterPnl = $tCounterPnl + intval($time->tiempo);
+                                }
+                                $dataObj->panelTime = $tCounterPnl;
+
+                                $dataObj->pickupAuxiliar = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                                    ->where([
+                                        'idConductor' => $order[$i]->idConductor,
+                                    ])
+                                    ->whereDate('fechaEntrega', $dataObj->fecha)
+                                    ->whereHas('delivery', function ($q) {
+                                        $q->where('idCategoria', 4);
+                                    })
+                                    ->count();
+
+                                $pickUpAuxiliarTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                                    ->where([
+                                        'idConductor' => $order[$i]->idConductor,
+                                    ])
+                                    ->whereDate('fechaEntrega', $dataObj->fecha)
+                                    ->whereHas('delivery', function ($q) {
+                                        $q->where('idCategoria', 4);
+                                    })
+                                    ->get('tiempo');
+
+                                $tCounterPckAux = 0;
+                                foreach ($pickUpAuxiliarTime as $time) {
+                                    $time->tiempo = 10 + intval($time->tiempo) + 10;
+                                    $tCounterPckAux = $tCounterPckAux + intval($time->tiempo);
+                                }
+                                $dataObj->pickupAuxiliarTime = $tCounterPckAux;
+
+
+                                $dataObj->panelAuxiliar = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                                    ->where([
+                                        'idConductor' => $order[$i]->idConductor,
+                                    ])
+                                    ->whereDate('fechaEntrega', $dataObj->fecha)
+                                    ->whereHas('delivery', function ($q) {
+                                        $q->where('idCategoria', 5);
+                                    })
+                                    ->count();
+
+                                $panelAuxiliarTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                                    ->where([
+                                        'idConductor' => $order[$i]->idConductor,
+                                    ])
+                                    ->whereDate('fechaEntrega', $dataObj->fecha)
+                                    ->whereHas('delivery', function ($q) {
+                                        $q->where('idCategoria', 5);
+                                    })
+                                    ->get('tiempo');
+
+                                $tCounterPnlAux = 0;
+                                foreach ($panelAuxiliarTime as $time) {
+                                    $time->tiempo = 10 + intval($time->tiempo) + 10;
+                                    $tCounterPnlAux = $tCounterPnlAux + intval($time->tiempo);
+                                }
+                                $dataObj->panelAuxiliarTime = $tCounterPnlAux;
+
+                                $dataObj->totalOrders = $dataObj->moto + $dataObj->turismo + $dataObj->pickup + $dataObj->panel + $dataObj->pickupAuxiliar + $dataObj->panelAuxiliar;
+                                $dataObj->totalTime = $dataObj->motoTime +  $dataObj->turismoTime + $dataObj->pickupTime + $dataObj->panelTime + $dataObj->pickupAuxiliarTime + $dataObj->panelAuxiliarTime;
+
+
+                                $exist = 0;
+                                foreach ($outputData as $output) {
+                                    if ($dataObj->fecha == $output->fecha && $dataObj->driver == $output->driver) {
+                                        $exist++;
+                                    }
+                                }
+
+                                if ($exist == 0) {
+                                    array_push($outputData, $dataObj);
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                    ->where('idConductor', $driver)
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->orderBy('fechaEntrega', 'desc')
                     ->get()
-                    ->groupBy('idConductor');
+                    ->groupBy(function ($val) {
+                        return Carbon::parse($val->fechaEntrega)->format('Y-m-d');
+                    });
 
                 foreach ($orders as $order) {
                     for ($i = 0; $i < sizeof($order); $i++) {
-                        $dataObj = (object)array();
-                        $dataObj->fecha = Carbon::parse($order[$i]->fechaEntrega)->format('Y-m-d');
-                        $dataObj->driver = $order[$i]->conductor->nomUsuario;
-                        $dataObj->orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                            ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                            ->where('idConductor', $order[$i]->conductor->idUsuario)->count();
+                        $data = (object)array();
+                        $data->driver = $driverDetails->nomUsuario;
+                        $data->fecha = Carbon::parse($order[$i]->fechaEntrega)->format('Y-m-d');
 
-                        if ($dataObj->orders > 0) {
-                            $exist = 0;
-                            foreach ($outputData as $output) {
-                                if ($dataObj->driver == $output->driver) {
-                                    $exist++;
-                                }
-                            }
+                        $data->moto = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                            ->where([
+                                'idConductor' => $driver,
+                            ])
+                            ->whereDate('fechaEntrega', $data->fecha)
+                            ->whereHas('delivery', function ($q) {
+                                $q->where('idCategoria', 6);
+                            })
+                            ->count();
 
-                            if ($exist == 0) {
-                                array_push($outputData, $dataObj);
-                            }
+                        $motoTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                            ->where([
+                                'idConductor' => $driver,
+                            ])
+                            ->whereDate('fechaEntrega', $data->fecha)
+                            ->whereHas('delivery', function ($q) {
+                                $q->where('idCategoria', 6);
+                            })
+                            ->get('tiempo');
+
+                        $tCounter = 0;
+                        foreach ($motoTime as $time) {
+                            $time->tiempo = 10 + intval($time->tiempo) + 10;
+                            $tCounter = $tCounter + intval($time->tiempo);
                         }
-                    }
-                }
+                        $data->motoTime = $tCounter;
 
-                /* foreach ($drivers as $driver) {
+                        $data->turismo = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                            ->where([
+                                'idConductor' => $driver,
+                            ])
+                            ->whereDate('fechaEntrega', $data->fecha)
+                            ->whereHas('delivery', function ($q) {
+                                $q->where('idCategoria', 1);
+                            })
+                            ->count();
 
-                     foreach ($orders as $order) {
-                         $dataObj = (object)array();
-                         $dataObj->fecha = Carbon::parse($order->fechaEntrega)->format('Y-m-d');
-                         $dataObj->driver = $driver->nomUsuario;
-                         $dataObj->orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                             ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                             ->where('idConductor', $driver->idUsuario)->count();
+                        $turismoTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                            ->where([
+                                'idConductor' => $driver,
+                            ])
+                            ->whereDate('fechaEntrega', $data->fecha)
+                            ->whereHas('delivery', function ($q) {
+                                $q->where('idCategoria', 1);
+                            })
+                            ->get('tiempo');
 
-                         if ($dataObj->orders > 0) {
-                             $exist = 0;
-                             foreach ($outputData as $output) {
-                                 if ($dataObj->driver == $output->driver) {
-                                     $exist++;
-                                 }
-                             }
 
-                             if ($exist == 0) {
-                                 array_push($outputData, $dataObj);
-                             }
-
-                         }
-
-                     }
-
-                 }*/
-
-            /*
-                            return response()->json(
-                                [
-                                    'error' => 0,
-                                    'data' => $outputData
-                                ],
-                                200
-                            );
-                        } else if ($driver == -1 && !$isSameDay) {
-                            $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->orderBy('fechaEntrega', 'desc')->get()
-                                ->groupBy(function ($val) {
-                                    return Carbon::parse($val->fechaEntrega)->format('Y-m-d');
-                                });
-
-                            foreach ($drivers as $driver) {
-                                foreach ($orders as $order) {
-                                    for ($i = 0; $i < sizeof($order); $i++) {
-                                        if ($driver->idUsuario == $order[$i]->idConductor) {
-                                            $dataObj = (object)array();
-                                            $dataObj->driver = $driver->nomUsuario;
-                                            $dataObj->fecha = Carbon::parse($order[$i]->fechaEntrega)->format('Y-m-d');
-                                            $initDateTime = new Carbon(date('Y-m-d', strtotime($dataObj->fecha)) . ' 00:00:00');
-                                            $finDateTime = new Carbon(date('Y-m-d', strtotime($dataObj->fecha)) . ' 23:59:59');
-                                            $dataObj->orders = DetalleDelivery::whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                                                ->whereIn('idEstado', [44, 46, 47])
-                                                ->where('idConductor', $driver->idUsuario)->count();
-                                            $exist = 0;
-                                            foreach ($outputData as $output) {
-                                                if ($dataObj->fecha == $output->fecha && $dataObj->driver == $output->driver) {
-                                                    $exist++;
-                                                }
-                                            }
-
-                                            if ($exist == 0) {
-                                                array_push($outputData, $dataObj);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            return response()->json(
-                                [
-                                    'error' => 0,
-                                    'data' => $outputData
-                                ],
-                                200
-                            );
-                        } else*/ /*if ($driver != -1 && $isSameDay) {
-
-                $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                    ->where('idConductor', $driver)
-                    ->whereDate('fechaEntrega', $initDate)
-                    ->get();
-
-                if (sizeof($orders) > 0) {
-                    foreach ($orders as $order) {
-
-                        $dataObj = (object)array();
-                        $dataObj->driver = $driverDetails->nomUsuario;
-                        $dataObj->fecha = Carbon::parse($order->fechaEntrega)->format('Y-m-d');
-                        $dataObj->orders = sizeof($orders);
-
-                        $exist = 0;
-                        foreach ($outputData as $output) {
-                            if ($dataObj->fecha == $output->fecha && $dataObj->driver == $output->driver) {
-                                $exist++;
-                            }
+                        $tCounterT = 0;
+                        foreach ($turismoTime as $time) {
+                            $time->tiempo = 10 + intval($time->tiempo) + 10;
+                            $tCounterT = $tCounterT + intval($time->tiempo);
                         }
+                        $data->turismoTime = $tCounterT;
 
-                        if ($exist == 0) {
-                            array_push($outputData, $dataObj);
+                        $data->pickup = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                            ->where([
+                                'idConductor' => $driver,
+                            ])
+                            ->whereDate('fechaEntrega', $data->fecha)
+                            ->whereHas('delivery', function ($q) {
+                                $q->where('idCategoria', 2);
+                            })
+                            ->count();
+
+                        $pickUpTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                            ->where([
+                                'idConductor' => $driver,
+                            ])
+                            ->whereDate('fechaEntrega', $data->fecha)
+                            ->whereHas('delivery', function ($q) {
+                                $q->where('idCategoria', 2);
+                            })
+                            ->get('tiempo');
+
+                        $tCounterP = 0;
+                        foreach ($pickUpTime as $time) {
+                            $time->tiempo = 10 + intval($time->tiempo) + 10;
+                            $tCounterP = $tCounterP + intval($time->tiempo);
                         }
+                        $data->pickupTime = $tCounterP;
+
+                        $data->panel = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                            ->where([
+                                'idConductor' => $driver,
+                            ])
+                            ->whereDate('fechaEntrega', $data->fecha)
+                            ->whereHas('delivery', function ($q) {
+                                $q->where('idCategoria', 3);
+                            })
+                            ->count();
+
+                        $panelTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                            ->where([
+                                'idConductor' => $driver,
+                            ])
+                            ->whereDate('fechaEntrega', $data->fecha)
+                            ->whereHas('delivery', function ($q) {
+                                $q->where('idCategoria', 3);
+                            })
+                            ->get('tiempo');
+
+                        $tCounterPnl = 0;
+                        foreach ($panelTime as $time) {
+                            $time->tiempo = 10 + intval($time->tiempo) + 10;
+                            $tCounterPnl = $tCounterPnl + intval($time->tiempo);
+                        }
+                        $data->panelTime = $tCounterPnl;
+
+                        $data->pickupAuxiliar = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                            ->where([
+                                'idConductor' => $driver,
+                            ])
+                            ->whereDate('fechaEntrega', $data->fecha)
+                            ->whereHas('delivery', function ($q) {
+                                $q->where('idCategoria', 4);
+                            })
+                            ->count();
+
+                        $pickUpAuxiliarTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                            ->where([
+                                'idConductor' => $driver,
+                            ])
+                            ->whereDate('fechaEntrega', $data->fecha)
+                            ->whereHas('delivery', function ($q) {
+                                $q->where('idCategoria', 4);
+                            })
+                            ->get('tiempo');
+
+                        $tCounterPckAux = 0;
+                        foreach ($pickUpAuxiliarTime as $time) {
+                            $time->tiempo = 10 + intval($time->tiempo) + 10;
+                            $tCounterPckAux = $tCounterPckAux + intval($time->tiempo);
+                        }
+                        $data->pickupAuxiliarTime = $tCounterPckAux;
+
+
+                        $data->panelAuxiliar = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                            ->where([
+                                'idConductor' => $driver,
+                            ])
+                            ->whereDate('fechaEntrega', $data->fecha)
+                            ->whereHas('delivery', function ($q) {
+                                $q->where('idCategoria', 5);
+                            })
+                            ->count();
+
+                        $panelAuxiliarTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                            ->where([
+                                'idConductor' => $driver,
+                            ])
+                            ->whereDate('fechaEntrega', $data->fecha)
+                            ->whereHas('delivery', function ($q) {
+                                $q->where('idCategoria', 5);
+                            })
+                            ->get('tiempo');
+
+                        $tCounterPnlAux = 0;
+                        foreach ($panelAuxiliarTime as $time) {
+                            $time->tiempo = 10 + intval($time->tiempo) + 10;
+                            $tCounterPnlAux = $tCounterPnlAux + intval($time->tiempo);
+                        }
+                        $data->panelAuxiliarTime = $tCounterPnlAux;
+
+                        $data->totalOrders = $data->moto + $data->turismo + $data->pickup + $data->panel + $data->pickupAuxiliar + $data->panelAuxiliar;
+                        $data->totalTime = $data->motoTime +  $data->turismoTime + $data->pickupTime + $data->panelTime + $data->pickupAuxiliarTime + $data->panelAuxiliarTime;
                     }
+                    array_push($outputData, $data);
                 }
-
-
-            } else {*/
-            $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                ->where('idConductor', $driver)
-                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                ->orderBy('fechaEntrega', 'desc')
-                ->get()
-                ->groupBy(function ($val) {
-                    return Carbon::parse($val->fechaEntrega)->format('Y-m-d');
-                });
-
-            foreach ($orders as $order) {
-                for ($i = 0; $i < sizeof($order); $i++) {
-                    $data = (object)array();
-                    $data->driver = $driverDetails->nomUsuario;
-                    $data->fecha = Carbon::parse($order[$i]->fechaEntrega)->format('Y-m-d');
-
-                    $data->moto = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                        ->where([
-                            'idConductor' => $driver,
-                        ])
-                        ->whereDate('fechaEntrega', $data->fecha)
-                        ->whereHas('delivery', function ($q) {
-                            $q->where('idCategoria', 6);
-                        })
-                        ->count();
-
-                    $motoTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                        ->where([
-                            'idConductor' => $driver,
-                        ])
-                        ->whereDate('fechaEntrega', $data->fecha)
-                        ->whereHas('delivery', function ($q) {
-                            $q->where('idCategoria', 6);
-                        })
-                        ->get('tiempo');
-
-                    $tCounter = 0;
-                    foreach ($motoTime as $time){
-                        $time->tiempo = 10 + intval($time->tiempo) + 10;
-                        $tCounter = $tCounter + intval($time->tiempo);
-                    }
-                    $data->motoTime = $tCounter;
-
-                    $data->turismo = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                        ->where([
-                            'idConductor' => $driver,
-                        ])
-                        ->whereDate('fechaEntrega', $data->fecha)
-                        ->whereHas('delivery', function ($q) {
-                            $q->where('idCategoria', 1);
-                        })
-                        ->count();
-
-                    $turismoTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                        ->where([
-                            'idConductor' => $driver,
-                        ])
-                        ->whereDate('fechaEntrega', $data->fecha)
-                        ->whereHas('delivery', function ($q) {
-                            $q->where('idCategoria', 1);
-                        })
-                        ->get('tiempo');
-
-
-                    $tCounterT = 0;
-                    foreach ($turismoTime as $time){
-                        $time->tiempo = 10 + intval($time->tiempo) + 10;
-                        $tCounterT = $tCounterT + intval($time->tiempo);
-                    }
-                    $data->turismoTime = $tCounterT;
-
-                    $data->pickup = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                        ->where([
-                            'idConductor' => $driver,
-                        ])
-                        ->whereDate('fechaEntrega', $data->fecha)
-                        ->whereHas('delivery', function ($q) {
-                            $q->where('idCategoria', 2);
-                        })
-                        ->count();
-
-                    $pickUpTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                        ->where([
-                            'idConductor' => $driver,
-                        ])
-                        ->whereDate('fechaEntrega', $data->fecha)
-                        ->whereHas('delivery', function ($q) {
-                            $q->where('idCategoria', 2);
-                        })
-                        ->get('tiempo');
-
-                    $tCounterP = 0;
-                    foreach ($pickUpTime as $time){
-                        $time->tiempo = 10 + intval($time->tiempo) + 10;
-                        $tCounterP = $tCounterP + intval($time->tiempo);
-                    }
-                    $data->pickupTime = $tCounterP;
-
-                    $data->panel = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                        ->where([
-                            'idConductor' => $driver,
-                        ])
-                        ->whereDate('fechaEntrega', $data->fecha)
-                        ->whereHas('delivery', function ($q) {
-                            $q->where('idCategoria', 3);
-                        })
-                        ->count();
-
-                    $panelTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                        ->where([
-                            'idConductor' => $driver,
-                        ])
-                        ->whereDate('fechaEntrega', $data->fecha)
-                        ->whereHas('delivery', function ($q) {
-                            $q->where('idCategoria', 3);
-                        })
-                        ->get('tiempo');
-
-                    $tCounterPnl = 0;
-                    foreach ($panelTime as $time){
-                        $time->tiempo = 10 + intval($time->tiempo) + 10;
-                        $tCounterPnl = $tCounterPnl + intval($time->tiempo);
-                    }
-                    $data->panelTime = $tCounterPnl;
-
-                    $data->pickupAuxiliar = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                        ->where([
-                            'idConductor' => $driver,
-                        ])
-                        ->whereDate('fechaEntrega', $data->fecha)
-                        ->whereHas('delivery', function ($q) {
-                            $q->where('idCategoria', 4);
-                        })
-                        ->count();
-
-                    $pickUpAuxiliarTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                        ->where([
-                            'idConductor' => $driver,
-                        ])
-                        ->whereDate('fechaEntrega', $data->fecha)
-                        ->whereHas('delivery', function ($q) {
-                            $q->where('idCategoria', 4);
-                        })
-                        ->get('tiempo');
-
-                    $tCounterPckAux = 0;
-                    foreach ($pickUpAuxiliarTime as $time){
-                        $time->tiempo = 10 + intval($time->tiempo) + 10;
-                        $tCounterPckAux = $tCounterPckAux + intval($time->tiempo);
-                    }
-                    $data->pickupAuxiliarTime = $tCounterPckAux;
-
-
-                    $data->panelAuxiliar = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                        ->where([
-                            'idConductor' => $driver,
-                        ])
-                        ->whereDate('fechaEntrega', $data->fecha)
-                        ->whereHas('delivery', function ($q) {
-                            $q->where('idCategoria', 5);
-                        })
-                        ->count();
-
-                    $panelAuxiliarTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                        ->where([
-                            'idConductor' => $driver,
-                        ])
-                        ->whereDate('fechaEntrega', $data->fecha)
-                        ->whereHas('delivery', function ($q) {
-                            $q->where('idCategoria', 5);
-                        })
-                        ->get('tiempo');
-
-                    $tCounterPnlAux = 0;
-                    foreach ($panelAuxiliarTime as $time){
-                        $time->tiempo = 10 + intval($time->tiempo) + 10;
-                        $tCounterPnlAux = $tCounterPnlAux + intval($time->tiempo);
-                    }
-                    $data->panelAuxiliarTime = $tCounterPnlAux;
-
-                    $data->totalOrders = $data->moto + $data->turismo + $data->pickup + $data->panel + $data->pickupAuxiliar + $data->panelAuxiliar;
-                    $data->totalTime = $data->motoTime +  $data->turismoTime + $data->pickupTime + $data->panelTime + $data->pickupAuxiliarTime + $data->panelAuxiliarTime;
-                }
-                array_push($outputData, $data);
             }
 
-            //}
-
-            $ordersInRange = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                ->where('idConductor', $driver);
-
-            $ordersPrint = $ordersInRange->get();
-
-            foreach ($ordersPrint as $order) {
-                $order->time = 10 + intval($order->tiempo) + 10;
-            }
 
             return response()->json(
                 [
                     'error' => 0,
                     'data' => $outputData,
-                    'ordersInRange' => $ordersInRange->count(),
                 ],
                 200
             );
@@ -757,7 +810,7 @@ class DeliveriesController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getMessage()//'Ocurrió un error al cargar los datos'
+                    'message' => $ex->getMessage() //'Ocurrió un error al cargar los datos'
                 ],
                 500
             );

@@ -209,6 +209,9 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('get', 'WorkLinesController@list');
             Route::post('addCustomer', 'WorkLinesController@addCustomer');
             Route::post('removeCustomer', 'WorkLinesController@removeCustomer');
+            Route::post('update', 'WorkLinesController@createWorkLine');
+            Route::post('create', 'WorkLinesController@updateWorkLine');
+        
         });
 
     });
