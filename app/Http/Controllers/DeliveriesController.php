@@ -1436,7 +1436,6 @@ class DeliveriesController extends Controller
             $deliveryOrders = $request->orders;
             $pago = $request->pago;
 
-
             if (sizeof($deliveryOrders) > 0) {
                 try {
                     $customerDetails = DeliveryClient::where('idCliente', Auth::user()->idCliente)->get()->first();
@@ -1486,19 +1485,16 @@ class DeliveriesController extends Controller
                         $nDetalle->coordsDestino = $detalle['coordsDestino'];
                         $nDetalle->save();
 
-                        if (isset($detalle['idCargoExtra'])) {
-                            if (isset($detalle['idDetalleOpcion'])) {
+                        if (isset($detalle['extras'])) {
+
+                            foreach ($detalle['extras'] as $exCharge) {
                                 $nECOrder = new ExtraChargesOrders();
                                 $nECOrder->idDetalle = $nDetalle->idDetalle;
-                                $nECOrder->idCargoExtra = $detalle['idCargoExtra'];
-                                $nECOrder->idDetalleOpcion = $detalle['idDetalleOpcion'];
-                                $nECOrder->save();
-                            } else {
-                                $nECOrder = new ExtraChargesOrders();
-                                $nECOrder->idDetalle = $nDetalle->idDetalle;
-                                $nECOrder->idCargoExtra = $detalle['idCargoExtra'];
+                                $nECOrder->idCargoExtra = $exCharge["idCargoExtra"];
+                                $nECOrder->idDetalleOpcion = $exCharge["idDetalleOpcion"];
                                 $nECOrder->save();
                             }
+                            
                         }
                     }
 
@@ -1522,7 +1518,7 @@ class DeliveriesController extends Controller
                     return response()->json(
                         [
                             'error' => 1,
-                            'message' => 'Lo sentimos, ha ocurrido un error al procesar tu solicitud. Por favor intenta de nuevo.'
+                            'message' => $ex->getMessage() //'Lo sentimos, ha ocurrido un error al procesar tu solicitud. Por favor intenta de nuevo.'
                         ],
                         500
                     );
