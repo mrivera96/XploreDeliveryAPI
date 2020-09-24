@@ -17,6 +17,7 @@ class DetalleDelivery extends Model
         'cargosExtra',
         'cTotal',
         'direccion',
+        'efectivoRecibido',
         'tiempo'
     ];
 
