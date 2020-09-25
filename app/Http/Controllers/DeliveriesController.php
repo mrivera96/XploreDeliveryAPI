@@ -1734,17 +1734,12 @@ class DeliveriesController extends Controller
                         $nDetalle->coordsDestino = $detalle['coordsDestino'];
                         $nDetalle->save();
 
-                        if (isset($detalle['idCargoExtra'])) {
-                            if (isset($detalle['idDetalleOpcion'])) {
+                        if (isset($detalle['extras'])) {
+                            foreach ($detalle['extras'] as $exCharge) {
                                 $nECOrder = new ExtraChargesOrders();
                                 $nECOrder->idDetalle = $nDetalle->idDetalle;
-                                $nECOrder->idCargoExtra = $detalle['idCargoExtra'];
-                                $nECOrder->idDetalleOpcion = $detalle['idDetalleOpcion'];
-                                $nECOrder->save();
-                            } else {
-                                $nECOrder = new ExtraChargesOrders();
-                                $nECOrder->idDetalle = $nDetalle->idDetalle;
-                                $nECOrder->idCargoExtra = $detalle['idCargoExtra'];
+                                $nECOrder->idCargoExtra = $exCharge["idCargoExtra"];
+                                $nECOrder->idDetalleOpcion = $exCharge["idDetalleOpcion"];
                                 $nECOrder->save();
                             }
                         }
