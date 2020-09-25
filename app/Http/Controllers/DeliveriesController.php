@@ -1117,8 +1117,9 @@ class DeliveriesController extends Controller
 
 
             } else*/
-            if ($customer != -1 && $isSameDay) {
-                $orders = DetalleDelivery::with(['estado', 'extraCharges.extracharge', 'conductor'])->whereIn('idEstado', [44, 46, 47])
+            /*if ($customer != -1 && $isSameDay) {
+                $orders = DetalleDelivery::with(['estado', 'extraCharges.extracharge', 'conductor'])
+                ->whereIn('idEstado', [44, 46, 47])
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                     ->whereHas('delivery', function ($q) use ($customerDetails) {
                         $q->where('idCliente', $customerDetails->idCliente);
@@ -1192,7 +1193,7 @@ class DeliveriesController extends Controller
                     ],
                     200
                 );
-            } else if ($customer != -1 && !$isSameDay) {
+            } else if ($customer != -1 && !$isSameDay) {*/
                 $orders = DetalleDelivery::with(['estado'])->whereIn('idEstado', [44, 46, 47])
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                     ->whereHas('delivery', function ($q) use ($customerDetails) {
@@ -1275,7 +1276,7 @@ class DeliveriesController extends Controller
                     ],
                     200
                 );
-            }
+            //}
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array(
                 'User' => Auth::user()->nomUsuario,
