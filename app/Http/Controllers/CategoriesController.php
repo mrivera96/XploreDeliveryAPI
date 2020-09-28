@@ -73,6 +73,14 @@ class CategoriesController extends Controller
                     $categories = Category::where('isActivo', 1)
                         ->orderBy('orden')
                         ->get();
+
+                    $routingCategories = Category::with('rate')
+                        ->where('isActivo', 1)
+                        ->whereHas('rate', function ($q) {
+                            $q->where('idTipoTarifa', 3);
+                        })
+                        ->orderBy('orden')->get();
+
                 } else {
                     $idArray = [];
                     foreach ($tarCust as $item) {
@@ -83,6 +91,25 @@ class CategoriesController extends Controller
 
                     $categories = Category::where('isActivo', 1)
                         ->whereIn('idCategoria', $idArray)
+                        ->orderBy('orden')->get();
+
+                    $routingRates = RateCustomer::where('idCliente', $currCust)
+                        ->whereHas('rate', function ($q) {
+                            $q->where('idTipoTarifa', 3);
+                        })->get();
+
+                    $idArrayR = [];
+                    if ($routingRates->count() > 0) {
+                        foreach ($routingRates as $item) {
+                            if (!in_array($item->rate->idCategoria, $idArrayR) && $item->rate->idTipoTarifa == 3) {
+                                array_push($idArrayR, $item->rate->idCategoria);
+                            }
+                        }
+                    }
+
+                    $routingCategories = Category::with('rate')
+                        ->where('isActivo', 1)
+                        ->whereIn('idCategoria', $idArrayR)
                         ->orderBy('orden')->get();
                 }
 
@@ -95,6 +122,7 @@ class CategoriesController extends Controller
                     ->whereHas('rate', function ($q) {
                         $q->where('idTipoTarifa', 4);
                     })->get();
+
 
                 $idsConsolidated = [];
                 if ($consolidatedRates->count() > 0) {
@@ -114,6 +142,7 @@ class CategoriesController extends Controller
                     }
                 }
 
+
                 $consolidatedCategories = Category::with([
                     'rate.schedules',
                     'rate.rateDetail',
@@ -132,6 +161,7 @@ class CategoriesController extends Controller
                     ->whereIn('idCategoria', $idsForeign)
                     ->orderBy('orden')->get();
 
+
             } else {
                 $categories = Category::where('isActivo', 1)
                     ->orderBy('orden')
@@ -142,9 +172,10 @@ class CategoriesController extends Controller
                         $q->where('idTipoTarifa', 2);
                     })->get();
 
-                $routingRates = Tarifa::where('idCliente', 1)
-                    ->where('idTipoTarifa', 3)
-                    ->get();
+                $routingRates = RateCustomer::where('idCliente', 1)
+                    ->whereHas('rate', function ($q) {
+                        $q->where('idTipoTarifa', 3);
+                    })->get();
 
                 $consolidatedForeignRates = RateCustomer::where('idCliente', 1)
                     ->whereHas('rate', function ($q) {
@@ -170,6 +201,15 @@ class CategoriesController extends Controller
                     }
                 }
 
+                $idArrayR = [];
+                if ($routingRates->count() > 0) {
+                    foreach ($routingRates as $item) {
+                        if (!in_array($item->rate->idCategoria, $idArrayR) && $item->rate->idTipoTarifa == 3) {
+                            array_push($idArrayR, $item->rate->idCategoria);
+                        }
+                    }
+                }
+
                 $consolidatedCategories = Category::with([
                     'rate.schedules',
                     'rate.rateDetail',
@@ -189,6 +229,10 @@ class CategoriesController extends Controller
                     ->whereIn('idCategoria', $idArrayF)
                     ->orderBy('orden')
                     ->get();
+
+                $routingCategories = Category::where('isActivo', 1)
+                    ->whereIn('idCategoria', $idArrayR)
+                    ->orderBy('orden')->get();
 
             }
 
@@ -456,11 +500,57 @@ class CategoriesController extends Controller
                     $cEC->extraCharge->options;
                 }
             }
+
+            foreach ($routingCategories as $category) {
+                $category->categoryExtraCharges = $category->categoryExtraCharges()
+                    ->whereHas('extraCharge', function ($q) {
+                        $q->where('tipoCargo', 'F');
+                    })
+                    ->get();
+
+                $customerSurcharges = RecargoDelivery::where('idCategoria', $category->idCategoria)
+                    ->whereHas('customerSurcharges', function ($q) use ($currCust) {
+                        $q->where('idCliente', $currCust);
+                    });
+
+                if ($customerSurcharges->count() > 0) {
+                    $category->surcharges = $customerSurcharges->get();
+                } else {
+                    $category->surcharges = RecargoDelivery::where(
+                        'idCategoria',
+                        $category->idCategoria
+                    )
+                        ->where('idCliente', 1)
+                        ->get();
+                }
+
+                foreach ($category->categoryExtraCharges as $cEC) {
+                    $cEC->extraCharge->options;
+                }
+
+                $rates = $category->rate;
+                $ratesToShow = [];
+                foreach ($rates as $rate) {
+                    $existsCustomer = 0;
+                    foreach ($detail as $dtl) {
+                        if ($dtl->idCliente == $currCust) {
+                            $existsCustomer++;
+                        }
+                    }
+                    if ($existsCustomer > 0) {
+                        if ($rate->idTipoTarifa == 3) {
+                            array_push($ratesToShow, $rate);
+                        }
+                    }
+                }
+                $category->ratesToShow = $ratesToShow;
+            }
             return response()->json([
                 'error' => 0,
                 'data' => $categories,
                 'consolidatedCategories' => $consolidatedCategories,
-                'consolidatedForeignCategories' => $consolidatedForeignCategories
+                'consolidatedForeignCategories' => $consolidatedForeignCategories,
+                'routingCategories' => $routingCategories
             ], 200);
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
