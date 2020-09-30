@@ -117,6 +117,7 @@ class DeliveryUsersController extends Controller
                 $nCustomer->numIdentificacion = $rCustomer['numIdentificacion'];
                 $nCustomer->numTelefono = $rCustomer['numTelefono'];
                 $nCustomer->email = $rCustomer['email'];
+                $nCustomer->enviarNotificaciones = $rCustomer['enviarNotificaciones'];
                 $nCustomer->isActivo = 1;
                 $nCustomer->fechaAlta = Carbon::now();
                 $nCustomer->save();
@@ -151,7 +152,7 @@ class DeliveryUsersController extends Controller
             ));
             return response()->json([
                 'error' => 1,
-                'message' => $exception->getMessage()
+                'message' => 'Ocurrió un error al agregar el cliente'//$exception->getMessage()
             ], 500);
         }
     }
@@ -168,6 +169,7 @@ class DeliveryUsersController extends Controller
                     'nomEmpresa' => $rCustomer['nomEmpresa'],
                     'nomRepresentante' => $rCustomer['nomRepresentante'],
                     'numIdentificacion' => $rCustomer['numIdentificacion'],
+                    'enviarNotificaciones' => $rCustomer['enviarNotificaciones'],
                     'numTelefono' => $rCustomer['numTelefono'],
                 ]);
 
@@ -187,6 +189,7 @@ class DeliveryUsersController extends Controller
                         'numIdentificacion' => $rCustomer['numIdentificacion'],
                         'numTelefono' => $rCustomer['numTelefono'],
                         'email' => $rCustomer['email'],
+                        'enviarNotificaciones' => $rCustomer['enviarNotificaciones'],
                     ]);
 
                     $currUser->update([
@@ -212,7 +215,7 @@ class DeliveryUsersController extends Controller
             ));
             return response()->json([
                 'error' => 1,
-                'message' => $exception->getMessage()
+                'message' => 'Ocurrió un error al actualizar el cliente' //$exception->getMessage()
             ], 500);
         }
     }

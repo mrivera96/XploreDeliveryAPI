@@ -9,7 +9,7 @@ class DetalleOpcionesCargosExtras extends Model
     protected $table = 'tblDetalleOpcionesCargosExtras';
     protected $primaryKey = 'idDetalleOpcion';
     public $timestamps = false;
-    protected $fillable = ['idCargoExtra', 'descripcion', 'costo'];
+    protected $fillable = ['idCargoExtra', 'descripcion', 'costo', 'tiempo'];
 
     public function extraCharge(){
         return $this->belongsTo('App\ExtraCharge', 'idCargoExtra','idCargoExtra');

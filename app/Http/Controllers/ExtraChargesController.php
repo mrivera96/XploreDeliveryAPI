@@ -274,12 +274,14 @@ class ExtraChargesController extends Controller
             'idCargoExtra' => 'required',
             'form' => 'required',
             'form.descripcion' => 'required',
+            'form.tiempo' => 'required',
             'form.costo' => 'required'
         ]);
 
         $extraChargeId = $request->idCargoExtra;
         $optionDesc = $request->form['descripcion'];
         $optionCost = $request->form['costo'];
+        $optionTime = $request->form['tiempo'];
 
         try {
 
@@ -287,6 +289,7 @@ class ExtraChargesController extends Controller
             $nECOpt->idCargoExtra = $extraChargeId;
             $nECOpt->descripcion = $optionDesc;
             $nECOpt->costo = $optionCost;
+            $nECOpt->tiempo = $optionTime;
             $nECOpt->save();
 
             return response()->json([
