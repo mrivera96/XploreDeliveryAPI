@@ -472,10 +472,37 @@ class DeliveryUsersController extends Controller
             $initDateTimeWO = new Carbon(date('Y-m-d', strtotime($form['initDateWO'])) . ' 00:00:00');
             $finDateTimeWO = new Carbon(date('Y-m-d', strtotime($form['finDateWO'])) . ' 23:59:59');
 
-            $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime]);
+            /*$orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime]);*/
 
-            if ($orders->count() >= $minOrders) {
+            $customersArray = DeliveryClient::whereHas('deliveries', function ($q) use ($initDateTime, $finDateTime){
+                $q->whereHas('detalle', function ($q) use($initDateTime, $finDateTime){
+                    $q->whereBetween('fechaEntrega', [$initDateTime, $finDateTime]);
+                });
+            })->get();
+
+            $finalCustomersArray = [];
+
+            foreach ($customersArray as $customer) {
+                $mydataObj = (object)array();
+                $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                    ->whereBetween('fechaEntrega', [$initDateTimeWO, $finDateTimeWO])
+                    ->whereHas('delivery', function ($q) use ($customer) {
+                        $q->where('idCliente', $customer->idCliente);
+                    })->count();
+
+                if ($orders < $minOrders) {
+                    $mydataObj->customer = $customer;
+                    $mydataObj->lastOrder = Carbon::parse(DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                        ->whereHas('delivery', function ($q) use ($customer) {
+                            $q->where('idCliente', $customer->idCliente);
+                        })->max('fechaEntrega'))->format('Y-m-d');
+                    array_push($finalCustomersArray, $mydataObj);
+                }
+
+            }
+
+            /*if ($orders->count() >= $minOrders) {
                 $customersArray = [];
                 foreach ($orders->get() as $order) {
                     if (!in_array($order->delivery->cliente, $customersArray)) {
@@ -502,13 +529,13 @@ class DeliveryUsersController extends Controller
                         array_push($finalCustomersArray, $mydataObj);
                     }
 
-                }
+                }*/
 
                 return response()
                     ->json([
                         'data' => $finalCustomersArray
                     ]);
-            }
+            //}
 
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array(

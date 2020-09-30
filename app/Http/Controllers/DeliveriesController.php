@@ -437,13 +437,25 @@ class DeliveriesController extends Controller
                                 $o20CounterMoto = 0;
 
                                 foreach ($moto->get() as $mto) {
-                                    if (intval($mto->tiempo) > 0) {
-                                        if (floatval($mto->distancia) > 20) {
-                                            $o20CounterMoto = $o20CounterMoto + intval($mto->tiempo);
+                                    if ($mto->tiempo != null) {
+                                        if(strpos($mto->tiempo, 'hour')){
+                                            $stime = explode(' ', $mto->tiempo);                               
+                                            $time = intval($stime[0])*60 + intval($stime[2]);
+                                            if (floatval($mto->distancia) > 20) {
+                                                $o20CounterMoto = $o20CounterMoto + intval($time);
+                                            }
+                                            $mto->tiempo = 30 + intval($time);
+                                            $tCounterMoto = $tCounterMoto + intval($mto->tiempo);
+                                        }else{
+                                            if (floatval($mto->distancia) > 20) {
+                                                $o20CounterMoto = $o20CounterMoto + intval($mto->tiempo);
+                                            }
+                                            $mto->tiempo = 30 + intval($mto->tiempo);
+                                            $tCounterMoto = $tCounterMoto + intval($mto->tiempo);
                                         }
-                                        $mto->tiempo = 30 + intval($mto->tiempo);
-                                        $tCounterMoto = $tCounterMoto + intval($mto->tiempo);
+
                                     }
+
                                     $mCounterMoto = $mCounterMoto + $mto->efectivoRecibido;
                                 }
 
@@ -466,13 +478,22 @@ class DeliveriesController extends Controller
                                 $mCounterTurismo = 0;
                                 $o20CounterTurismo = 0;
                                 foreach ($turismo->get() as $trsmo) {
-                                    if (intval($trsmo->tiempo) > 0) {
-                                        if (floatval($trsmo->distancia) > 20) {
-                                            $o20CounterTurismo = $o20CounterTurismo + +intval($trsmo->tiempo);
+                                    if ($trsmo->tiempo != null) {
+                                        if(strpos($trsmo->tiempo, 'hour')){
+                                            $stime = explode(' ', $trsmo->tiempo);
+                                            $time = intval($stime[0])*60 + intval($stime[2]);
+                                            if (floatval($trsmo->distancia) > 20) {
+                                                $o20CounterTurismo = $o20CounterTurismo + intval($time);
+                                            }
+                                            $trsmo->tiempo = 30 + intval($time);
+                                            $tCounterTurismo = $tCounterTurismo + intval($trsmo->tiempo);
+                                        }else{
+                                            if (floatval($trsmo->distancia) > 20) {
+                                                $o20CounterTurismo = $o20CounterTurismo + intval($trsmo->tiempo);
+                                            }
+                                            $trsmo->tiempo = 30 + intval($trsmo->tiempo);
+                                            $tCounterTurismo = $tCounterTurismo + intval($trsmo->tiempo);
                                         }
-                                        $trsmo->tiempo = 30 + intval($trsmo->tiempo);
-
-                                        $tCounterTurismo = $tCounterTurismo + intval($trsmo->tiempo);
                                     }
                                     $mCounterTurismo = $mCounterTurismo + $trsmo->efectivoRecibido;
                                 }
@@ -495,13 +516,22 @@ class DeliveriesController extends Controller
                                 $mCounterPickup = 0;
                                 $o20CounterPickup = 0;
                                 foreach ($pickUp->get() as $pckup) {
-                                    if (intval($pckup->tiempo) > 0) {
-                                        if (floatval($pckup->distancia) > 20) {
-                                            $o20CounterPickup = $o20CounterPickup + +intval($pckup->tiempo);
+                                    if ($pckup->tiempo != null) {
+                                        if(strpos($pckup->tiempo, 'hour')){
+                                            $stime = explode(' ', $pckup->tiempo);
+                                            $time = intval($stime[0])*60 + intval($stime[2]);
+                                            if (floatval($pckup->distancia) > 20) {
+                                                $o20CounterPickup = $o20CounterPickup + intval($time);
+                                            }
+                                            $pckup->tiempo = 40 + intval($time);
+                                            $tCounterPickup = $tCounterPickup + intval($pckup->tiempo);
+                                        }else{
+                                            if (floatval($pckup->distancia) > 20) {
+                                                $o20CounterPickup = $o20CounterPickup + intval($pckup->tiempo);
+                                            }
+                                            $pckup->tiempo = 40 + intval($pckup->tiempo);
+                                            $tCounterPickup = $tCounterPickup + intval($pckup->tiempo);
                                         }
-                                        $pckup->tiempo = 30 + intval($pckup->tiempo);
-
-                                        $tCounterPickup = $tCounterPickup + intval($pckup->tiempo);
                                     }
                                     $mCounterPickup = $mCounterPickup + $pckup->efectivoRecibido;
                                 }
@@ -524,12 +554,22 @@ class DeliveriesController extends Controller
                                 $mCounterPanel = 0;
                                 $o20CounterPanel = 0;
                                 foreach ($panel->get() as $pnl) {
-                                    if (intval($pnl->tiempo) > 0) {
-                                        if (floatval($pnl->distancia) > 20) {
-                                            $o20CounterPanel = $o20CounterPanel + +intval($pnl->tiempo);
+                                    if ($pnl->tiempo != null) {
+                                        if(strpos($pnl->tiempo, 'hour')){
+                                            $stime = explode(' ', $pnl->tiempo);
+                                            $time = intval($stime[0])*60 + intval($stime[2]);
+                                            if (floatval($pnl->distancia) > 20) {
+                                                $o20CounterPanel = $o20CounterPanel + intval($time);
+                                            }
+                                            $pnl->tiempo = 40 + intval($time);
+                                            $tCounterPanel = $tCounterPanel + intval($pnl->tiempo);
+                                        }else{
+                                            if (floatval($pnl->distancia) > 20) {
+                                                $o20CounterPanel = $o20CounterPanel + intval($pnl->tiempo);
+                                            }
+                                            $pnl->tiempo = 40 + intval($pnl->tiempo);
+                                            $tCounterPanel = $tCounterPanel + intval($pnl->tiempo);
                                         }
-                                        $pnl->tiempo = 10 + intval($pnl->tiempo) + 10;
-                                        $tCounterPanel = $tCounterPanel + intval($pnl->tiempo);
                                     }
                                     $mCounterPanel = $mCounterPanel + $pnl->efectivoRecibido;
                                 }
@@ -552,13 +592,24 @@ class DeliveriesController extends Controller
                                 $mCounterPickupAuxiliar = 0;
                                 $o20CounterPickupAuxiliar = 0;
                                 foreach ($pickUpAuxiliar->get() as $pckAux) {
-                                    if (intval($pckAux->tiempo) > 0) {
-                                        if (floatval($pckAux->distancia) > 20) {
-                                            $o20CounterPickupAuxiliar = $o20CounterPickupAuxiliar + +intval($pckAux->tiempo);
+                                    if ($pckAux->tiempo != null) {
+                                        if(strpos($pckAux->tiempo, 'hour')){
+                                            $stime = explode(' ', $pckAux->tiempo);
+                                            $time = intval($stime[0])*60 + intval($stime[2]);
+                                            if (floatval($pckAux->distancia) > 20) {
+                                                $o20CounterPickupAuxiliar = $o20CounterPickupAuxiliar + intval($time);
+                                            }
+                                            $pckAux->tiempo = 40 + intval($time);
+                                            $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($pckAux->tiempo);
+                                        }else{
+                                            if (floatval($pckAux->distancia) > 20) {
+                                                $o20CounterPickupAuxiliar = $o20CounterPickupAuxiliar + intval($pckAux->tiempo);
+                                            }
+                                            $pckAux->tiempo = 40 + intval($pckAux->tiempo);
+                                            $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($pckAux->tiempo);
                                         }
-                                        $pckAux->tiempo = 40 + intval($pckAux->tiempo);
-                                        $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($pckAux->tiempo);
                                     }
+
                                     $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $pckAux->efectivoRecibido;
                                 }
                                 $dataObj->pickupAuxiliarTime = $tCounterPickupAuxiliar;
@@ -580,12 +631,22 @@ class DeliveriesController extends Controller
                                 $mCounterPanelAuxiliar = 0;
                                 $o20CounterPanelAuxiliar = 0;
                                 foreach ($panelAuxiliar->get() as $pnlAux) {
-                                    if (intval($pnlAux->tiempo) > 0) {
-                                        if (floatval($pnlAux->distancia) > 20) {
-                                            $o20CounterPanelAuxiliar = $o20CounterPanelAuxiliar + +intval($pnlAux->tiempo);
+                                    if ($pnlAux->tiempo != null) {
+                                        if(strpos($pnlAux->tiempo, 'hour')){
+                                            $stime = explode(' ', $pnlAux->tiempo);
+                                            $time = intval($stime[0])*60 + intval($stime[2]);
+                                            if (floatval($pnlAux->distancia) > 20) {
+                                                $o20CounterPanelAuxiliar = $o20CounterPanelAuxiliar + intval($time);
+                                            }
+                                            $pnlAux->tiempo = 40 + intval($time);
+                                            $tCounterPanelAuxiliar = $tCounterPanelAuxiliar + intval($pnlAux->tiempo);
+                                        }else{
+                                            if (floatval($pnlAux->distancia) > 20) {
+                                                $o20CounterPanelAuxiliar = $o20CounterPanelAuxiliar + intval($pnlAux->tiempo);
+                                            }
+                                            $pnlAux->tiempo = 40 + intval($pnlAux->tiempo);
+                                            $tCounterPanelAuxiliar = $tCounterPanelAuxiliar + intval($pnlAux->tiempo);
                                         }
-                                        $pnlAux->tiempo = 40 + intval($pnlAux->tiempo);
-                                        $tCounterPanelAuxiliar = $tCounterPanelAuxiliar + intval($pnlAux->tiempo);
                                     }
                                     $mCounterPanelAuxiliar = $mCounterPanelAuxiliar + $pnlAux->efectivoRecibido;
                                 }
@@ -628,16 +689,6 @@ class DeliveriesController extends Controller
                         $dataObj->driver = $driverDetails->nomUsuario;
                         $dataObj->fecha = Carbon::parse($order[$i]->fechaEntrega)->format('Y-m-d');
 
-                        $dataObj->moto = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                            ->where([
-                                'idConductor' => $driver,
-                            ])
-                            ->whereDate('fechaEntrega', $dataObj->fecha)
-                            ->whereHas('delivery', function ($q) {
-                                $q->where('idCategoria', 6);
-                            })
-                            ->count();
-
                         $moto = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                             ->where([
                                 'idConductor' => $driver,
@@ -645,20 +696,30 @@ class DeliveriesController extends Controller
                             ->whereDate('fechaEntrega', $dataObj->fecha)
                             ->whereHas('delivery', function ($q) {
                                 $q->where('idCategoria', 6);
-                            })
-                            ->get(['tiempo', 'efectivoRecibido']);
+                            });
+
+                        $dataObj->moto = $moto->count();
 
                         $tCounterMoto = 0;
                         $mCounterMoto = 0;
                         $o20CounterMoto = 0;
-                        foreach ($moto as $mto) {
-                            if (intval($mto->tiempo) > 0) {
-                                $mto->tiempo = 10 + intval($mto->tiempo) + 10;
-
-                                if (floatval($mto->distancia) > 20) {
-                                    $o20CounterMoto = $o20CounterMoto + intval($mto->tiempo);
+                        foreach ($moto->get() as $mto) {
+                            if ($mto->tiempo != null) {
+                                if(strpos($mto->tiempo, 'hour')){
+                                    $stime = explode(' ', $mto->tiempo);
+                                    $time = $time = intval($stime[0])*60 + intval($stime[2]);
+                                    if (floatval($mto->distancia) > 20) {
+                                        $o20CounterMoto = $o20CounterMoto + intval($time);
+                                    }
+                                    $mto->tiempo = 40 + intval($time);
+                                    $tCounterMoto = $tCounterMoto + intval($mto->tiempo);
+                                }else{
+                                    if (floatval($mto->distancia) > 20) {
+                                        $o20CounterMoto = $o20CounterMoto + intval($mto->tiempo);
+                                    }
+                                    $mto->tiempo = 40 + intval($mto->tiempo);
+                                    $tCounterMoto = $tCounterMoto + intval($mto->tiempo);
                                 }
-                                $tCounterMoto = $tCounterMoto + intval($mto->tiempo);
                             }
                             $mCounterMoto = $mCounterMoto + $mto->efectivoRecibido;
                         }
@@ -667,16 +728,6 @@ class DeliveriesController extends Controller
                         $dataObj->motoMoney = $mCounterMoto;
                         $dataObj->motoOver20kms = $o20CounterMoto;
 
-                        $dataObj->turismo = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                            ->where([
-                                'idConductor' => $driver,
-                            ])
-                            ->whereDate('fechaEntrega', $dataObj->fecha)
-                            ->whereHas('delivery', function ($q) {
-                                $q->where('idCategoria', 1);
-                            })
-                            ->count();
-
                         $turismo = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                             ->where([
                                 'idConductor' => $driver,
@@ -684,37 +735,36 @@ class DeliveriesController extends Controller
                             ->whereDate('fechaEntrega', $dataObj->fecha)
                             ->whereHas('delivery', function ($q) {
                                 $q->where('idCategoria', 1);
-                            })
-                            ->get(['tiempo', 'efectivoRecibido']);
+                            });
+
+                        $dataObj->turismo = $turismo->count();
 
                         $tCounterTurismo = 0;
                         $mCounterTurismo = 0;
                         $o20CounterTurismo = 0;
-                        foreach ($turismo as $trsmo) {
-                            if (intval($trsmo->tiempo) > 0) {
-                                $trsmo->tiempo = 10 + intval($trsmo->tiempo) + 10;
-
-                                if (floatval($trsmo->distancia) > 20) {
-                                    $o20CounterTurismo = $o20CounterTurismo + +intval($mto->tiempo);
+                        foreach ($turismo->get() as $trsmo) {
+                            if ($trsmo->tiempo != null) {
+                                if(strpos($trsmo->tiempo, 'hour')){
+                                    $stime = explode(" ", $trsmo->tiempo);
+                                    $time = intval($stime[0])*60 + intval($stime[2]);
+                                    if (floatval($trsmo->distancia) > 20) {
+                                        $o20CounterTurismo = $o20CounterTurismo + intval($time);
+                                    }
+                                    $trsmo->tiempo = 30 + intval($time);
+                                    $tCounterTurismo = $tCounterTurismo + intval($trsmo->tiempo);
+                                }else{
+                                    if (floatval($trsmo->distancia) > 20) {
+                                        $o20CounterTurismo = $o20CounterTurismo + intval($trsmo->tiempo);
+                                    }
+                                    $trsmo->tiempo = 30 + intval($trsmo->tiempo);
+                                    $tCounterTurismo = $tCounterTurismo + intval($trsmo->tiempo);
                                 }
-
-                                $tCounterTurismo = $tCounterTurismo + intval($trsmo->tiempo);
                             }
                             $mCounterTurismo = $mCounterTurismo + $trsmo->efectivoRecibido;
                         }
                         $dataObj->turismoTime = $tCounterTurismo;
                         $dataObj->turismoMoney = $mCounterTurismo;
                         $dataObj->turismoOver20kms = $o20CounterTurismo;
-
-                        $dataObj->pickup = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                            ->where([
-                                'idConductor' => $driver,
-                            ])
-                            ->whereDate('fechaEntrega', $dataObj->fecha)
-                            ->whereHas('delivery', function ($q) {
-                                $q->where('idCategoria', 2);
-                            })
-                            ->count();
 
                         $pickUp = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                             ->where([
@@ -723,36 +773,36 @@ class DeliveriesController extends Controller
                             ->whereDate('fechaEntrega', $dataObj->fecha)
                             ->whereHas('delivery', function ($q) {
                                 $q->where('idCategoria', 2);
-                            })
-                            ->get(['tiempo', 'efectivoRecibido']);
+                            });
+
+                        $dataObj->pickup = $pickUp->count();
 
                         $tCounterPickup = 0;
                         $mCounterPickup = 0;
                         $o20CounterPickup = 0;
-                        foreach ($pickUp as $pckup) {
-                            if (intval($pckup->tiempo) > 0) {
-                                $pckup->tiempo = 10 + intval($pckup->tiempo) + 10;
-
-                                if (floatval($pckup->distancia) > 20) {
-                                    $o20CounterPickup = $o20CounterPickup + +intval($pckup->tiempo);
+                        foreach ($pickUp->get() as $pckup) {
+                            if ($pckup->tiempo != null) {
+                                if(strpos($pckup->tiempo, 'hour')){
+                                    $stime = explode(' ', $pckup->tiempo);
+                                    $time = $time = intval($stime[0])*60 + intval($stime[2]);
+                                    if (floatval($pckup->distancia) > 20) {
+                                        $o20CounterPickup = $o20CounterPickup + intval($time);
+                                    }
+                                    $pckup->tiempo = 40 + intval($time);
+                                    $tCounterPickup = $tCounterPickup + intval($pckup->tiempo);
+                                }else{
+                                    if (floatval($pckup->distancia) > 20) {
+                                        $o20CounterPickup = $o20CounterPickup + intval($pckup->tiempo);
+                                    }
+                                    $pckup->tiempo = 40 + intval($pckup->tiempo);
+                                    $tCounterPickup = $tCounterPickup + intval($pckup->tiempo);
                                 }
-                                $tCounterPickup = $tCounterPickup + intval($pckup->tiempo);
                             }
                             $mCounterPickup = $mCounterPickup + $pckup->efectivoRecibido;
                         }
                         $dataObj->pickupTime = $tCounterPickup;
                         $dataObj->pickupMoney = $mCounterPickup;
                         $dataObj->pickupOver20kms = $o20CounterPickup;
-
-                        $dataObj->panel = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                            ->where([
-                                'idConductor' => $driver,
-                            ])
-                            ->whereDate('fechaEntrega', $dataObj->fecha)
-                            ->whereHas('delivery', function ($q) {
-                                $q->where('idCategoria', 3);
-                            })
-                            ->count();
 
                         $panel = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                             ->where([
@@ -761,35 +811,36 @@ class DeliveriesController extends Controller
                             ->whereDate('fechaEntrega', $dataObj->fecha)
                             ->whereHas('delivery', function ($q) {
                                 $q->where('idCategoria', 3);
-                            })
-                            ->get(['tiempo', 'efectivoRecibido']);
+                            });
+
+                        $dataObj->panel = $panel->count();
 
                         $tCounterPanel = 0;
                         $mCounterPanel = 0;
                         $o20CounterPanel = 0;
-                        foreach ($panel as $pnl) {
-                            if (intval($pnl->tiempo) > 0) {
-                                $pnl->tiempo = 10 + intval($pnl->tiempo) + 10;
-                                if (floatval($pnl->distancia) > 20) {
-                                    $o20CounterPanel = $o20CounterPanel + +intval($pnl->tiempo);
+                        foreach ($panel->get() as $pnl) {
+                            if ($pnl->tiempo != null) {
+                                if(strpos($pnl->tiempo, 'hour')){
+                                    $stime = explode(' ', $pnl->tiempo);
+                                    $time = $time = intval($stime[0])*60 + intval($stime[2]);
+                                    if (floatval($pnl->distancia) > 20) {
+                                        $o20CounterPanel = $o20CounterPanel + intval($time);
+                                    }
+                                    $pnl->tiempo = 40 + intval($time);
+                                    $tCounterPanel = $tCounterPanel + intval($pnl->tiempo);
+                                }else{
+                                    if (floatval($pnl->distancia) > 20) {
+                                        $o20CounterPanel = $o20CounterPanel + intval($pnl->tiempo);
+                                    }
+                                    $pnl->tiempo = 40 + intval($pnl->tiempo);
+                                    $tCounterPanel = $tCounterPanel + intval($pnl->tiempo);
                                 }
-                                $tCounterPanel = $tCounterPanel + intval($pnl->tiempo);
                             }
                             $mCounterPanel = $mCounterPanel + $pnl->efectivoRecibido;
                         }
                         $dataObj->panelTime = $tCounterPanel;
                         $dataObj->panelMoney = $mCounterPanel;
                         $dataObj->panelOver20kms = $o20CounterPanel;
-
-                        $dataObj->pickupAuxiliar = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                            ->where([
-                                'idConductor' => $driver,
-                            ])
-                            ->whereDate('fechaEntrega', $dataObj->fecha)
-                            ->whereHas('delivery', function ($q) {
-                                $q->where('idCategoria', 4);
-                            })
-                            ->count();
 
                         $pickUpAuxiliar = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                             ->where([
@@ -798,35 +849,36 @@ class DeliveriesController extends Controller
                             ->whereDate('fechaEntrega', $dataObj->fecha)
                             ->whereHas('delivery', function ($q) {
                                 $q->where('idCategoria', 4);
-                            })
-                            ->get(['tiempo', 'efectivoRecibido']);
+                            });
+
+                        $dataObj->pickupAuxiliar = $pickUpAuxiliar->count();
 
                         $tCounterPickupAuxiliar = 0;
                         $mCounterPickupAuxiliar = 0;
                         $o20CounterPickupAuxiliar = 0;
-                        foreach ($pickUpAuxiliar as $pckAux) {
-                            if (intval($pckAux->tiempo) > 0) {
-                                $pckAux->tiempo = 10 + intval($pckAux->tiempo) + 10;
-                                if (floatval($pckAux->distancia) > 20) {
-                                    $o20CounterPickupAuxiliar = $o20CounterPickupAuxiliar + +intval($pckAux->tiempo);
+                        foreach ($pickUpAuxiliar->get() as $pckAux) {
+                            if ($pckAux->tiempo != null) {
+                                if(strpos($pckAux->tiempo, 'hour')){
+                                    $stime = explode(' ', $pckAux->tiempo);
+                                    $time = $time = intval($stime[0])*60 + intval($stime[2]);
+                                    if (floatval($pckAux->distancia) > 20) {
+                                        $o20CounterPickupAuxiliar = $o20CounterPickupAuxiliar + intval($time);
+                                    }
+                                    $pckAux->tiempo = 40 + intval($time);
+                                    $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($pckAux->tiempo);
+                                }else{
+                                    if (floatval($pckAux->distancia) > 20) {
+                                        $o20CounterPickupAuxiliar = $o20CounterPickupAuxiliar + intval($pckAux->tiempo);
+                                    }
+                                    $pckAux->tiempo = 40 + intval($pckAux->tiempo);
+                                    $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($pckAux->tiempo);
                                 }
-                                $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($pckAux->tiempo);
                             }
                             $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $pckAux->efectivoRecibido;
                         }
                         $dataObj->pickupAuxiliarTime = $tCounterPickupAuxiliar;
                         $dataObj->pickupAuxiliarMoney = $mCounterPickupAuxiliar;
                         $dataObj->pickupAuxiliarOver20kms = $o20CounterPickupAuxiliar;
-
-                        $dataObj->panelAuxiliar = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                            ->where([
-                                'idConductor' => $driver,
-                            ])
-                            ->whereDate('fechaEntrega', $dataObj->fecha)
-                            ->whereHas('delivery', function ($q) {
-                                $q->where('idCategoria', 5);
-                            })
-                            ->count();
 
                         $panelAuxiliar = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                             ->where([
@@ -835,19 +887,30 @@ class DeliveriesController extends Controller
                             ->whereDate('fechaEntrega', $dataObj->fecha)
                             ->whereHas('delivery', function ($q) {
                                 $q->where('idCategoria', 5);
-                            })
-                            ->get(['tiempo', 'efectivoRecibido']);
+                            });
+
+                        $dataObj->panelAuxiliar = $panelAuxiliar->count();
 
                         $tCounterPanelAuxiliar = 0;
                         $mCounterPanelAuxiliar = 0;
                         $o20CounterPanelAuxiliar = 0;
-                        foreach ($panelAuxiliar as $pnlAux) {
-                            if (intval($pnlAux->tiempo) > 0) {
-                                $pnlAux->tiempo = 10 + intval($pnlAux->tiempo) + 10;
-                                if (floatval($pnlAux->distancia) > 20) {
-                                    $o20CounterPanelAuxiliar = $o20CounterPanelAuxiliar + +intval($pnlAux->tiempo);
+                        foreach ($panelAuxiliar->get() as $pnlAux) {
+                            if ($pnlAux->tiempo != null) {
+                                if(strpos($pnlAux->tiempo, 'hour')){
+                                    $stime = explode(' ', $pnlAux->tiempo);
+                                    $time = $time = intval($stime[0])*60 + intval($stime[2]);
+                                    if (floatval($pnlAux->distancia) > 20) {
+                                        $o20CounterPanelAuxiliar = $o20CounterPanelAuxiliar + intval($time);
+                                    }
+                                    $pnlAux->tiempo = 40 + intval($time);
+                                    $tCounterPanelAuxiliar = $tCounterPanelAuxiliar + intval($pnlAux->tiempo);
+                                }else{
+                                    if (floatval($pnlAux->distancia) > 20) {
+                                        $o20CounterPanelAuxiliar = $o20CounterPanelAuxiliar + intval($pnlAux->tiempo);
+                                    }
+                                    $pnlAux->tiempo = 40 + intval($pnlAux->tiempo);
+                                    $tCounterPanelAuxiliar = $tCounterPanelAuxiliar + intval($pnlAux->tiempo);
                                 }
-                                $tCounterPanelAuxiliar = $tCounterPanelAuxiliar + intval($pnlAux->tiempo);
                             }
                             $mCounterPanelAuxiliar = $mCounterPanelAuxiliar + $pnlAux->efectivoRecibido;
                         }
@@ -863,7 +926,6 @@ class DeliveriesController extends Controller
                     array_push($outputData, $dataObj);
                 }
             }
-
 
             return response()->json(
                 [
@@ -2045,7 +2107,7 @@ class DeliveriesController extends Controller
             $delivery->update(['idEstado' => 37]);
 
             $details = DetalleDelivery::where('idDelivery', $idDelivery);
-            
+
             if(isset($request->assignForm['idAuxiliar']) && $request->assignForm['idAuxiliar'] != null ){
                 $details->update(['idEstado' => 37, 'idConductor' => $idConductor, 'idAuxiliar' => $request->assignForm['idAuxiliar']]);
             }else{
@@ -2132,7 +2194,7 @@ class DeliveriesController extends Controller
             }else{
                 $detail->update(['idEstado' => 41, 'idConductor' => $idConductor]);
             }
-            
+
             $conductor = User::where('idUsuario', $idConductor)->get()->first();
 
             $nCtrl = new CtrlEstadoDelivery();
