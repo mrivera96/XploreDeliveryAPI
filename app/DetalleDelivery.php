@@ -18,6 +18,8 @@ class DetalleDelivery extends Model
         'cTotal',
         'direccion',
         'efectivoRecibido',
+        'idConductor',
+        'idAuxiliar',
         'tiempo'
     ];
 
@@ -27,6 +29,10 @@ class DetalleDelivery extends Model
 
     public function conductor(){
         return $this->hasOne('App\User', 'idUsuario', 'idConductor');
+    }
+
+    public function auxiliar(){
+        return $this->hasOne('App\User', 'idUsuario', 'idAuxiliar');
     }
 
     public function estado(){

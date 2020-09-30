@@ -285,7 +285,7 @@ class DeliveriesController extends Controller
     {
         try {
             $allDeliveries = DetalleDelivery::with([
-                'delivery', 'estado', 'conductor',
+                'delivery', 'estado', 'conductor', 'auxiliar',
                 'photography', 'extraCharges.extracharge', 'extraCharges.option'
             ])
                 ->whereHas('delivery', function ($q) {
@@ -338,7 +338,7 @@ class DeliveriesController extends Controller
 
         try {
             $orders = DetalleDelivery::with([
-                'delivery', 'estado', 'conductor', 'photography',
+                'delivery', 'estado', 'conductor', 'photography', 'auxiliar',
                 'extraCharges.extracharge', 'extraCharges.option'
             ])
                 ->whereHas('delivery', function ($q) use ($request) {
@@ -904,9 +904,6 @@ class DeliveriesController extends Controller
             $customerDetails = DeliveryClient::where('idCliente', $customer)->get()->first();
         }
 
-        $initDate = date('Y-m-d', strtotime($form['initDate']));
-        $finDate = date('Y-m-d', strtotime($form['finDate']));
-        $isSameDay = $initDate == $finDate;
         $initDateTime = new Carbon(date('Y-m-d', strtotime($form['initDate'])) . ' 00:00:00');
         $finDateTime = new Carbon(date('Y-m-d', strtotime($form['finDate'])) . ' 23:59:59');
 
@@ -2048,7 +2045,12 @@ class DeliveriesController extends Controller
             $delivery->update(['idEstado' => 37]);
 
             $details = DetalleDelivery::where('idDelivery', $idDelivery);
-            $details->update(['idEstado' => 37, 'idConductor' => $idConductor]);
+            
+            if(isset($request->assignForm['idAuxiliar']) && $request->assignForm['idAuxiliar'] != null ){
+                $details->update(['idEstado' => 37, 'idConductor' => $idConductor, 'idAuxiliar' => $request->assignForm['idAuxiliar']]);
+            }else{
+                $details->update(['idEstado' => 37, 'idConductor' => $idConductor]);
+            }
             $conductor = User::where('idUsuario', $idConductor)->get()->first();
 
             $nCtrl = new CtrlEstadoDelivery();
@@ -2125,7 +2127,12 @@ class DeliveriesController extends Controller
         try {
 
             $detail = DetalleDelivery::where('idDetalle', $idDetalle);
-            $detail->update(['idEstado' => 41, 'idConductor' => $idConductor]);
+            if(isset($request->idAuxiliar) && $request->idAuxiliar != null ){
+                $detail->update(['idEstado' => 41, 'idConductor' => $idConductor, 'idAuxiliar' => $request->idAuxiliar]);
+            }else{
+                $detail->update(['idEstado' => 41, 'idConductor' => $idConductor]);
+            }
+            
             $conductor = User::where('idUsuario', $idConductor)->get()->first();
 
             $nCtrl = new CtrlEstadoDelivery();
