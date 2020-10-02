@@ -117,7 +117,7 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('getAll', 'DeliveriesController@getAllOrders');
             Route::post('getOrdersByCustomer', 'DeliveriesController@getOrdersByCustomer');
             Route::post('assign', 'DeliveriesController@assignOrder');
-            Route::post('assignAuxiliar', 'DeliveriesController@assignAuxiliar');
+            Route::post('assignAuxiliar', 'DeliveriesController@assignOrderAuxiliar');
             Route::post('addExtracharge', 'DeliveriesController@addOrderExtracharge');
             Route::post('removeExtracharge', 'DeliveriesController@removeOrderExtracharge');
             Route::post('filter', 'DeliveriesController@getFilteredOrders');
@@ -213,7 +213,7 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('removeCustomer', 'WorkLinesController@removeCustomer');
             Route::post('update', 'WorkLinesController@updateWorkLine');
             Route::post('create', 'WorkLinesController@createWorkLine');
-        
+
         });
 
     });

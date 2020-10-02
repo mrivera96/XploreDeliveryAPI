@@ -2219,13 +2219,9 @@ class DeliveriesController extends Controller
             $delivery = Delivery::where('idDelivery', $idDelivery);
             $delivery->update(['idEstado' => 37]);
 
-            $details = DetalleDelivery::where('idDelivery', $idDelivery);
+            DetalleDelivery::where('idDelivery', $idDelivery)
+                ->update(['idEstado' => 37, 'idConductor' => $idConductor]);
 
-            if (isset($request->assignForm['idAuxiliar']) && $request->assignForm['idAuxiliar'] != null) {
-                $details->update(['idEstado' => 37, 'idConductor' => $idConductor, 'idAuxiliar' => $request->assignForm['idAuxiliar']]);
-            } else {
-                $details->update(['idEstado' => 37, 'idConductor' => $idConductor]);
-            }
             $conductor = User::where('idUsuario', $idConductor)->get()->first();
 
             $nCtrl = new CtrlEstadoDelivery();
@@ -2234,7 +2230,6 @@ class DeliveriesController extends Controller
             $nCtrl->idUsuario = Auth::user()->idUsuario;
             $nCtrl->fechaRegistro = Carbon::now();
             $nCtrl->save();
-
 
             return response()->json(
                 [
@@ -2301,12 +2296,8 @@ class DeliveriesController extends Controller
         $idDetalle = $request->idDetalle;
         try {
 
-            $detail = DetalleDelivery::where('idDetalle', $idDetalle);
-            if (isset($request->idAuxiliar) && $request->idAuxiliar != null) {
-                $detail->update(['idEstado' => 41, 'idConductor' => $idConductor, 'idAuxiliar' => $request->idAuxiliar]);
-            } else {
-                $detail->update(['idEstado' => 41, 'idConductor' => $idConductor]);
-            }
+            DetalleDelivery::where('idDetalle', $idDetalle)
+                ->update(['idEstado' => 41, 'idConductor' => $idConductor]);
 
             $conductor = User::where('idUsuario', $idConductor)->get()->first();
 
@@ -2325,6 +2316,46 @@ class DeliveriesController extends Controller
                 ],
                 200
             );
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => 'Ocurrió un error al asignar el envío'
+                ],
+                500
+            );
+        }
+    }
+
+    public function assignOrderAuxiliar(Request $request)
+    {
+        $idAuxiliar = $request->idAuxiliar;
+        $idDetalle = $request->idDetalle;
+        try {
+            $detail = DetalleDelivery::where('idDetalle', $idDetalle);
+            if ($detail->get()->first()->idConductor != $request->idAuxiliar) {
+                $detail->update(['idAuxiliar' => $request->idAuxiliar]);
+                $conductor = User::where('idUsuario', $idAuxiliar)->get()->first();
+
+                return response()->json(
+                    [
+                        'error' => 0,
+                        'data' => $conductor->nomUsuario . ' Ha sido asignado correctamente como auxiliar de envío'
+                    ],
+                    200
+                );
+            } else {
+                return response()->json(
+                    [
+                        'error' => 1,
+                        'message' => 'El conductor no puede ser asignado también como auxiliar'
+                    ],
+                    500
+                );
+            }
+
+
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json(
