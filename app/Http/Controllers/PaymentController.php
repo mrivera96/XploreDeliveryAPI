@@ -26,7 +26,9 @@ class PaymentController extends Controller
         $rPayment = $request->form;
 
         try {
-            $finishedDeliveries = Delivery::where('idCliente', $rPayment['idCliente'])->where('idEstado', 39)->get();
+            $finishedDeliveries = Delivery::where('idCliente', $rPayment['idCliente'])
+                ->where('idEstado', 39)
+                ->get();
 
             if (sizeof($finishedDeliveries) == 0) {
                 return response()->json(
@@ -38,9 +40,12 @@ class PaymentController extends Controller
                 );
             }
 
-            $subtotal = Delivery::where('idCliente', $rPayment['idCliente'])->where('idEstado', 39)->sum('total');
+            $subtotal = Delivery::where('idCliente', $rPayment['idCliente'])
+                ->where('idEstado', 39)
+                ->sum('total');
 
-            $paid = Payment::where('idCliente', $rPayment['idCliente'])->sum('monto');
+            $paid = Payment::where('idCliente', $rPayment['idCliente'])
+                ->sum('monto');
 
             $balance = doubleval($subtotal) - doubleval($paid);
 
@@ -77,14 +82,13 @@ class PaymentController extends Controller
                         500
                     );
                 }
-
             } else if ($rPayment['tipoPago'] == 7) {
                 $existe = Payment::where('idCliente', $nPayment->idCliente)
                     ->where('referencia', $rPayment['referencia'])->count();
                 if ($existe == 0) {
                     $nPayment->referencia = $rPayment['referencia'];
                     $nPayment->banco = $rPayment['banco'];
-                }else {
+                } else {
                     return response()->json(
                         [
                             'error' => 1,
@@ -93,7 +97,6 @@ class PaymentController extends Controller
                         500
                     );
                 }
-
             }
 
             $nPayment->save();
@@ -105,8 +108,6 @@ class PaymentController extends Controller
                 ],
                 200
             );
-
-
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array([
                 'User' => Auth::user()->nomUsuario,
@@ -140,7 +141,6 @@ class PaymentController extends Controller
                 ],
                 200
             );
-
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array([
                 'User' => Auth::user()->nomUsuario,
@@ -174,7 +174,7 @@ class PaymentController extends Controller
 
         try {
             $payments = Payment::with(['customer', 'paymentType'])
-                ->whereBetween('fechaPago',[$initDateTime, $finDateTime])
+                ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
                 ->orderBy('fechaPago')
                 ->get();
 
@@ -183,7 +183,7 @@ class PaymentController extends Controller
                 $payment->monto = number_format($payment->monto, 2);
             }
 
-            $totalAmount = number_format(Payment::whereBetween('fechaPago',[$initDateTime, $finDateTime])
+            $totalAmount = number_format(Payment::whereBetween('fechaPago', [$initDateTime, $finDateTime])
                 ->sum('monto'), 2);
 
             return response()->json(
@@ -194,7 +194,6 @@ class PaymentController extends Controller
                 ],
                 200
             );
-
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array([
                 'User' => Auth::user()->nomUsuario,
@@ -222,7 +221,6 @@ class PaymentController extends Controller
                 ],
                 200
             );
-
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array([
                 'User' => Auth::user()->nomUsuario,

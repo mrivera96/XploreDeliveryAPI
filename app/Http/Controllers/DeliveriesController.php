@@ -613,33 +613,6 @@ class DeliveriesController extends Controller
                                     $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $pckAux->efectivoRecibido;
                                 }
 
-                                $pickupAuxTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                                    ->where([
-                                        'idAuxiliar' => $order[$i]->idConductor,
-                                    ])
-                                    ->whereDate('fechaEntrega', $dataObj->fecha)
-                                    ->whereHas('delivery', function ($q) {
-                                        $q->where('idCategoria', 4);
-                                    })->get();
-
-                                $auxCounterPickup = 0;
-
-                                foreach ($pickupAuxTime as $pckAux) {
-                                    if ($pckAux->tiempo != null) {
-                                        if (strpos($pckAux->tiempo, 'hour')) {
-                                            $stime = explode(' ', $pckAux->tiempo);
-                                            $time = intval($stime[0]) * 60 + intval($stime[2]);
-
-                                            $pckAux->tiempo = 30 + intval($time);
-                                            $auxCounterPickup = $auxCounterPickup + intval($pckAux->tiempo);
-                                        } else {
-                                            $pckAux->tiempo = 30 + intval($pckAux->tiempo);
-                                            $auxCounterPickup = $auxCounterPickup + intval($pckAux->tiempo);
-                                        }
-                                    }
-                                }
-
-                                $dataObj->auxTimePickup = $auxCounterPickup;
                                 $dataObj->pickupAuxiliarTime = $tCounterPickupAuxiliar;
                                 $dataObj->pickupAuxiliarMoney = $mCounterPickupAuxiliar;
                                 $dataObj->pickupAuxiliarOver20kms = $o20CounterPickupAuxiliar;
@@ -679,33 +652,6 @@ class DeliveriesController extends Controller
                                     $mCounterPanelAuxiliar = $mCounterPanelAuxiliar + $pnlAux->efectivoRecibido;
                                 }
 
-                                $panelAuxTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                                    ->where([
-                                        'idAuxiliar' => $order[$i]->idConductor,
-                                    ])
-                                    ->whereDate('fechaEntrega', $dataObj->fecha)
-                                    ->whereHas('delivery', function ($q) {
-                                        $q->where('idCategoria', 5);
-                                    })->get();
-
-                                $auxCounterPanel = 0;
-
-                                foreach ($panelAuxTime as $pnl) {
-                                    if ($pnl->tiempo != null) {
-                                        if (strpos($pnl->tiempo, 'hour')) {
-                                            $stime = explode(' ', $pnl->tiempo);
-                                            $time = intval($stime[0]) * 60 + intval($stime[2]);
-
-                                            $pnl->tiempo = 30 + intval($time);
-                                            $auxCounterPanel = $auxCounterPanel + intval($pnl->tiempo);
-                                        } else {
-                                            $pnl->tiempo = 30 + intval($pnl->tiempo);
-                                            $auxCounterPanel = $auxCounterPanel + intval($pnl->tiempo);
-                                        }
-                                    }
-                                }
-
-                                $dataObj->auxTimePanel = $auxCounterPanel;
                                 $dataObj->panelAuxiliarTime = $tCounterPanelAuxiliar;
                                 $dataObj->panelAuxiliarMoney = $mCounterPickupAuxiliar;
                                 $dataObj->panelAuxiliarOver20kms = $o20CounterPanelAuxiliar;
@@ -714,7 +660,32 @@ class DeliveriesController extends Controller
                                 $dataObj->totalTime = $dataObj->motoTime + $dataObj->turismoTime + $dataObj->pickupTime + $dataObj->panelTime + $dataObj->pickupAuxiliarTime + $dataObj->panelAuxiliarTime;
                                 $dataObj->totalMoney = $dataObj->motoMoney + $dataObj->turismoMoney + $dataObj->pickupMoney + $dataObj->panelMoney + $dataObj->pickupAuxiliarMoney + $dataObj->panelAuxiliarMoney;
                                 $dataObj->totalOver20kms = $dataObj->motoOver20kms + $dataObj->turismoOver20kms + $dataObj->pickupOver20kms + $dataObj->panelOver20kms + $dataObj->pickupAuxiliarOver20kms + $dataObj->panelAuxiliarOver20kms;
-                                $dataObj->totalAuxTime = $dataObj->auxTimePickup + $dataObj->auxTimePanel;
+
+                                $auxTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                                    ->where([
+                                        'idAuxiliar' => $order[$i]->idConductor,
+                                    ])
+                                    ->whereDate('fechaEntrega', $dataObj->fecha)
+                                    ->get();
+
+                                $auxCounter = 0;
+
+                                foreach ($auxTime as $aux) {
+                                    if ($aux->tiempo != null) {
+                                        if (strpos($aux->tiempo, 'hour')) {
+                                            $stime = explode(' ', $aux->tiempo);
+                                            $time = intval($stime[0]) * 60 + intval($stime[2]);
+
+                                            $aux->tiempo = 30 + intval($time);
+                                            $auxCounter = $auxCounter + intval($aux->tiempo);
+                                        } else {
+                                            $aux->tiempo = 30 + intval($aux->tiempo);
+                                            $auxCounter = $auxCounter + intval($aux->tiempo);
+                                        }
+                                    }
+                                }
+                                $dataObj->totalAuxTime = $auxCounter;
+
                                 $exist = 0;
                                 foreach ($outputData as $output) {
                                     if ($dataObj->fecha == $output->fecha && $dataObj->driver == $output->driver) {
