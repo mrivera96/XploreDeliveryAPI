@@ -64,8 +64,7 @@ class CategoriesController extends Controller
             if ($tarCust->count() > 0) {
                 $onlyConsolidated = RateCustomer::where('idCliente', $currCust)
                     ->whereHas('rate', function ($q) {
-                        $q->where('idTipoTarifa', 2)
-                            ->orWhere('idTipoTarifa', 4);
+                        $q->where('idTipoTarifa', 2);
                     })
                     ->count();
 
@@ -80,7 +79,6 @@ class CategoriesController extends Controller
                             $q->where('idTipoTarifa', 3);
                         })
                         ->orderBy('orden')->get();
-
                 } else {
                     $idArray = [];
                     foreach ($tarCust as $item) {
@@ -118,11 +116,6 @@ class CategoriesController extends Controller
                         $q->where('idTipoTarifa', 2);
                     })->get();
 
-                $consolidatedForeignRates = RateCustomer::where('idCliente', $currCust)
-                    ->whereHas('rate', function ($q) {
-                        $q->where('idTipoTarifa', 4);
-                    })->get();
-
 
                 $idsConsolidated = [];
                 if ($consolidatedRates->count() > 0) {
@@ -133,16 +126,6 @@ class CategoriesController extends Controller
                     }
                 }
 
-                $idsForeign = [];
-                if ($consolidatedForeignRates->count() > 0) {
-                    foreach ($consolidatedForeignRates as $item) {
-                        if (!in_array($item->rate->idCategoria, $idsForeign) && $item->rate->idTipoTarifa == 4) {
-                            array_push($idsForeign, $item->rate->idCategoria);
-                        }
-                    }
-                }
-
-
                 $consolidatedCategories = Category::with([
                     'rate.schedules',
                     'rate.rateDetail',
@@ -152,6 +135,19 @@ class CategoriesController extends Controller
                     ->whereIn('idCategoria', $idsConsolidated)
                     ->orderBy('orden')->get();
 
+                $consolidatedForeignRates = RateCustomer::whereHas('rate', function ($q) {
+                    $q->where('idTipoTarifa', 4);
+                })->get();
+
+                $idsForeign = [];
+                if ($consolidatedForeignRates->count() > 0) {
+                    foreach ($consolidatedForeignRates as $item) {
+                        if (!in_array($item->rate->idCategoria, $idsForeign) && $item->rate->idTipoTarifa == 4) {
+                            array_push($idsForeign, $item->rate->idCategoria);
+                        }
+                    }
+                }
+
                 $consolidatedForeignCategories = Category::with([
                     'rate.schedules',
                     'rate.rateDetail',
@@ -160,8 +156,6 @@ class CategoriesController extends Controller
                     ->where('isActivo', 1)
                     ->whereIn('idCategoria', $idsForeign)
                     ->orderBy('orden')->get();
-
-
             } else {
                 $categories = Category::where('isActivo', 1)
                     ->orderBy('orden')
@@ -177,11 +171,9 @@ class CategoriesController extends Controller
                         $q->where('idTipoTarifa', 3);
                     })->get();
 
-                $consolidatedForeignRates = RateCustomer::where('idCliente', 1)
-                    ->whereHas('rate', function ($q) {
-                        $q->where('idTipoTarifa', 4);
-                    })->get();
-
+                $consolidatedForeignRates = RateCustomer::whereHas('rate', function ($q) {
+                    $q->where('idTipoTarifa', 4);
+                })->get();
 
                 $idArray = [];
                 if ($consolidatedRates->count() > 0) {
@@ -233,7 +225,6 @@ class CategoriesController extends Controller
                 $routingCategories = Category::where('isActivo', 1)
                     ->whereIn('idCategoria', $idArrayR)
                     ->orderBy('orden')->get();
-
             }
 
             foreach ($consolidatedCategories as $category) {
@@ -386,61 +377,54 @@ class CategoriesController extends Controller
                 foreach ($rates as $rate) {
                     $today = Carbon::now()->dayOfWeek;
                     $datesToShow = [];
-                    $detail = $rate->rateDetail;
-                    $existsCustomer = 0;
-                    foreach ($detail as $dtl) {
-                        if ($dtl->idCliente == $currCust) {
-                            $existsCustomer++;
-                        }
-                    }
-                    if ($existsCustomer > 0) {
-                        $rateSchedules = $rate->schedules->sortBy('cod');
 
-                        foreach ($rateSchedules as $schedule) {
-                            if ($schedule->cod != $today) {
-                                $day = jddayofweek($schedule->cod - 1, 1);
+                    $rateSchedules = $rate->schedules->sortBy('cod');
 
-                                $closestDate = strtotime("next " . $day . "", strtotime(Carbon::now()));
-                                $date = (object)array();
-                                $date->date = Carbon::parse($closestDate)->format('Y-m-d');
-                                $date->day = utf8_encode(strtolower($schedule->dia));
-                                $date->cod = $schedule->cod;
-                                $date->label = $schedule->dia . ' ' . Carbon::parse($closestDate)->format('Y-m-d');
+                    foreach ($rateSchedules as $schedule) {
+                        if ($schedule->cod != $today) {
+                            $day = jddayofweek($schedule->cod - 1, 1);
 
-                                $exists = 0;
-                                foreach ($datesToShow as $datets) {
-                                    if ($datets->day == $date->day) {
-                                        $exists++;
-                                    }
-                                }
+                            $closestDate = strtotime("next " . $day . "", strtotime(Carbon::now()));
+                            $date = (object)array();
+                            $date->date = Carbon::parse($closestDate)->format('Y-m-d');
+                            $date->day = utf8_encode(strtolower($schedule->dia));
+                            $date->cod = $schedule->cod;
+                            $date->label = $schedule->dia . ' ' . Carbon::parse($closestDate)->format('Y-m-d');
 
-                                if ($exists == 0) {
-                                    array_push($datesToShow, $date);
-                                }
-                            } else if ($schedule->cod == $today && $schedule->inicio >= date('H:i', strtotime(Carbon::now()))) {
-                                $closestDate = $schedule->dia . ' ' . Carbon::parse(Carbon::now())->format('Y-m-d');
-                                $date = (object)array(
-                                    'date' => Carbon::parse(Carbon::now())->format('Y-m-d'),
-                                    'day' => utf8_encode(strtolower($schedule->dia)),
-                                    'cod' => $schedule->cod,
-                                    'label' => $closestDate
-                                );
-                                $exists = 0;
-                                foreach ($datesToShow as $datets) {
-                                    if ($datets->day == $date->day) {
-                                        $exists++;
-                                    }
-                                }
-
-                                if ($exists == 0) {
-                                    array_push($datesToShow, $date);
+                            $exists = 0;
+                            foreach ($datesToShow as $datets) {
+                                if ($datets->day == $date->day) {
+                                    $exists++;
                                 }
                             }
-                        }
-                        if ($rate->idTipoTarifa == 4) {
-                            array_push($ratesToShow, $rate);
+
+                            if ($exists == 0) {
+                                array_push($datesToShow, $date);
+                            }
+                        } else if ($schedule->cod == $today && $schedule->inicio >= date('H:i', strtotime(Carbon::now()))) {
+                            $closestDate = $schedule->dia . ' ' . Carbon::parse(Carbon::now())->format('Y-m-d');
+                            $date = (object)array(
+                                'date' => Carbon::parse(Carbon::now())->format('Y-m-d'),
+                                'day' => utf8_encode(strtolower($schedule->dia)),
+                                'cod' => $schedule->cod,
+                                'label' => $closestDate
+                            );
+                            $exists = 0;
+                            foreach ($datesToShow as $datets) {
+                                if ($datets->day == $date->day) {
+                                    $exists++;
+                                }
+                            }
+
+                            if ($exists == 0) {
+                                array_push($datesToShow, $date);
+                            }
                         }
                     }
+                    if ($rate->idTipoTarifa == 4) {
+                        array_push($ratesToShow, $rate);
+                    }
+
 
                     $dates = array();
                     foreach ($datesToShow as $my_object) {
@@ -556,7 +540,7 @@ class CategoriesController extends Controller
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
-                'message' => $ex->getMessage()
+                'message' => 'Ocurrió un error al cargar los datos'//$ex->getMessage()
             ], 500);
         }
     }
