@@ -453,7 +453,6 @@ class DeliveriesController extends Controller
                                             $mto->tiempo = 30 + intval($mto->tiempo);
                                             $tCounterMoto = $tCounterMoto + intval($mto->tiempo);
                                         }
-
                                     }
 
                                     $mCounterMoto = $mCounterMoto + $mto->efectivoRecibido;
@@ -656,10 +655,88 @@ class DeliveriesController extends Controller
                                 $dataObj->panelAuxiliarMoney = $mCounterPickupAuxiliar;
                                 $dataObj->panelAuxiliarOver20kms = $o20CounterPanelAuxiliar;
 
-                                $dataObj->totalOrders = $dataObj->moto + $dataObj->turismo + $dataObj->pickup + $dataObj->panel + $dataObj->pickupAuxiliar + $dataObj->panelAuxiliar;
-                                $dataObj->totalTime = $dataObj->motoTime + $dataObj->turismoTime + $dataObj->pickupTime + $dataObj->panelTime + $dataObj->pickupAuxiliarTime + $dataObj->panelAuxiliarTime;
-                                $dataObj->totalMoney = $dataObj->motoMoney + $dataObj->turismoMoney + $dataObj->pickupMoney + $dataObj->panelMoney + $dataObj->pickupAuxiliarMoney + $dataObj->panelAuxiliarMoney;
-                                $dataObj->totalOver20kms = $dataObj->motoOver20kms + $dataObj->turismoOver20kms + $dataObj->pickupOver20kms + $dataObj->panelOver20kms + $dataObj->pickupAuxiliarOver20kms + $dataObj->panelAuxiliarOver20kms;
+                                $transTurism = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                                    ->where([
+                                        'idConductor' => $order[$i]->idConductor,
+                                    ])
+                                    ->whereDate('fechaEntrega', $dataObj->fecha)
+                                    ->whereHas('delivery', function ($q) {
+                                        $q->where('idCategoria', 7);
+                                    });
+
+                                $dataObj->transTurism = $transTurism->count();
+
+                                $tCounterTransTurism = 0;
+                                $mCounterTransTurism = 0;
+                                $o20CounterTransTurism = 0;
+                                foreach ($transTurism->get() as $tturism) {
+                                    if ($tturism->tiempo != null) {
+                                        if (strpos($tturism->tiempo, 'hour')) {
+                                            $stime = explode(' ', $tturism->tiempo);
+                                            $time = intval($stime[0]) * 60 + intval($stime[2]);
+                                            if (floatval($tturism->distancia) > 20) {
+                                                $o20CounterTransTurism = $o20CounterTransTurism + intval($time);
+                                            }
+                                            $tturism->tiempo = 20 + intval($time);
+                                            $tCounterTransTurism = $tCounterTransTurism + intval($tturism->tiempo);
+                                        } else {
+                                            if (floatval($tturism->distancia) > 20) {
+                                                $o20CounterTransTurism = $o20CounterTransTurism + intval($tturism->tiempo);
+                                            }
+                                            $tturism->tiempo = 20 + intval($tturism->tiempo);
+                                            $tCounterTransTurism = $tCounterTransTurism + intval($tturism->tiempo);
+                                        }
+                                    }
+                                    $mCounterTransTurism = $mCounterTransTurism + $tturism->efectivoRecibido;
+                                }
+
+                                $dataObj->transTurismTime = $tCounterTransTurism;
+                                $dataObj->transTurismMoney = $mCounterTransTurism;
+                                $dataObj->transTurismOver20kms = $o20CounterTransTurism;
+
+                                $camion11 = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                                    ->where([
+                                        'idConductor' => $order[$i]->idConductor,
+                                    ])
+                                    ->whereDate('fechaEntrega', $dataObj->fecha)
+                                    ->whereHas('delivery', function ($q) {
+                                        $q->where('idCategoria', 8);
+                                    });
+
+                                $dataObj->camion11 = $camion11->count();
+
+                                $tCounterCamion11 = 0;
+                                $mCounterCamion11 = 0;
+                                $o20CounterCamion11 = 0;
+                                foreach ($camion11->get() as $cam11) {
+                                    if ($cam11->tiempo != null) {
+                                        if (strpos($cam11->tiempo, 'hour')) {
+                                            $stime = explode(' ', $cam11->tiempo);
+                                            $time = intval($stime[0]) * 60 + intval($stime[2]);
+                                            if (floatval($cam11->distancia) > 20) {
+                                                $o20CounterCamion11 = $o20CounterCamion11 + intval($time);
+                                            }
+                                            $cam11->tiempo = 40 + intval($time);
+                                            $tCounterCamion11 = $tCounterCamion11 + intval($cam11->tiempo);
+                                        } else {
+                                            if (floatval($cam11->distancia) > 20) {
+                                                $o20CounterCamion11 = $o20CounterCamion11 + intval($cam11->tiempo);
+                                            }
+                                            $cam11->tiempo = 40 + intval($cam11->tiempo);
+                                            $tCounterCamion11 = $tCounterCamion11 + intval($cam11->tiempo);
+                                        }
+                                    }
+                                    $mCounterCamion11 = $mCounterCamion11 + $cam11->efectivoRecibido;
+                                }
+
+                                $dataObj->camion11Time         = $tCounterCamion11;
+                                $dataObj->camion11Money        = $mCounterCamion11;
+                                $dataObj->camion11Over20kms    = $o20CounterCamion11;
+
+                                $dataObj->totalOrders = $dataObj->moto + $dataObj->turismo + $dataObj->pickup + $dataObj->panel + $dataObj->pickupAuxiliar + $dataObj->panelAuxiliar + $dataObj->transTurism + $dataObj->camion11;
+                                $dataObj->totalTime = $dataObj->motoTime + $dataObj->turismoTime + $dataObj->pickupTime + $dataObj->panelTime + $dataObj->pickupAuxiliarTime + $dataObj->panelAuxiliarTime + $dataObj->transTurismTime + $dataObj->camion11Time;
+                                $dataObj->totalMoney = $dataObj->motoMoney + $dataObj->turismoMoney + $dataObj->pickupMoney + $dataObj->panelMoney + $dataObj->pickupAuxiliarMoney + $dataObj->panelAuxiliarMoney + $dataObj->transTurismMoney + $dataObj->camion11Money;
+                                $dataObj->totalOver20kms = $dataObj->motoOver20kms + $dataObj->turismoOver20kms + $dataObj->pickupOver20kms + $dataObj->panelOver20kms + $dataObj->pickupAuxiliarOver20kms + $dataObj->panelAuxiliarOver20kms + $dataObj->transTurismOver20kms + $dataObj->camion11Over20kms;
 
                                 $auxTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                                     ->where([
@@ -685,6 +762,7 @@ class DeliveriesController extends Controller
                                     }
                                 }
                                 $dataObj->totalAuxTime = $auxCounter;
+                                $dataObj->tiempototal = $dataObj->totalTime + $dataObj->totalOver20kms + $dataObj->totalAuxTime;
 
                                 $exist = 0;
                                 foreach ($outputData as $output) {
@@ -903,33 +981,7 @@ class DeliveriesController extends Controller
                             }
                             $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $pckAux->efectivoRecibido;
                         }
-                        $pickupAuxTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                            ->where([
-                                'idAuxiliar' => $driver,
-                            ])
-                            ->whereDate('fechaEntrega', $dataObj->fecha)
-                            ->whereHas('delivery', function ($q) {
-                                $q->where('idCategoria', 4);
-                            })->get();
 
-                        $auxCounterPickup = 0;
-
-                        foreach ($pickupAuxTime as $pckAux) {
-                            if ($pckAux->tiempo != null) {
-                                if (strpos($pckAux->tiempo, 'hour')) {
-                                    $stime = explode(' ', $pckAux->tiempo);
-                                    $time = intval($stime[0]) * 60 + intval($stime[2]);
-
-                                    $pckAux->tiempo = 30 + intval($time);
-                                    $auxCounterPickup = $auxCounterPickup + intval($pckAux->tiempo);
-                                } else {
-                                    $pckAux->tiempo = 30 + intval($pckAux->tiempo);
-                                    $auxCounterPickup = $auxCounterPickup + intval($pckAux->tiempo);
-                                }
-                            }
-                        }
-
-                        $dataObj->auxTimePickup = $auxCounterPickup;
                         $dataObj->pickupAuxiliarTime = $tCounterPickupAuxiliar;
                         $dataObj->pickupAuxiliarMoney = $mCounterPickupAuxiliar;
                         $dataObj->pickupAuxiliarOver20kms = $o20CounterPickupAuxiliar;
@@ -969,43 +1021,119 @@ class DeliveriesController extends Controller
                             $mCounterPanelAuxiliar = $mCounterPanelAuxiliar + $pnlAux->efectivoRecibido;
                         }
 
-                        $panelAuxTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                            ->where([
-                                'idAuxiliar' => $driver,
-                            ])
-                            ->whereDate('fechaEntrega', $dataObj->fecha)
-                            ->whereHas('delivery', function ($q) {
-                                $q->where('idCategoria', 5);
-                            })->get();
 
-                        $auxCounterPanel = 0;
-
-                        foreach ($panelAuxTime as $pnl) {
-                            if ($pnl->tiempo != null) {
-                                if (strpos($pnl->tiempo, 'hour')) {
-                                    $stime = explode(' ', $pnl->tiempo);
-                                    $time = intval($stime[0]) * 60 + intval($stime[2]);
-
-                                    $pnl->tiempo = 30 + intval($time);
-                                    $auxCounterPanel = $auxCounterPanel + intval($pnl->tiempo);
-                                } else {
-                                    $pnl->tiempo = 30 + intval($pnl->tiempo);
-                                    $auxCounterPanel = $auxCounterPanel + intval($pnl->tiempo);
-                                }
-                            }
-                        }
-
-                        $dataObj->auxTimePanel = $auxCounterPanel;
                         $dataObj->panelAuxiliarTime = $tCounterPanelAuxiliar;
                         $dataObj->panelAuxiliarMoney = $mCounterPickupAuxiliar;
                         $dataObj->panelAuxiliarOver20kms = $o20CounterPanelAuxiliar;
 
-                        $dataObj->totalOrders = $dataObj->moto + $dataObj->turismo + $dataObj->pickup + $dataObj->panel + $dataObj->pickupAuxiliar + $dataObj->panelAuxiliar;
-                        $dataObj->totalTime = $dataObj->motoTime + $dataObj->turismoTime + $dataObj->pickupTime + $dataObj->panelTime + $dataObj->pickupAuxiliarTime + $dataObj->panelAuxiliarTime;
-                        $dataObj->totalMoney = $dataObj->motoMoney + $dataObj->turismoMoney + $dataObj->pickupMoney + $dataObj->panelMoney + $dataObj->pickupAuxiliarMoney + $dataObj->panelAuxiliarMoney;
-                        $dataObj->totalOver20kms = $dataObj->motoOver20kms + $dataObj->turismoOver20kms + $dataObj->pickupOver20kms + $dataObj->panelOver20kms + $dataObj->pickupAuxiliarOver20kms + $dataObj->panelAuxiliarOver20kms;
-                        $dataObj->totalAuxTime = $dataObj->auxTimePickup + $dataObj->auxTimePanel;
+                        $transTurism = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                            ->where([
+                                'idConductor' => $driver,
+                            ])
+                            ->whereDate('fechaEntrega', $dataObj->fecha)
+                            ->whereHas('delivery', function ($q) {
+                                $q->where('idCategoria', 7);
+                            });
 
+                        $dataObj->transTurism = $transTurism->count();
+
+                        $tCounterTransTurism = 0;
+                        $mCounterTransTurism = 0;
+                        $o20CounterTransTurism = 0;
+                        foreach ($transTurism->get() as $tturism) {
+                            if ($tturism->tiempo != null) {
+                                if (strpos($tturism->tiempo, 'hour')) {
+                                    $stime = explode(' ', $tturism->tiempo);
+                                    $time = intval($stime[0]) * 60 + intval($stime[2]);
+                                    if (floatval($tturism->distancia) > 20) {
+                                        $o20CounterTransTurism = $o20CounterTransTurism + intval($time);
+                                    }
+                                    $tturism->tiempo = 20 + intval($time);
+                                    $tCounterTransTurism = $tCounterTransTurism + intval($tturism->tiempo);
+                                } else {
+                                    if (floatval($tturism->distancia) > 20) {
+                                        $o20CounterTransTurism = $o20CounterTransTurism + intval($tturism->tiempo);
+                                    }
+                                    $tturism->tiempo = 20 + intval($tturism->tiempo);
+                                    $tCounterTransTurism = $tCounterTransTurism + intval($tturism->tiempo);
+                                }
+                            }
+                            $mCounterTransTurism = $mCounterTransTurism + $tturism->efectivoRecibido;
+                        }
+
+                        $dataObj->transTurismTime = $tCounterTransTurism;
+                        $dataObj->transTurismMoney = $mCounterTransTurism;
+                        $dataObj->transTurismOver20kms = $o20CounterTransTurism;
+
+                        $camion11 = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                            ->where([
+                                'idConductor' => $order[$i]->idConductor,
+                            ])
+                            ->whereDate('fechaEntrega', $dataObj->fecha)
+                            ->whereHas('delivery', function ($q) {
+                                $q->where('idCategoria', 8);
+                            });
+
+                        $dataObj->camion11 = $camion11->count();
+
+                        $tCounterCamion11 = 0;
+                        $mCounterCamion11 = 0;
+                        $o20CounterCamion11 = 0;
+                        foreach ($camion11->get() as $cam11) {
+                            if ($cam11->tiempo != null) {
+                                if (strpos($cam11->tiempo, 'hour')) {
+                                    $stime = explode(' ', $cam11->tiempo);
+                                    $time = intval($stime[0]) * 60 + intval($stime[2]);
+                                    if (floatval($cam11->distancia) > 20) {
+                                        $o20CounterCamion11 = $o20CounterCamion11 + intval($time);
+                                    }
+                                    $cam11->tiempo = 40 + intval($time);
+                                    $tCounterCamion11 = $tCounterCamion11 + intval($cam11->tiempo);
+                                } else {
+                                    if (floatval($cam11->distancia) > 20) {
+                                        $o20CounterCamion11 = $o20CounterCamion11 + intval($cam11->tiempo);
+                                    }
+                                    $cam11->tiempo = 40 + intval($cam11->tiempo);
+                                    $tCounterCamion11 = $tCounterCamion11 + intval($cam11->tiempo);
+                                }
+                            }
+                            $mCounterCamion11 = $mCounterCamion11 + $cam11->efectivoRecibido;
+                        }
+
+                        $dataObj->camion11Time         = $tCounterCamion11;
+                        $dataObj->camion11Money        = $mCounterCamion11;
+                        $dataObj->camion11Over20kms    = $o20CounterCamion11;
+
+                        $dataObj->totalOrders = $dataObj->moto + $dataObj->turismo + $dataObj->pickup + $dataObj->panel + $dataObj->pickupAuxiliar + $dataObj->panelAuxiliar + $dataObj->transTurism + $dataObj->camion11;
+                        $dataObj->totalTime = $dataObj->motoTime + $dataObj->turismoTime + $dataObj->pickupTime + $dataObj->panelTime + $dataObj->pickupAuxiliarTime + $dataObj->panelAuxiliarTime + $dataObj->transTurismTime + $dataObj->camion11Time;
+                        $dataObj->totalMoney = $dataObj->motoMoney + $dataObj->turismoMoney + $dataObj->pickupMoney + $dataObj->panelMoney + $dataObj->pickupAuxiliarMoney + $dataObj->panelAuxiliarMoney + $dataObj->transTurismMoney + $dataObj->camion11Money;
+                        $dataObj->totalOver20kms = $dataObj->motoOver20kms + $dataObj->turismoOver20kms + $dataObj->pickupOver20kms + $dataObj->panelOver20kms + $dataObj->pickupAuxiliarOver20kms + $dataObj->panelAuxiliarOver20kms + $dataObj->transTurismOver20kms + $dataObj->camion11Over20kms;
+
+                        $auxTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                            ->where([
+                                'idAuxiliar' => $order[$i]->idConductor,
+                            ])
+                            ->whereDate('fechaEntrega', $dataObj->fecha)
+                            ->get();
+
+                        $auxCounter = 0;
+
+                        foreach ($auxTime as $aux) {
+                            if ($aux->tiempo != null) {
+                                if (strpos($aux->tiempo, 'hour')) {
+                                    $stime = explode(' ', $aux->tiempo);
+                                    $time = intval($stime[0]) * 60 + intval($stime[2]);
+
+                                    $aux->tiempo = 30 + intval($time);
+                                    $auxCounter = $auxCounter + intval($aux->tiempo);
+                                } else {
+                                    $aux->tiempo = 30 + intval($aux->tiempo);
+                                    $auxCounter = $auxCounter + intval($aux->tiempo);
+                                }
+                            }
+                        }
+                        $dataObj->totalAuxTime = $auxCounter;
+                        $dataObj->tiempototal = $dataObj->totalTime + $dataObj->totalOver20kms + $dataObj->totalAuxTime;
                     }
                     array_push($outputData, $dataObj);
                 }
@@ -2325,8 +2453,6 @@ class DeliveriesController extends Controller
                     500
                 );
             }
-
-
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json(
