@@ -405,20 +405,20 @@ class DeliveriesController extends Controller
             $outputData = [];
 
             if ($driver == -1) {
-                $drivers = User::where('idPerfil', 7)->get();
-                $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                $drivers = User::where('idPerfil', 7)->orderBy('nomUsuario', 'ASC')->get(['nomUsuario','idUsuario']);
+                $orders = DetalleDelivery::with(['conductor'])->whereIn('idEstado', [44, 46, 47])
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                    ->orderBy('fechaEntrega', 'desc')->get()
+                    ->orderBy('fechaEntrega', 'desc')->get(['idConductor','fechaEntrega'])
                     ->groupBy(function ($val) {
                         return Carbon::parse($val->fechaEntrega)->format('Y-m-d');
                     });
 
-                foreach ($drivers as $driver) {
+                //foreach ($drivers as $driver) {
                     foreach ($orders as $order) {
                         for ($i = 0; $i < sizeof($order); $i++) {
-                            if ($driver->idUsuario == $order[$i]->idConductor) {
+                            //if ($driver->idUsuario == $order[$i]->idConductor) {
                                 $dataObj = (object)array();
-                                $dataObj->driver = $driver->nomUsuario;
+                                $dataObj->driver = $order[$i]->conductor->nomUsuario;
                                 $dataObj->fecha = Carbon::parse($order[$i]->fechaEntrega)->format('Y-m-d');
 
                                 $moto = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
@@ -742,6 +742,9 @@ class DeliveriesController extends Controller
                                     ->where([
                                         'idAuxiliar' => $order[$i]->idConductor,
                                     ])
+                                    ->whereHas('delivery', function ($q) {
+                                        $q->whereIn('idCategoria', [4,5,8]);
+                                    })
                                     ->whereDate('fechaEntrega', $dataObj->fecha)
                                     ->get();
 
@@ -753,10 +756,10 @@ class DeliveriesController extends Controller
                                             $stime = explode(' ', $aux->tiempo);
                                             $time = intval($stime[0]) * 60 + intval($stime[2]);
 
-                                            $aux->tiempo = 30 + intval($time);
+                                            $aux->tiempo = (40 + intval($time)) - 10;
                                             $auxCounter = $auxCounter + intval($aux->tiempo);
                                         } else {
-                                            $aux->tiempo = 30 + intval($aux->tiempo);
+                                            $aux->tiempo = (40 + intval($aux->tiempo)) - 10;
                                             $auxCounter = $auxCounter + intval($aux->tiempo);
                                         }
                                     }
@@ -774,10 +777,10 @@ class DeliveriesController extends Controller
                                 if ($exist == 0) {
                                     array_push($outputData, $dataObj);
                                 }
-                            }
+                            //}
                         }
                     }
-                }
+                //}
             } else {
                 $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                     ->where('idConductor', $driver)
@@ -1113,6 +1116,9 @@ class DeliveriesController extends Controller
                             ->where([
                                 'idAuxiliar' => $order[$i]->idConductor,
                             ])
+                            ->whereHas('delivery', function ($q) {
+                                $q->whereIn('idCategoria', [4,5,8]);
+                            })
                             ->whereDate('fechaEntrega', $dataObj->fecha)
                             ->get();
 
@@ -1124,10 +1130,10 @@ class DeliveriesController extends Controller
                                     $stime = explode(' ', $aux->tiempo);
                                     $time = intval($stime[0]) * 60 + intval($stime[2]);
 
-                                    $aux->tiempo = 30 + intval($time);
+                                    $aux->tiempo = (40 + intval($time)) - 10;
                                     $auxCounter = $auxCounter + intval($aux->tiempo);
                                 } else {
-                                    $aux->tiempo = 30 + intval($aux->tiempo);
+                                    $aux->tiempo = (40 + intval($aux->tiempo)) - 10;
                                     $auxCounter = $auxCounter + intval($aux->tiempo);
                                 }
                             }
@@ -1154,7 +1160,7 @@ class DeliveriesController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => 'Ocurrió un error al cargar los datos'
+                    'message' => $ex->getTrace()//'Ocurrió un error al cargar los datos'
                 ],
                 500
             );
