@@ -64,7 +64,7 @@ class CategoriesController extends Controller
             if ($tarCust->count() > 0) {
                 $onlyConsolidated = RateCustomer::where('idCliente', $currCust)
                     ->whereHas('rate', function ($q) {
-                        $q->where('idTipoTarifa', 2);
+                        $q->whereIn('idTipoTarifa', [2, 4]);
                     })
                     ->count();
 
@@ -115,7 +115,6 @@ class CategoriesController extends Controller
                     ->whereHas('rate', function ($q) {
                         $q->where('idTipoTarifa', 2);
                     })->get();
-
 
                 $idsConsolidated = [];
                 if ($consolidatedRates->count() > 0) {
@@ -425,7 +424,6 @@ class CategoriesController extends Controller
                         array_push($ratesToShow, $rate);
                     }
 
-
                     $dates = array();
                     foreach ($datesToShow as $my_object) {
                         $dates[] = $my_object->date; //any object field
@@ -513,19 +511,26 @@ class CategoriesController extends Controller
                 }
 
                 $rates = $category->rate;
+
                 $ratesToShow = [];
                 foreach ($rates as $rate) {
-                    $existsCustomer = 0;
-                    foreach ($detail as $dtl) {
-                        if ($dtl->idCliente == $currCust) {
-                            $existsCustomer++;
+                    $detail = $rate->rateDetail;
+                    if(sizeof($detail) > 0){
+                        $existsCustomer = 0;
+                        foreach ($detail as $dtl) {
+                            if ($dtl->idCliente == $currCust) {
+                                $existsCustomer++;
+                            }
                         }
-                    }
-                    if ($existsCustomer > 0) {
+                        if ($existsCustomer > 0 && $rate->idTipoTarifa == 3) {
+                            array_push($ratesToShow, $rate);
+                        }
+                    }else{
                         if ($rate->idTipoTarifa == 3) {
                             array_push($ratesToShow, $rate);
                         }
                     }
+
                 }
                 $category->ratesToShow = $ratesToShow;
             }

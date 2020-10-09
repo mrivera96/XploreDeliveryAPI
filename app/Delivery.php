@@ -22,7 +22,9 @@ class Delivery extends Model
         'tarifaBase',
         'recargos',
         'cargosExtra',
-        'total'
+        'total',
+        'distTotal',
+        'isRuteo'
     ];
 
 
