@@ -237,7 +237,7 @@ class CategoriesController extends Controller
                     $cEC->extraCharge->options;
                 }
 
-                $customerSurcharges = RecargoDelivery::where('idCategoria', $category->idCategoria)
+                $customerSurcharges = RecargoDelivery::where(['idCategoria' => $category->idCategoria, 'idTipoEnvio' => 2])
                     ->whereHas('customerSurcharges', function ($q) use ($currCust) {
                         $q->where('idCliente', $currCust);
                     });
@@ -246,8 +246,7 @@ class CategoriesController extends Controller
                     $category->surcharges = $customerSurcharges->get();
                 } else {
                     $category->surcharges = RecargoDelivery::where(
-                        'idCategoria',
-                        $category->idCategoria
+                        ['idCategoria' => $category->idCategoria, 'idTipoEnvio' => 2]
                     )
                         ->where('idCliente', 1)
                         ->get();
@@ -355,7 +354,7 @@ class CategoriesController extends Controller
                     $cEC->extraCharge->options;
                 }
 
-                $customerSurcharges = RecargoDelivery::where('idCategoria', $category->idCategoria)
+                $customerSurcharges = RecargoDelivery::where(['idCategoria' => $category->idCategoria, 'idTipoEnvio' => 4])
                     ->whereHas('customerSurcharges', function ($q) use ($currCust) {
                         $q->where('idCliente', $currCust);
                     });
@@ -363,10 +362,10 @@ class CategoriesController extends Controller
                 if ($customerSurcharges->count() > 0) {
                     $category->surcharges = $customerSurcharges->get();
                 } else {
-                    $category->surcharges = RecargoDelivery::where(
-                        'idCategoria',
-                        $category->idCategoria
-                    )
+                    $category->surcharges = RecargoDelivery::where([
+                        'idCategoria' => $category->idCategoria,
+                        'idTipoEnvio' => 4
+                    ])
                         ->where('idCliente', 1)
                         ->get();
                 }
@@ -462,7 +461,10 @@ class CategoriesController extends Controller
                     })
                     ->get();
 
-                $customerSurcharges = RecargoDelivery::where('idCategoria', $category->idCategoria)
+                $customerSurcharges = RecargoDelivery::where([
+                    'idCategoria' => $category->idCategoria,
+                    'idTipoEnvio' => 1
+                ])
                     ->whereHas('customerSurcharges', function ($q) use ($currCust) {
                         $q->where('idCliente', $currCust);
                     });
@@ -470,10 +472,10 @@ class CategoriesController extends Controller
                 if ($customerSurcharges->count() > 0) {
                     $category->surcharges = $customerSurcharges->get();
                 } else {
-                    $category->surcharges = RecargoDelivery::where(
-                        'idCategoria',
-                        $category->idCategoria
-                    )
+                    $category->surcharges = RecargoDelivery::where([
+                        'idCategoria' => $category->idCategoria,
+                        'idTipoEnvio' => 1
+                    ])
                         ->where('idCliente', 1)
                         ->get();
                 }
@@ -490,7 +492,10 @@ class CategoriesController extends Controller
                     })
                     ->get();
 
-                $customerSurcharges = RecargoDelivery::where('idCategoria', $category->idCategoria)
+                $customerSurcharges = RecargoDelivery::where([
+                    'idCategoria' => $category->idCategoria,
+                    'idTipoEnvio' => 3
+                ])
                     ->whereHas('customerSurcharges', function ($q) use ($currCust) {
                         $q->where('idCliente', $currCust);
                     });
@@ -498,10 +503,10 @@ class CategoriesController extends Controller
                 if ($customerSurcharges->count() > 0) {
                     $category->surcharges = $customerSurcharges->get();
                 } else {
-                    $category->surcharges = RecargoDelivery::where(
-                        'idCategoria',
-                        $category->idCategoria
-                    )
+                    $category->surcharges = RecargoDelivery::where([
+                        'idCategoria' => $category->idCategoria,
+                        'idTipoEnvio' => 3
+                    ])
                         ->where('idCliente', 1)
                         ->get();
                 }
@@ -515,7 +520,7 @@ class CategoriesController extends Controller
                 $ratesToShow = [];
                 foreach ($rates as $rate) {
                     $detail = $rate->rateDetail;
-                    if(sizeof($detail) > 0){
+                    if (sizeof($detail) > 0) {
                         $existsCustomer = 0;
                         foreach ($detail as $dtl) {
                             if ($dtl->idCliente == $currCust) {
@@ -525,7 +530,7 @@ class CategoriesController extends Controller
                         if ($existsCustomer > 0 && $rate->idTipoTarifa == 3) {
                             array_push($ratesToShow, $rate);
                         }
-                    }else{
+                    } else {
                         if ($rate->idTipoTarifa == 3) {
                             array_push($ratesToShow, $rate);
                         }

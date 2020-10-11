@@ -54,4 +54,8 @@ class DeliveryClient extends Model
     {
         return $this->belongsTo('App\CustomerSurcharges', 'idCliente', 'idCliente');
     }
+
+    public function reportRequests(){
+        return $this->belongsToMany('App\ReportRequest','idCliente','idCliente');
+    }
 }

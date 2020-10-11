@@ -13,4 +13,9 @@ class RateType extends Model
     public function rates(){
         return $this->belongsToMany('App\Tarifa','idTipoTarifa','idTipoTarifa');
     }
+
+    public function surcharges(){
+        return $this->belongsToMany('App\RecargoDelivery','idTipoTarifa','idTipoTarifa');
+    }
+
 }

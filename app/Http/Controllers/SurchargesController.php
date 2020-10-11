@@ -14,7 +14,7 @@ class SurchargesController extends Controller
     public function getSurcharges()
     {
         try {
-            $recargos = RecargoDelivery::with(['customer','category'])->get();
+            $recargos = RecargoDelivery::with(['customer','category','deliveryType'])->get();
             foreach ($recargos as $recargo) {
                 $recargo->monto = number_format($recargo->monto, 2);
                 $recargo->kilomMinimo = number_format($recargo->kilomMinimo, 2);
@@ -82,6 +82,7 @@ class SurchargesController extends Controller
         $monto = $request->form["monto"];
         $cliente = $request->form["idCliente"];
         $category = $request->form["idCategoria"];
+        $deliveryType = $request->form["idTipoEnvio"];
         try {
             $currRate = RecargoDelivery::where('idRecargo', $idSurcharge);
             $currRate->update([
@@ -90,7 +91,8 @@ class SurchargesController extends Controller
                     'kilomMaximo' => $klmax,
                     'monto' => $monto,
                     'idCliente' => $cliente,
-                    'idCategoria' => $category]
+                    'idCategoria' => $category,
+                    'idTipoEnvio' => $deliveryType]
             );
 
             return response()->json([
@@ -112,7 +114,7 @@ class SurchargesController extends Controller
         $klmin = $request->form["kilomMinimo"];
         $klmax = $request->form["kilomMaximo"];
         $monto = $request->form["monto"];
-        $cliente = $request->form["idCliente"];
+        $deliveryType = $request->form["idTipoEnvio"];
         $category = $request->form["idCategoria"];
         try {
             $currsurcharge = new RecargoDelivery();
@@ -123,6 +125,7 @@ class SurchargesController extends Controller
             if ($request->form['idCliente'] == 1) {
                 $currsurcharge->idCliente = 1;
             }
+            $currsurcharge->idTipoEnvio =  $deliveryType;
             $currsurcharge->idCategoria = $category;
             $currsurcharge->save();
 
