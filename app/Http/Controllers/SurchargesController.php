@@ -80,7 +80,6 @@ class SurchargesController extends Controller
         $klmin = $request->form["kilomMinimo"];
         $klmax = $request->form["kilomMaximo"];
         $monto = $request->form["monto"];
-        $cliente = $request->form["idCliente"];
         $category = $request->form["idCategoria"];
         $deliveryType = $request->form["idTipoEnvio"];
         try {
@@ -90,7 +89,6 @@ class SurchargesController extends Controller
                     'kilomMinimo' => $klmin,
                     'kilomMaximo' => $klmax,
                     'monto' => $monto,
-                    'idCliente' => $cliente,
                     'idCategoria' => $category,
                     'idTipoEnvio' => $deliveryType]
             );
