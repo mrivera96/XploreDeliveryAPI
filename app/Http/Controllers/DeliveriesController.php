@@ -12,12 +12,9 @@ use App\Estado;
 use App\ExtraCharge;
 use App\ExtraChargesOrders;
 use App\Schedule;
-use App\Tarifa;
 use App\User;
 use Exception;
-use http\Env\Response;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -402,23 +399,19 @@ class DeliveriesController extends Controller
             $outputData = [];
 
             if ($driver == -1) {
-                $driversInRange = DetalleDelivery::with(['delivery'])
-                    ->whereIn('idEstado', [44, 46, 47])
-                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                    ->orderBy('idConductor', 'asc')
-                    ->distinct()
-                    ->get(['idConductor']);
-                $drivers = User::where('idPerfil', 7)
-                    ->whereIn('idUsuario', $driversInRange)
+
+                $drivers = User::where(['isActivo' => 1,'idPerfil' => 7])
                     ->orderBy('nomUsuario', 'ASC')
                     ->get(['nomUsuario', 'idUsuario']);
 
                 foreach ($drivers as $driver) {
                     $orders = DetalleDelivery::with(['delivery'])
-                        ->whereIn('idEstado', [44, 46, 47])
                         ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                        ->whereIn('idEstado',[44, 46, 47])
                         ->where('idConductor', $driver->idUsuario)
                         ->orWhere('idAuxiliar', $driver->idUsuario)
+                        ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                        ->whereIn('idEstado',[44, 46, 47])
                         ->orderBy('fechaEntrega', 'desc')
                         ->get()
                         ->groupBy(function ($val) {
