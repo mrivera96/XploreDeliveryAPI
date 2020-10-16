@@ -97,6 +97,7 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('getOptions', 'ExtraChargesController@getExtraChargeOptions');
             Route::post('removeOption', 'ExtraChargesController@removeOption');
             Route::post('addOption', 'ExtraChargesController@addOption');
+            Route::post('editOption', 'ExtraChargesController@editOption');
         });
 
         //Rutas Deliveries

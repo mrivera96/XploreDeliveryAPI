@@ -336,5 +336,41 @@ class ExtraChargesController extends Controller
 
     }
 
+    public function editOption(Request $request)
+    {
+        $request->validate([
+            'idCargoExtra' => 'required',
+            'idDetalleOpcion' => 'required',
+            'costo' => 'required',
+            'tiempo' => 'required'
+        ]);
+
+        $optionId = $request->idDetalleOpcion;
+        $extraChargeId = $request->idCargoExtra;
+
+        try {
+            DetalleOpcionesCargosExtras::where([
+                'idCargoExtra' => $extraChargeId,
+                'idDetalleOpcion' => $optionId
+                ])
+                ->update([
+                    'costo' => $request->costo,
+                    'tiempo' => $request->tiempo
+                    ]);
+
+            return response()->json([
+                'error' => 0,
+                'message' => 'Opción actualizada correctamente'
+            ], 200);
+        } catch (\Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json([
+                'error' => 1,
+                'message' => 'Error al actualizar la Opción'
+            ], 500);
+        }
+
+    }
+
 
 }
