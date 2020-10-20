@@ -90,7 +90,8 @@ class SurchargesController extends Controller
                     'kilomMaximo' => $klmax,
                     'monto' => $monto,
                     'idCategoria' => $category,
-                    'idTipoEnvio' => $deliveryType]
+                   // 'idTipoEnvio' => $deliveryType
+                ]
             );
 
             return response()->json([
