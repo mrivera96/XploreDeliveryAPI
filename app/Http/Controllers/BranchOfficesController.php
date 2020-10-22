@@ -10,10 +10,20 @@ use Illuminate\Support\Facades\Log;
 
 class BranchOfficesController extends Controller
 {
-    public function getCustomerBranchOffices()
+    public function getCustomerBranchOffices(Request $request)
     {
         try {
-            $myBranchOffices = Branch::with('cliente')->where('isActivo', 1)->where('idCliente', Auth::user()->idCliente)->get();
+            if ($request->idCustomer == null) {
+                $currCustomer = Auth::user()->idCliente;
+            } else {
+                $currCustomer = $request->idCustomer;
+            }
+            $myBranchOffices = Branch::with('cliente')
+                ->where([
+                    'isActivo' => 1,
+                    'idCliente' => $currCustomer
+                ])
+                ->get();
 
             return response()->json([
                 'error' => 0,

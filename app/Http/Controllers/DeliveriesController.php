@@ -1697,6 +1697,12 @@ class DeliveriesController extends Controller
             $customer = $request->idCliente;
         }*/
 
+        if($request->idCustomer == null){
+            $customer = Auth::user()->idCliente;
+        }else{
+            $customer = $request->idCustomer;
+        }
+
         $hDelivery = $request->deliveryForm;
         $deliveryOrders = $request->orders;
         $pago = $request->pago;
@@ -1724,7 +1730,7 @@ class DeliveriesController extends Controller
 
         if (sizeof($deliveryOrders) > 0) {
             try {
-                $customerDetails = DeliveryClient::where('idCliente', Auth::user()->idCliente)
+                $customerDetails = DeliveryClient::where('idCliente', $customer)
                     ->get()
                     ->first();
 

@@ -43,10 +43,15 @@ class RatesController extends Controller
         }
     }
 
-    public function getCustomerRates()
+    public function getCustomerRates(Request $request)
     {
         try {
-            $currCustomer = Auth::user()->idCliente;
+            if($request->idCustomer == null){
+                $currCustomer = Auth::user()->idCliente;
+            }else{
+                $currCustomer = $request->idCustomer;
+            }
+
             $custRates = RateCustomer::where('idCliente', $currCustomer)->get();
             $tarifas = [];
 

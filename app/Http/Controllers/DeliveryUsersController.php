@@ -10,7 +10,6 @@ use App\Payment;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
-use http\Env\Response;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -30,7 +29,11 @@ class DeliveryUsersController extends Controller
                     'data' => $customers
                 ], 200);
         } catch (Exception $exception) {
-            Log::error($exception->getMessage(), array('User' => Auth::user()->nomUsuario, 'context' => $exception->getTrace()));
+            Log::error($exception->getMessage(),
+                array(
+                    'User' => Auth::user()->nomUsuario,
+                    'context' => $exception->getTrace())
+            );
             return response()
                 ->json([
                     'error' => 1,
@@ -39,7 +42,8 @@ class DeliveryUsersController extends Controller
         }
     }
 
-    public function getCustomerWorkLines(Request $request){
+    public function getCustomerWorkLines(Request $request)
+    {
         try {
             $request->validate([
                 'customerId' => 'required'
@@ -55,7 +59,7 @@ class DeliveryUsersController extends Controller
                     'data' => $customerWL
                 ], 200);
 
-        }catch (\Exception $ex){
+        } catch (\Exception $ex) {
             Log::error($ex->getMessage(), array(
                 'User' => Auth::user()->nomUsuario,
                 'context' => $ex->getTrace()
@@ -475,8 +479,8 @@ class DeliveryUsersController extends Controller
             /*$orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                 ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime]);*/
 
-            $customersArray = DeliveryClient::whereHas('deliveries', function ($q) use ($initDateTime, $finDateTime){
-                $q->whereHas('detalle', function ($q) use($initDateTime, $finDateTime){
+            $customersArray = DeliveryClient::whereHas('deliveries', function ($q) use ($initDateTime, $finDateTime) {
+                $q->whereHas('detalle', function ($q) use ($initDateTime, $finDateTime) {
                     $q->whereBetween('fechaEntrega', [$initDateTime, $finDateTime]);
                 });
             })->get();
@@ -531,10 +535,10 @@ class DeliveryUsersController extends Controller
 
                 }*/
 
-                return response()
-                    ->json([
-                        'data' => $finalCustomersArray
-                    ]);
+            return response()
+                ->json([
+                    'data' => $finalCustomersArray
+                ]);
             //}
 
         } catch (Exception $ex) {
