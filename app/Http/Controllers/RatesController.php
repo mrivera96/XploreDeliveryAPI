@@ -19,7 +19,7 @@ class RatesController extends Controller
             $tarifas = Tarifa::with(['category', 'customer', 'rateType', 'consolidatedDetail', 'schedules'])->get();
             foreach ($tarifas as $tarifa) {
                 $tarifa->precio = number_format($tarifa->precio, 2);
-                foreach ($tarifa->schedules as $schedule){
+                foreach ($tarifa->schedules as $schedule) {
                     $schedule->inicio = Carbon::parse($schedule->inicio)->format('H:i');
                     $schedule->final = Carbon::parse($schedule->final)->format('H:i');
                 }
@@ -46,9 +46,9 @@ class RatesController extends Controller
     public function getCustomerRates(Request $request)
     {
         try {
-            if($request->idCustomer == null){
+            if ($request->idCustomer == null) {
                 $currCustomer = Auth::user()->idCliente;
-            }else{
+            } else {
                 $currCustomer = $request->idCustomer;
             }
 
@@ -62,17 +62,22 @@ class RatesController extends Controller
             } else {
                 $onlyConsolidated = RateCustomer::where('idCliente', $currCustomer)
                     ->whereHas('rate', function ($q) {
-                        $q->whereIn('idTipoTarifa', [2,4]);
+                        $q->whereIn('idTipoTarifa', [2, 4]);
                     })->count();
-                if($onlyConsolidated == $custRates->count()){
+                if ($onlyConsolidated == $custRates->count()) {
                     $tarifas = Tarifa::where('idCliente', 1)
                         ->where('idTipoTarifa', 1)
                         ->get();
-                }else{
+                } else {
                     foreach ($custRates as $value) {
                         $tarifa = Tarifa::where('idTarifaDelivery', $value->idTarifaDelivery)
-                            ->where('idTipoTarifa', 1)->get()->first();
-                        array_push($tarifas, $tarifa);
+                            ->where('idTipoTarifa', 1)
+                            ->get()
+                            ->first();
+                        if (!in_array($tarifa, $tarifas) && $tarifa != null) {
+                            array_push($tarifas, $tarifa);
+                        }
+
                     }
                 }
 
@@ -204,11 +209,11 @@ class RatesController extends Controller
                 $nRateDetail->radioMaximo = $maxRad;
                 $nRateDetail->dirRecogida = $addrs;
 
-                if(isset($request->detail["dirEntrega"])){
+                if (isset($request->detail["dirEntrega"])) {
                     $nRateDetail->dirEntrega = $request->detail["dirEntrega"];
                 }
 
-                if(isset($request->detail["radioMaximoEntrega"])){
+                if (isset($request->detail["radioMaximoEntrega"])) {
                     $nRateDetail->radioMaximoEntrega = $request->detail["radioMaximoEntrega"];
                 }
 

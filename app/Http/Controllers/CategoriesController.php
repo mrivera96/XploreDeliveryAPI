@@ -58,9 +58,9 @@ class CategoriesController extends Controller
     public function getCustomerCategories(Request $request)
     {
         try {
-            if($request->idCustomer == null){
+            if ($request->idCustomer == null) {
                 $currCust = Auth::user()->idCliente;
-            }else{
+            } else {
                 $currCust = $request->idCustomer;
             }
 
@@ -94,7 +94,14 @@ class CategoriesController extends Controller
 
                     $categories = Category::where('isActivo', 1)
                         ->whereIn('idCategoria', $idArray)
-                        ->orderBy('orden')->get();
+                        ->orderBy('orden')
+                        ->get();
+
+                    if ($categories->count() == 0) {
+                        $categories = Category::where('isActivo', 1)
+                            ->orderBy('orden')
+                            ->get();
+                    }
 
                     $routingRates = RateCustomer::where('idCliente', $currCust)
                         ->whereHas('rate', function ($q) {
@@ -137,11 +144,13 @@ class CategoriesController extends Controller
                 ])
                     ->where('isActivo', 1)
                     ->whereIn('idCategoria', $idsConsolidated)
-                    ->orderBy('orden')->get();
+                    ->orderBy('orden')
+                    ->get();
 
                 $consolidatedForeignRates = RateCustomer::whereHas('rate', function ($q) {
                     $q->where('idTipoTarifa', 4);
-                })->get();
+                })
+                    ->get();
 
                 $idsForeign = [];
                 if ($consolidatedForeignRates->count() > 0) {
