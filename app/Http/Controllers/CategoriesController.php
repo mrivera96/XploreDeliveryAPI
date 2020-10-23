@@ -67,59 +67,46 @@ class CategoriesController extends Controller
             $tarCust = RateCustomer::where('idCliente', $currCust)->get();
 
             if ($tarCust->count() > 0) {
-                $onlyConsolidated = RateCustomer::where('idCliente', $currCust)
+                $idArray = [];
+                foreach ($tarCust as $item) {
+                    if (!in_array($item->rate->idCategoria, $idArray) && $item->rate->idTipoTarifa == 1) {
+                        array_push($idArray, $item->rate->idCategoria);
+                    }
+                }
+
+                $categories = Category::where('isActivo', 1)
+                    ->whereIn('idCategoria', $idArray)
+                    ->orderBy('orden')
+                    ->get();
+
+                if ($categories->count() == 0) {
+                    $categories = Category::where('isActivo', 1)
+                        ->orderBy('orden')
+                        ->get();
+                }
+
+                $routingRates = RateCustomer::where('idCliente', $currCust)
                     ->whereHas('rate', function ($q) {
-                        $q->whereIn('idTipoTarifa', [2, 4]);
-                    })
-                    ->count();
+                        $q->where('idTipoTarifa', 3);
+                    })->get();
 
-                if ($onlyConsolidated == $tarCust->count()) {
-                    $categories = Category::where('isActivo', 1)
-                        ->orderBy('orden')
-                        ->get();
-
-                    $routingCategories = Category::with('rate')
-                        ->where('isActivo', 1)
-                        ->whereHas('rate', function ($q) {
-                            $q->where('idTipoTarifa', 3);
-                        })
-                        ->orderBy('orden')->get();
-                } else {
-                    $idArray = [];
-                    foreach ($tarCust as $item) {
-                        if (!in_array($item->rate->idCategoria, $idArray) && $item->rate->idTipoTarifa == 1) {
-                            array_push($idArray, $item->rate->idCategoria);
+                $idArrayR = [];
+                if ($routingRates->count() > 0) {
+                    foreach ($routingRates as $item) {
+                        if (!in_array($item->rate->idCategoria, $idArrayR) && $item->rate->idTipoTarifa == 3) {
+                            array_push($idArrayR, $item->rate->idCategoria);
                         }
                     }
+                }
 
-                    $categories = Category::where('isActivo', 1)
-                        ->whereIn('idCategoria', $idArray)
-                        ->orderBy('orden')
-                        ->get();
+                $routingCategories = Category::with('rate')
+                    ->where('isActivo', 1)
+                    ->whereIn('idCategoria', $idArrayR)
+                    ->orderBy('orden')->get();
 
-                    if ($categories->count() == 0) {
-                        $categories = Category::where('isActivo', 1)
-                            ->orderBy('orden')
-                            ->get();
-                    }
-
-                    $routingRates = RateCustomer::where('idCliente', $currCust)
-                        ->whereHas('rate', function ($q) {
-                            $q->where('idTipoTarifa', 3);
-                        })->get();
-
-                    $idArrayR = [];
-                    if ($routingRates->count() > 0) {
-                        foreach ($routingRates as $item) {
-                            if (!in_array($item->rate->idCategoria, $idArrayR) && $item->rate->idTipoTarifa == 3) {
-                                array_push($idArrayR, $item->rate->idCategoria);
-                            }
-                        }
-                    }
-
+                if ($routingCategories->count() == 0) {
                     $routingCategories = Category::with('rate')
                         ->where('isActivo', 1)
-                        ->whereIn('idCategoria', $idArrayR)
                         ->orderBy('orden')->get();
                 }
 
@@ -146,6 +133,15 @@ class CategoriesController extends Controller
                     ->whereIn('idCategoria', $idsConsolidated)
                     ->orderBy('orden')
                     ->get();
+
+                if ($consolidatedCategories->count() == 0) {
+                    $consolidatedCategories = Category::with('rate')
+                        ->where('isActivo', 1)
+                        ->whereHas('rate', function ($q) {
+                            $q->where(['idTipoTarifa' => 2]);
+                        })
+                        ->orderBy('orden')->get();
+                }
 
                 $consolidatedForeignRates = RateCustomer::whereHas('rate', function ($q) {
                     $q->where('idTipoTarifa', 4);
