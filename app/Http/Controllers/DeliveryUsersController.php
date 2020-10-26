@@ -29,10 +29,12 @@ class DeliveryUsersController extends Controller
                     'data' => $customers
                 ], 200);
         } catch (Exception $exception) {
-            Log::error($exception->getMessage(),
+            Log::error(
+                $exception->getMessage(),
                 array(
                     'User' => Auth::user()->nomUsuario,
-                    'context' => $exception->getTrace())
+                    'context' => $exception->getTrace()
+                )
             );
             return response()
                 ->json([
@@ -58,7 +60,6 @@ class DeliveryUsersController extends Controller
                     'error' => 0,
                     'data' => $customerWL
                 ], 200);
-
         } catch (\Exception $ex) {
             Log::error($ex->getMessage(), array(
                 'User' => Auth::user()->nomUsuario,
@@ -67,7 +68,7 @@ class DeliveryUsersController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getMessage()//'Ocurrió un error al cargar los datos'
+                    'message' => $ex->getMessage() //'Ocurrió un error al cargar los datos'
                 ],
                 500
             );
@@ -123,6 +124,7 @@ class DeliveryUsersController extends Controller
                 $nCustomer->email = $rCustomer['email'];
                 $nCustomer->enviarNotificaciones = $rCustomer['enviarNotificaciones'];
                 $nCustomer->isActivo = 1;
+                $nCustomer->diasGracia = $rCustomer['diasGracia'];
                 $nCustomer->fechaAlta = Carbon::now();
                 $nCustomer->save();
 
@@ -156,7 +158,7 @@ class DeliveryUsersController extends Controller
             ));
             return response()->json([
                 'error' => 1,
-                'message' => 'Ocurrió un error al agregar el cliente'//$exception->getMessage()
+                'message' => 'Ocurrió un error al agregar el cliente' //$exception->getMessage()
             ], 500);
         }
     }
@@ -175,6 +177,7 @@ class DeliveryUsersController extends Controller
                     'numIdentificacion' => $rCustomer['numIdentificacion'],
                     'enviarNotificaciones' => $rCustomer['enviarNotificaciones'],
                     'numTelefono' => $rCustomer['numTelefono'],
+                    'diasGracia' => $rCustomer['diasGracia']
                 ]);
 
                 $currUser->update([
@@ -194,6 +197,7 @@ class DeliveryUsersController extends Controller
                         'numTelefono' => $rCustomer['numTelefono'],
                         'email' => $rCustomer['email'],
                         'enviarNotificaciones' => $rCustomer['enviarNotificaciones'],
+                        'diasGracia' => $rCustomer['diasGracia']
                     ]);
 
                     $currUser->update([
@@ -404,12 +408,12 @@ class DeliveryUsersController extends Controller
                     ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
                     ->sum('monto'), 2);
                 $dataObj->balance = number_format(DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                        ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                        ->whereHas('delivery', function ($q) use ($customer) {
-                            $q->where('idCliente', $customer->idCliente);
-                        })->sum('cTotal') - Payment::where('idCliente', $customer->idCliente)
-                        ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
-                        ->sum('monto'), 2);
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->whereHas('delivery', function ($q) use ($customer) {
+                        $q->where('idCliente', $customer->idCliente);
+                    })->sum('cTotal') - Payment::where('idCliente', $customer->idCliente)
+                    ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
+                    ->sum('monto'), 2);
 
                 if ($dataObj->orders > 0) {
                     array_push($outputData, $dataObj);
@@ -418,12 +422,12 @@ class DeliveryUsersController extends Controller
                         ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
                         ->sum('monto');
                     $totalBalance += DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                            ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                            ->whereHas('delivery', function ($q) use ($customer) {
-                                $q->where('idCliente', $customer->idCliente);
-                            })->sum('cTotal') - Payment::where('idCliente', $customer->idCliente)
-                            ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
-                            ->sum('monto');
+                        ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                        ->whereHas('delivery', function ($q) use ($customer) {
+                            $q->where('idCliente', $customer->idCliente);
+                        })->sum('cTotal') - Payment::where('idCliente', $customer->idCliente)
+                        ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
+                        ->sum('monto');
                 }
             }
 
@@ -438,7 +442,6 @@ class DeliveryUsersController extends Controller
                 ],
                 200
             );
-
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array(
                 'User' => Auth::user()->nomUsuario,
@@ -452,7 +455,6 @@ class DeliveryUsersController extends Controller
                 500
             );
         }
-
     }
 
     public function getCustomersTrackingReport(Request $request)
@@ -503,7 +505,6 @@ class DeliveryUsersController extends Controller
                         })->max('fechaEntrega'))->format('Y-m-d');
                     array_push($finalCustomersArray, $mydataObj);
                 }
-
             }
 
             /*if ($orders->count() >= $minOrders) {
@@ -549,7 +550,59 @@ class DeliveryUsersController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getTrace()//'Ocurrió un error al cargar los datos'
+                    'message' => 'Ocurrió un error al cargar los datos'
+                ],
+                500
+            );
+        }
+    }
+
+    public function checkAvalability(Request $request)
+    {
+        try {
+            $customer = Auth::user()->idCliente;
+            $output = true;
+            $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                ->whereHas('delivery', function ($q) use ($customer) {
+                    $q->where('idCliente', $customer);
+                })->count();
+            $payments = Payment::where('idCliente', $customer)
+                ->max('fechaPago');
+
+            $balance = number_format(DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                ->whereHas('delivery', function ($q) use ($customer) {
+                    $q->where('idCliente', $customer);
+                })->sum('cTotal') - Payment::where('idCliente', $customer)
+                ->sum('monto'), 2);
+
+            if ($balance > 0) {
+                $graceDays = Auth::user()->cliente->diasGracia;
+                $lastPaymentDate = new Carbon($payments);
+                $todayDate = Carbon::today();
+                $dif = $lastPaymentDate->addDays($graceDays);
+
+                if($todayDate > $dif){
+                    $output = false;
+                }
+
+            }
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => $output
+                ],
+                200
+            );
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), array(
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => 'Ocurrió un error al cargar los datos'
                 ],
                 500
             );

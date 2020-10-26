@@ -240,6 +240,9 @@ Route::group(['middleware' => 'auth:api'], function () {
         //Ruta Balance
         Route::post('balance', 'DeliveryUsersController@customerBalance');
 
+        //Ruta chequeo de disponibilidad
+        Route::post('check', 'DeliveryUsersController@checkAvalability');
+
         //Rutas Deliveries
         Route::group(['prefix' => 'deliveries'], function () {
             Route::post('changeHour', 'DeliveriesController@changeDeliveryHour');
