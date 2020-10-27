@@ -729,7 +729,6 @@ class DeliveriesController extends Controller
 
                         array_push($outputData, $dataObj);
                     }
-
                 }
             } else {
                 $orders = DetalleDelivery::with(['delivery'])
@@ -1051,7 +1050,27 @@ class DeliveriesController extends Controller
                             }
                         }
                         $dataObj->totalAuxTime = $auxCounter;
-                        $dataObj->tiempototal = $dataObj->totalTime + $dataObj->totalOver20kms + $dataObj->totalAuxTime;
+
+                        $extTime = DetalleDelivery::with('extraCharges')
+                            ->whereIn('idEstado', [44, 46, 47])
+                            ->where([
+                                'idConductor' => $driver,
+                            ])
+                            ->whereDate('fechaEntrega', $dataObj->fecha)
+                            ->get();
+
+                        $extCounter = 0;
+
+                        foreach ($extTime as $ext) {
+                            if (sizeof($ext->extraCharges) > 0) {
+                                foreach($ext->extraCharges as $exCharge){
+                                    $extCounter += $exCharge->option->tiempo;
+                                }
+                            }
+                        }
+                        $dataObj->totalExtraTime = $extCounter;
+
+                        $dataObj->tiempototal = $dataObj->totalTime + $dataObj->totalOver20kms + $dataObj->totalAuxTime + $dataObj->totalExtraTime;
                     }
 
                     array_push($outputData, $dataObj);
@@ -1697,9 +1716,9 @@ class DeliveriesController extends Controller
             $customer = $request->idCliente;
         }*/
 
-        if($request->idCustomer == null){
+        if ($request->idCustomer == null) {
             $customer = Auth::user()->idCliente;
-        }else{
+        } else {
             $customer = $request->idCustomer;
         }
 
@@ -1831,10 +1850,9 @@ class DeliveriesController extends Controller
                 500
             );
         }
-
     }
 
-//CHANGE DELIVERY HOUR
+    //CHANGE DELIVERY HOUR
 
     public
     function changeDeliveryHour(Request $request)
