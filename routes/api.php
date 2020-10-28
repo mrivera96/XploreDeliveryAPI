@@ -35,6 +35,9 @@ Route::group(['prefix' => 'auth'], function () {
 });
 
 //WS que NO requieren autenticación
+Route::group(['prefix' => 'drivers'], function(){
+    Route::get('report','UsersController@deliveriesReport');
+});
 
 Route::group(['prefix' => 'shared'], function () {
     //Rutas Horarios

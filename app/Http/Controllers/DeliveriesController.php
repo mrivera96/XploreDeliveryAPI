@@ -736,6 +736,7 @@ class DeliveriesController extends Controller
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                     ->where('idConductor', $driver)
                     ->orWhere('idAuxiliar', $driver)
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                     ->orderBy('fechaEntrega', 'desc')
                     ->get()
                     ->groupBy(function ($val) {
