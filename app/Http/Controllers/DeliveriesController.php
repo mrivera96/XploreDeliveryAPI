@@ -724,7 +724,26 @@ class DeliveriesController extends Controller
                                 }
                             }
                             $dataObj->totalAuxTime = $auxCounter;
-                            $dataObj->tiempototal = $dataObj->totalTime + $dataObj->totalOver20kms + $dataObj->totalAuxTime;
+
+                            $extTime = DetalleDelivery::with('extraCharges')
+                                ->whereIn('idEstado', [44, 46, 47])
+                                ->where([
+                                    'idConductor' => $driver->idUsuario,
+                                ])
+                                ->whereDate('fechaEntrega', $dataObj->fecha)
+                                ->get();
+
+                            $extCounter = 0;
+
+                            foreach ($extTime as $ext) {
+                                if (sizeof($ext->extraCharges) > 0) {
+                                    foreach ($ext->extraCharges as $exCharge) {
+                                        $extCounter += $exCharge->option->tiempo;
+                                    }
+                                }
+                            }
+                            $dataObj->totalExtraTime = $extCounter;
+                            $dataObj->tiempototal = $dataObj->totalTime + $dataObj->totalOver20kms + $dataObj->totalAuxTime + $dataObj->totalExtraTime;
                         }
 
                         array_push($outputData, $dataObj);
@@ -1064,7 +1083,7 @@ class DeliveriesController extends Controller
 
                         foreach ($extTime as $ext) {
                             if (sizeof($ext->extraCharges) > 0) {
-                                foreach($ext->extraCharges as $exCharge){
+                                foreach ($ext->extraCharges as $exCharge) {
                                     $extCounter += $exCharge->option->tiempo;
                                 }
                             }
