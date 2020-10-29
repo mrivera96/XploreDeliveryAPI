@@ -15,6 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use App\Tarifa;
 
 class DeliveryUsersController extends Controller
 {
@@ -581,10 +582,9 @@ class DeliveryUsersController extends Controller
                 $todayDate = Carbon::today();
                 $dif = $lastPaymentDate->addDays($graceDays);
 
-                if($todayDate > $dif){
+                if ($todayDate > $dif) {
                     $output = false;
                 }
-
             }
 
             return response()->json(
@@ -594,6 +594,49 @@ class DeliveryUsersController extends Controller
                 ],
                 200
             );
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), array(
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => 'Ocurrió un error al cargar los datos'
+                ],
+                500
+            );
+        }
+    }
+
+    public function checkCustomerDelTypes(Request $request)
+    {
+        try {
+            $customer = $request->customerId;
+
+            $custConsolidatedRates = Tarifa::where('idTipoTarifa', 2)
+                ->whereHas('rateDetail', function ($q) use ($customer) {
+                    $q->where('idCliente', $customer);
+                })->count();
+            $custForConsolidatedRates = Tarifa::where('idTipoTarifa', 4)
+                ->whereHas('rateDetail', function ($q) use ($customer) {
+                    $q->where('idCliente', $customer);
+                })->count();
+
+            $hasConsolidatedRate = false;
+            if ($custConsolidatedRates > 0) {
+                $hasConsolidatedRate = true;
+            }
+
+            $hasFConsolidatedRate = false;
+            if ($custForConsolidatedRates > 0) {
+                $hasFConsolidatedRate = true;
+            }
+
+            return response()->json([
+                'error' => 0,
+                'data' => array('consolidated' => $hasConsolidatedRate, 'foreign' => $hasFConsolidatedRate)
+            ]);
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array(
                 'User' => Auth::user()->nomUsuario,

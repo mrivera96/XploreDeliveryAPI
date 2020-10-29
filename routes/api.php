@@ -209,6 +209,7 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('update', 'DeliveryUsersController@updateCustomer');
             Route::post('changePassword', 'DeliveryUsersController@changePassword');
             Route::post('workLines', 'DeliveryUsersController@getCustomerWorkLines');
+            Route::post('checkDelTypes', 'DeliveryUsersController@checkCustomerDelTypes');
         });
 
         //Rutas Rubros
