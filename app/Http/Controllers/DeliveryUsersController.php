@@ -563,10 +563,10 @@ class DeliveryUsersController extends Controller
         try {
             $customer = Auth::user()->idCliente;
             $output = true;
-            $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+            /*$orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                 ->whereHas('delivery', function ($q) use ($customer) {
                     $q->where('idCliente', $customer);
-                })->count();
+                })->count();*/
             $payments = Payment::where('idCliente', $customer)
                 ->max('fechaPago');
 
@@ -582,7 +582,7 @@ class DeliveryUsersController extends Controller
                 $todayDate = Carbon::today();
                 $dif = $lastPaymentDate->addDays($graceDays);
 
-                if ($todayDate > $dif) {
+                if ($todayDate > $dif || $payments == null) {
                     $output = false;
                 }
             }
