@@ -32,6 +32,8 @@ Route::group(['prefix' => 'auth'], function () {
     Route::group(['middleware' => 'auth:api'], function () {
         Route::post('logout', 'AuthController@logout');
     });
+
+    Route::post('verifyMail', 'AuthController@verifyMail');
 });
 
 //WS que NO requieren autenticación
@@ -101,6 +103,7 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('removeOption', 'ExtraChargesController@removeOption');
             Route::post('addOption', 'ExtraChargesController@addOption');
             Route::post('editOption', 'ExtraChargesController@editOption');
+            Route::post('getCategoryExtracharges','ExtraChargesController@getFilteredExtraCharges');
         });
 
         //Rutas Deliveries

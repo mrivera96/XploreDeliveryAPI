@@ -16,7 +16,7 @@ class DeliveryUser extends Authenticatable
     public $timestamps = false;
 
     protected $fillable = [
-        'nomUsuario', 'nickUsuario', 'passUsuario', 'isActivo', 'idCliente'
+        'nomUsuario', 'nickUsuario', 'passUsuario', 'isActivo', 'idCliente','montoGracia'
     ];
 
     /**

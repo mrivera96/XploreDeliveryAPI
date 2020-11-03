@@ -49,22 +49,22 @@ class AuthController extends Controller
                     $tkn = $user->createToken('XploreDeliverypApi')->accessToken;
                     $user->access_token = $tkn;
                     $user->cliente;
-                    $custConsolidatedRates = Tarifa::where('idTipoTarifa',2)
-                    ->whereHas('rateDetail', function ($q) use ($user) {
-                        $q->where('idCliente', $user->idCliente);
-                    })->count();
-                    $custForConsolidatedRates = Tarifa::where('idTipoTarifa',4)
+                    $custConsolidatedRates = Tarifa::where('idTipoTarifa', 2)
+                        ->whereHas('rateDetail', function ($q) use ($user) {
+                            $q->where('idCliente', $user->idCliente);
+                        })->count();
+                    $custForConsolidatedRates = Tarifa::where('idTipoTarifa', 4)
                         ->whereHas('rateDetail', function ($q) use ($user) {
                             $q->where('idCliente', $user->idCliente);
                         })->count();
 
                     $hasConsolidatedRate = false;
-                    if($custConsolidatedRates > 0){
+                    if ($custConsolidatedRates > 0) {
                         $hasConsolidatedRate = true;
                     }
 
                     $hasFConsolidatedRate = false;
-                    if($custForConsolidatedRates > 0){
+                    if ($custForConsolidatedRates > 0) {
                         $hasFConsolidatedRate = true;
                     }
 
@@ -92,8 +92,6 @@ class AuthController extends Controller
                     'message' => 'Su usuario se encuentra inactivo. Comuníquese con el departamento de IT para resolver el conflicto.'
                 ], 401);
             }
-
-
         } else {
             return response()->json([
                 'error' => 1,
@@ -101,7 +99,6 @@ class AuthController extends Controller
                 'status' => 401
             ], 401);
         }
-
     }
 
     public function testGettingCript(Request $request)
@@ -124,18 +121,23 @@ class AuthController extends Controller
 
             $request->user()->token()->revoke();
 
-            return response()->json([
-                'error' => 0,
-                'message' => 'Successfully logged out'],
-                200);
+            return response()->json(
+                [
+                    'error' => 0,
+                    'message' => 'Successfully logged out'
+                ],
+                200
+            );
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
-            return response()->json([
-                'error' => 1,
-                'message' => $ex->getMessage()],
-                500);
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => $ex->getMessage()
+                ],
+                500
+            );
         }
-
     }
 
     public function passwordRecovery(Request $request)
@@ -169,7 +171,6 @@ class AuthController extends Controller
                             'message' => 'Recuperación de contraseña realizada correctamente. Recibirás un e-mail con tus detalles de acceso'
                         ], 200);
                     }
-
                 } else {
                     return response()->json([
                         'error' => 1,
@@ -183,12 +184,10 @@ class AuthController extends Controller
                     'status' => 401
                 ], 401);
             }
-
-
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array(
-                    'context' => $ex->getTrace())
-            );
+                'context' => $ex->getTrace()
+            ));
 
             return response()->json([
                 'error' => 1,
@@ -217,12 +216,12 @@ class AuthController extends Controller
             $this->serverstatuscode = "0";
             $this->serverstatusdes = $exception->getMessage();
         }
-
     }
 
-    public function testPassword(Request $request){
-        $isPass= Hash::check($request->pass,User::where('idCliente', 103)->get('passUsuario')->first());
-            return response()->json($isPass);
+    public function testPassword(Request $request)
+    {
+        $isPass = Hash::check($request->pass, User::where('idCliente', 103)->get('passUsuario')->first());
+        return response()->json($isPass);
     }
 
 
@@ -230,5 +229,20 @@ class AuthController extends Controller
     {
         $pass = \Illuminate\Support\Facades\Hash::make($request->pass);
         return response()->json($pass);
+    }
+
+    public function verifyMail(Request $request)
+    {
+        $request->validate(['mail' => 'required']);
+        $email = $request->mail;
+        $ok = false;
+        if (UsersController::existeUsuario($email) != 0 && UsersController::usuarioActivo($email) > 0) {
+            $ok = true;
+        }
+
+        return response()->json([
+            'error' => 0,
+            'data' => $ok
+        ]);
     }
 }

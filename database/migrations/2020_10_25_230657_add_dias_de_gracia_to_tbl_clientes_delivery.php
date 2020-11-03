@@ -14,7 +14,7 @@ class AddDiasDeGraciaToTblClientesDelivery extends Migration
     public function up()
     {
         Schema::table('tblClientesDelivery', function (Blueprint $table) {
-            $table->integer('diasGracia')->default(5);
+            $table->float('montoGracia')->default(100);
         });
     }
 

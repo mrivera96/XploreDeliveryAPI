@@ -42,7 +42,7 @@ class DeliveriesController extends Controller
     {
         try {
             if (Auth::user()->idPerfil == 1 || Auth::user()->idPerfil == 9) {
-                $delivery = Delivery::with(['estado', 'detalle.conductor', 'detalle.estado', 'detalle.photography'])
+                $delivery = Delivery::with(['estado', 'detalle.conductor', 'detalle.estado', 'detalle.photography','detalle.delivery'])
                     ->where('idDelivery', $request->id)->with(['category', 'detalle'])
                     ->get()->first();
             } else {
@@ -731,6 +731,9 @@ class DeliveriesController extends Controller
                                     'idConductor' => $driver->idUsuario,
                                 ])
                                 ->whereDate('fechaEntrega', $dataObj->fecha)
+                                ->orWhere('idAuxiliar', $driver->idUsuario)
+                                ->whereIn('idEstado', [44, 46, 47])
+                                ->whereDate('fechaEntrega', $dataObj->fecha)
                                 ->get();
 
                             $extCounter = 0;
@@ -1076,6 +1079,9 @@ class DeliveriesController extends Controller
                             ->where([
                                 'idConductor' => $driver,
                             ])
+                            ->whereDate('fechaEntrega', $dataObj->fecha)
+                            ->orWhere('idAuxiliar', $driver->idUsuario)
+                            ->whereIn('idEstado', [44, 46, 47])
                             ->whereDate('fechaEntrega', $dataObj->fecha)
                             ->get();
 

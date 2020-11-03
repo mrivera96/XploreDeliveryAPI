@@ -372,5 +372,31 @@ class ExtraChargesController extends Controller
 
     }
 
+    public function getFilteredExtraCharges(Request $request){
+        $request->validate(['idCategoria' => 'required']);
+        $category = $request->idCategoria;
+        try{
+            $extraCharges = ExtraCharge::with(['options'])
+            ->whereHas('extrachargeCategories', function($q) use($category){
+                $q->where('idCategoria', $category);
+            })
+            ->get();
+
+            return response()
+                ->json([
+                    'error' => 0,
+                    'data' => $extraCharges
+                ],
+                    200);
+
+        }catch (\Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json([
+                'error' => 1,
+                'message' => 'Error al cargar los datos'
+            ], 500);
+        }
+    }
+
 
 }

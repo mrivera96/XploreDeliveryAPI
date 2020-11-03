@@ -125,7 +125,7 @@ class DeliveryUsersController extends Controller
                 $nCustomer->email = $rCustomer['email'];
                 $nCustomer->enviarNotificaciones = $rCustomer['enviarNotificaciones'];
                 $nCustomer->isActivo = 1;
-                $nCustomer->diasGracia = $rCustomer['diasGracia'];
+                $nCustomer->montoGracia = $rCustomer['montoGracia'];
                 $nCustomer->fechaAlta = Carbon::now();
                 $nCustomer->save();
 
@@ -178,7 +178,7 @@ class DeliveryUsersController extends Controller
                     'numIdentificacion' => $rCustomer['numIdentificacion'],
                     'enviarNotificaciones' => $rCustomer['enviarNotificaciones'],
                     'numTelefono' => $rCustomer['numTelefono'],
-                    'diasGracia' => $rCustomer['diasGracia']
+                    'montoGracia' => $rCustomer['montoGracia']
                 ]);
 
                 $currUser->update([
@@ -198,7 +198,7 @@ class DeliveryUsersController extends Controller
                         'numTelefono' => $rCustomer['numTelefono'],
                         'email' => $rCustomer['email'],
                         'enviarNotificaciones' => $rCustomer['enviarNotificaciones'],
-                        'diasGracia' => $rCustomer['diasGracia']
+                        'montoGracia' => $rCustomer['montoGracia']
                     ]);
 
                     $currUser->update([
