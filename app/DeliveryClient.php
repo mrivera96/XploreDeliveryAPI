@@ -18,7 +18,7 @@ class DeliveryClient extends Model
         'numTelefono',
         'email',
         'enviarNotificaciones',
-        'diasGracia'
+        'montoGracia'
     ];
 
     public function cliente()
