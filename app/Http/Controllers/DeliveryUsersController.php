@@ -563,7 +563,13 @@ class DeliveryUsersController extends Controller
         try {
             $customer = Auth::user()->idCliente;
             $output = true;
-        
+            /*$orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                ->whereHas('delivery', function ($q) use ($customer) {
+                    $q->where('idCliente', $customer);
+                })->count();*/
+            $payments = Payment::where('idCliente', $customer)
+                ->max('fechaPago');
+
             $balance = number_format(DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                 ->whereHas('delivery', function ($q) use ($customer) {
                     $q->where('idCliente', $customer);
@@ -571,9 +577,12 @@ class DeliveryUsersController extends Controller
                 ->sum('monto'), 2);
 
             if ($balance > 0) {
-                $graceAmount = Auth::user()->cliente->montoGracia;
-            
-                if ($balance > $graceAmount) {
+                $graceDays = Auth::user()->cliente->diasGracia;
+                $lastPaymentDate = new Carbon($payments);
+                $todayDate = Carbon::today();
+                $dif = $lastPaymentDate->addDays($graceDays);
+
+                if ($todayDate > $dif || $payments == null) {
                     $output = false;
                 }
             }
