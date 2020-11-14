@@ -1880,12 +1880,76 @@ class DeliveriesController extends Controller
 
     public function createTraslate(Request $request)
     {
-        $request->validate(['data'=>'required']);
+        $request->validate(['data' => 'required']);
+        $customer = Auth::user()->idCliente;
         try {
-            return response()->json([
-                'error' => 0,
-                'data' => $request->data
-            ]);
+
+            $customerDetails = DeliveryClient::where('idCliente', $customer)
+                ->get()
+                ->first();
+
+            $nDelivery = new Delivery();
+            $nDelivery->nomCliente = $customerDetails->nomRepresentante;
+            $nDelivery->numIdentificacion = $customerDetails->numIdentificacion;
+            $nDelivery->numCelular = $customerDetails->numTelefono;
+            $nDelivery->fechaReserva = Carbon::now()->addMinutes(30);
+            $nDelivery->dirRecogida = $request->data['origin'];
+            $nDelivery->email = $customerDetails->email;
+            $nDelivery->idCategoria = $request->data['category']['idCategoria'];
+            $nDelivery->idEstado = 34;
+            $nDelivery->tarifaBase = $request->data['payment']['baseRate'];
+            $nDelivery->recargos = $request->data['payment']['surcharges'];
+            $nDelivery->cargosExtra = 0.00;//$request->data['extraCharges'];
+            $nDelivery->total = $request->data['payment']['total'];
+            $nDelivery->idCliente = $customerDetails->idCliente;
+            $nDelivery->coordsOrigen = NULL;//$hDelivery['coordsOrigen'];
+            $nDelivery->instrucciones = NULL;//$request->data['instrRecogida'];
+            $nDelivery->fechaRegistro = Carbon::now();
+            $nDelivery->save();
+
+            $lastId = Delivery::query()->max('idDelivery');
+
+            $nDetalle = new DetalleDelivery();
+            $nDetalle->idDelivery = $lastId;
+            $nDetalle->nFactura = 'Traslado de Personas';//$detalle['nFactura'];
+            $nDetalle->nomDestinatario = $customerDetails->nomRepresentante;//$detalle['nomDestinatario'];
+            $nDetalle->numCel = $customerDetails->numTelefono;
+            $nDetalle->direccion = $request->data['destination'];
+            $nDetalle->distancia = $request->data['distance'].' km';
+            $nDetalle->tiempo = $request->data['time'];
+            $nDetalle->tarifaBase = $request->data['payment']['baseRate'];
+            $nDetalle->recargo = $request->data['payment']['surcharges'];
+            $nDetalle->cTotal = $request->data['payment']['total'];
+            $nDetalle->cargosExtra = 0.00;//$detalle['cargosExtra'];
+            $nDetalle->tomarFoto = true;
+            $nDetalle->instrucciones = NULL;//$detalle['instrucciones'];
+            $nDetalle->coordsDestino = NULL;//$detalle['coordsDestino'];
+            $nDetalle->save();
+
+            /*if (isset($detalle['extras'])) {
+                foreach ($detalle['extras'] as $exCharge) {
+                    $nECOrder = new ExtraChargesOrders();
+                    $nECOrder->idDetalle = $nDetalle->idDetalle;
+                    $nECOrder->idCargoExtra = $exCharge["idCargoExtra"];
+                    $nECOrder->idDetalleOpcion = $exCharge["idDetalleOpcion"];
+                    $nECOrder->save();
+                }
+            }*/
+
+
+            $receivers = $customerDetails->email;
+            $this->sendmail($receivers, $lastId);
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'message' => 'Solicitud de Traslado enviada correctamente.
+                        Recibirás un email con los detalles de tu reserva.',
+                    'nDelivery' => $lastId
+                ],
+                200
+            );
+
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array(
                 'User' => Auth::user()->nomUsuario,
