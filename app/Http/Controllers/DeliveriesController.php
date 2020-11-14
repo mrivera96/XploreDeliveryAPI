@@ -42,7 +42,7 @@ class DeliveriesController extends Controller
     {
         try {
             if (Auth::user()->idPerfil == 1 || Auth::user()->idPerfil == 9) {
-                $delivery = Delivery::with(['estado', 'detalle.conductor', 'detalle.estado', 'detalle.photography','detalle.delivery'])
+                $delivery = Delivery::with(['estado', 'detalle.conductor', 'detalle.estado', 'detalle.photography', 'detalle.delivery'])
                     ->where('idDelivery', $request->id)->with(['category', 'detalle'])
                     ->get()->first();
             } else {
@@ -1868,6 +1868,29 @@ class DeliveriesController extends Controller
                 );
             }
         } else {
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => 'Lo sentimos, ha ocurrido un error al procesar tu solicitud. Por favor intenta de nuevo.'
+                ],
+                500
+            );
+        }
+    }
+
+    public function createTraslate(Request $request)
+    {
+        $request->validate(['data'=>'required']);
+        try {
+            return response()->json([
+                'error' => 0,
+                'data' => $request->data
+            ]);
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), array(
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
             return response()->json(
                 [
                     'error' => 1,

@@ -293,7 +293,16 @@ Route::group(['middleware' => 'auth:api'], function () {
         });
 
     });
+
+    
 });
+Route::group(['prefix' => 'appDelivery'], function () {
+    Route::group(['middleware' => 'auth:api'], function () {
+        Route::post('createTraslate', 'DeliveriesController@createTraslate');
+    });
+   
+});
+
 
 
 /***************************
