@@ -741,7 +741,9 @@ class DeliveriesController extends Controller
                             foreach ($extTime as $ext) {
                                 if (sizeof($ext->extraCharges) > 0) {
                                     foreach ($ext->extraCharges as $exCharge) {
-                                        $extCounter += $exCharge->option->tiempo;
+                                        if (isset($exCharge->option->tiempo)) {
+                                            $extCounter += $exCharge->option->tiempo;
+                                        }
                                     }
                                 }
                             }
@@ -1080,7 +1082,7 @@ class DeliveriesController extends Controller
                                 'idConductor' => $driver,
                             ])
                             ->whereDate('fechaEntrega', $dataObj->fecha)
-                            ->orWhere('idAuxiliar', $driver->idUsuario)
+                            ->orWhere('idAuxiliar', $driver)
                             ->whereIn('idEstado', [44, 46, 47])
                             ->whereDate('fechaEntrega', $dataObj->fecha)
                             ->get();
@@ -1724,6 +1726,7 @@ class DeliveriesController extends Controller
         }
     }
 
+
     public function createCustomerDelivery(Request $request)
     {
         $request->validate([
@@ -1899,11 +1902,11 @@ class DeliveriesController extends Controller
             $nDelivery->idEstado = 34;
             $nDelivery->tarifaBase = $request->data['payment']['baseRate'];
             $nDelivery->recargos = $request->data['payment']['surcharges'];
-            $nDelivery->cargosExtra = 0.00;//$request->data['extraCharges'];
+            $nDelivery->cargosExtra = 0.00; //$request->data['extraCharges'];
             $nDelivery->total = $request->data['payment']['total'];
             $nDelivery->idCliente = $customerDetails->idCliente;
-            $nDelivery->coordsOrigen = NULL;//$hDelivery['coordsOrigen'];
-            $nDelivery->instrucciones = NULL;//$request->data['instrRecogida'];
+            $nDelivery->coordsOrigen = NULL; //$hDelivery['coordsOrigen'];
+            $nDelivery->instrucciones = NULL; //$request->data['instrRecogida'];
             $nDelivery->fechaRegistro = Carbon::now();
             $nDelivery->save();
 
@@ -1911,19 +1914,19 @@ class DeliveriesController extends Controller
 
             $nDetalle = new DetalleDelivery();
             $nDetalle->idDelivery = $lastId;
-            $nDetalle->nFactura = 'Traslado de Personas';//$detalle['nFactura'];
-            $nDetalle->nomDestinatario = $customerDetails->nomRepresentante;//$detalle['nomDestinatario'];
+            $nDetalle->nFactura = 'Traslado de Personas'; //$detalle['nFactura'];
+            $nDetalle->nomDestinatario = $customerDetails->nomRepresentante; //$detalle['nomDestinatario'];
             $nDetalle->numCel = $customerDetails->numTelefono;
             $nDetalle->direccion = $request->data['destination'];
-            $nDetalle->distancia = $request->data['distance'].' km';
+            $nDetalle->distancia = $request->data['distance'] . ' km';
             $nDetalle->tiempo = $request->data['time'];
             $nDetalle->tarifaBase = $request->data['payment']['baseRate'];
             $nDetalle->recargo = $request->data['payment']['surcharges'];
             $nDetalle->cTotal = $request->data['payment']['total'];
-            $nDetalle->cargosExtra = 0.00;//$detalle['cargosExtra'];
+            $nDetalle->cargosExtra = 0.00; //$detalle['cargosExtra'];
             $nDetalle->tomarFoto = true;
-            $nDetalle->instrucciones = NULL;//$detalle['instrucciones'];
-            $nDetalle->coordsDestino = NULL;//$detalle['coordsDestino'];
+            $nDetalle->instrucciones = NULL; //$detalle['instrucciones'];
+            $nDetalle->coordsDestino = NULL; //$detalle['coordsDestino'];
             $nDetalle->save();
 
             /*if (isset($detalle['extras'])) {
@@ -1949,7 +1952,97 @@ class DeliveriesController extends Controller
                 ],
                 200
             );
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), array(
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => 'Lo sentimos, ha ocurrido un error al procesar tu solicitud. Por favor intenta de nuevo.'
+                ],
+                500
+            );
+        }
+    }
 
+    public function createDeliveryFromApp(Request $request)
+    {
+        $request->validate(['data' => 'required']);
+        $customer = Auth::user()->idCliente;
+        $detail = $request->data['orderDetail'];
+        try {
+            $customerDetails = DeliveryClient::where('idCliente', $customer)
+                ->get()
+                ->first();
+
+            $nDelivery = new Delivery();
+            $nDelivery->nomCliente = $customerDetails->nomRepresentante;
+            $nDelivery->numIdentificacion = $customerDetails->numIdentificacion;
+            $nDelivery->numCelular = $customerDetails->numTelefono;
+            if (isset($detail['fechaReserva'])) {
+                $nDelivery['fechaReserva'] = $detail['fechaReserva'];
+            } else {
+                $nDelivery->fechaReserva = Carbon::now()->addMinutes(30);
+            }
+
+            $nDelivery->dirRecogida = $request->data['origin'];
+            $nDelivery->email = $customerDetails->email;
+            $nDelivery->idCategoria = $request->data['category']['idCategoria'];
+            $nDelivery->idEstado = 34;
+            $nDelivery->tarifaBase = $request->data['payment']['baseRate'];
+            $nDelivery->recargos = $request->data['payment']['surcharges'];
+            $nDelivery->cargosExtra = $request->data['payment']['extraCharges'];
+            $nDelivery->total = $request->data['payment']['total'];
+            $nDelivery->idCliente = $customerDetails->idCliente;
+            $nDelivery->coordsOrigen = NULL; //$hDelivery['coordsOrigen'];
+            $nDelivery->instrucciones = $detail['instRecogida']; //$request->data['instrRecogida'];
+            $nDelivery->fechaRegistro = Carbon::now();
+            $nDelivery->save();
+
+            $lastId = Delivery::query()->max('idDelivery');
+
+            $nDetalle = new DetalleDelivery();
+            $nDetalle->idDelivery = $lastId;
+            $nDetalle->nFactura = $detail['detalleEnvio'];
+            $nDetalle->nomDestinatario = $detail['nomDestinatario'];
+            $nDetalle->numCel = $detail['numDestinatario'];
+            $nDetalle->direccion = $request->data['destination'];
+            $nDetalle->distancia = $request->data['distance'] . ' km';
+            $nDetalle->tiempo = $request->data['time'];
+            $nDetalle->tarifaBase = $request->data['payment']['baseRate'];
+            $nDetalle->recargo = $request->data['payment']['surcharges'];
+            $nDetalle->cTotal = $request->data['payment']['total'];
+            if (isset($request->data['payment']['extraCharges'])) {
+                $nDetalle->cargosExtra = $request->data['payment']['extraCharges']; //$detalle['cargosExtra'];
+            }
+
+            $nDetalle->tomarFoto = true;
+            $nDetalle->instrucciones = $detail['instEntrega']; //$detalle['instrucciones'];
+            $nDetalle->coordsDestino = NULL; //$detalle['coordsDestino'];
+            $nDetalle->save();
+
+            if (isset($request->data['extra'])) {
+                $nECOrder = new ExtraChargesOrders();
+                $nECOrder->idDetalle = $nDetalle->idDetalle;
+                $nECOrder->idCargoExtra = $request->data['extra']["idCargoExtra"];
+                $nECOrder->idDetalleOpcion = $request->data['extra']["idDetalleOpcion"];
+                $nECOrder->save();
+            }
+
+            $receivers = $customerDetails->email;
+            $this->sendmail($receivers, $lastId);
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'message' => 'Solicitud de Delivery enviada correctamente.
+                        Recibirás un email con los detalles de tu reserva.',
+                    'nDelivery' => $lastId
+                ],
+                200
+            );
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array(
                 'User' => Auth::user()->nomUsuario,
