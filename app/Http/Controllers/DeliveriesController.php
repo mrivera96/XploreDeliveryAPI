@@ -234,6 +234,46 @@ class DeliveriesController extends Controller
         }
     }
 
+    public function getCustomerPendingDeliveries()
+    {
+        try {
+            $user = Auth::user();
+
+            $allDeliveries = Delivery::where('idCliente', $user->idCliente)
+                ->whereHas('detalle', function ($q) {
+                    $q->whereNotIn('idEstado', [41, 42, 43, 44]);
+                })
+                ->whereIn('idEstado', [34, 37, 38])
+                ->with(['category', 'detalle', 'estado'])->get();
+
+            foreach ($allDeliveries as $delivery) {
+                $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d H:i');
+                //$delivery->fechaReserva = date('d-m-Y h:i', strtotime($delivery->fechaReserva));
+                $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
+                $delivery->recargos = number_format($delivery->recargos, 2);
+                $delivery->cargosExtra = number_format($delivery->cargosExtra, 2);
+                $delivery->total = number_format($delivery->total, 2);
+            }
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'data' => $allDeliveries
+                ],
+                200
+            );
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => 'Ocurrió un error al cargar los datos'
+                ],
+                500
+            );
+        }
+    }
+
     public function getTodayOrders()
     {
         try {
@@ -1840,6 +1880,9 @@ class DeliveriesController extends Controller
                             $nECOrder->idDetalle = $nDetalle->idDetalle;
                             $nECOrder->idCargoExtra = $exCharge["idCargoExtra"];
                             $nECOrder->idDetalleOpcion = $exCharge["idDetalleOpcion"];
+                            if(isset($exCharge["montoCobertura"])){
+                                $nECOrder->montoCobertura = $exCharge["montoCobertura"];
+                            }
                             $nECOrder->save();
                         }
                     }

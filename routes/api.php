@@ -300,6 +300,8 @@ Route::group(['prefix' => 'appDelivery'], function () {
     Route::group(['middleware' => 'auth:api'], function () {
         Route::post('createTraslate', 'DeliveriesController@createTraslate');
         Route::post('createDelivery', 'DeliveriesController@createDeliveryFromApp');
+        Route::post('updateCustomerData','DeliveryUsersController@updateCustomer');
+        Route::post('getPendingCustomerDeliveries','DeliveriesController@getCustomerPendingDeliveries');
     });
    
 });
