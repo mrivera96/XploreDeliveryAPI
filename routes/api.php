@@ -33,12 +33,14 @@ Route::group(['prefix' => 'auth'], function () {
         Route::post('logout', 'AuthController@logout');
     });
 
+    Route::post('numberLogin', 'AuthController@numberLogin');
     Route::post('verifyMail', 'AuthController@verifyMail');
+    Route::post('verifyNumber', 'AuthController@verifyNumber');
 });
 
 //WS que NO requieren autenticación
-Route::group(['prefix' => 'drivers'], function(){
-    Route::get('report','UsersController@deliveriesReport');
+Route::group(['prefix' => 'drivers'], function () {
+    Route::get('report', 'UsersController@deliveriesReport');
 });
 
 Route::group(['prefix' => 'shared'], function () {
@@ -78,8 +80,6 @@ Route::group(['prefix' => 'shared'], function () {
         Route::group(['prefix' => 'payments'], function () {
             Route::post('list', 'PaymentController@getPayments');
         });
-
-
     });
 });
 
@@ -103,7 +103,7 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('removeOption', 'ExtraChargesController@removeOption');
             Route::post('addOption', 'ExtraChargesController@addOption');
             Route::post('editOption', 'ExtraChargesController@editOption');
-            Route::post('getCategoryExtracharges','ExtraChargesController@getFilteredExtraCharges');
+            Route::post('getCategoryExtracharges', 'ExtraChargesController@getFilteredExtraCharges');
         });
 
         //Rutas Deliveries
@@ -140,7 +140,6 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('updateDetail', 'RatesController@updateRateDetail');
             Route::post('removeSchedule', 'RatesController@removeSchedule');
             Route::post('getRateSchedules', 'RatesController@getSchedules');
-
         });
 
         //Rutas Tipo Tarifas
@@ -155,7 +154,6 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('addCustomer', 'SurchargesController@addCustomer');
             Route::post('removeCustomer', 'SurchargesController@removeCustomer');
             Route::post('getCustomers', 'SurchargesController@getCustomers');
-
         });
 
         //Rutas Categorias
@@ -190,8 +188,8 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('paymentsReport', 'PaymentController@getPaymentsReport');
             Route::post('customersBalanceReport', 'DeliveryUsersController@getCustomersBalanceReport');
             Route::post('customersTrackingReport', 'DeliveryUsersController@getCustomersTrackingReport');
-            Route::post('getReportRequests','ReportRequestController@getReportRequests');
-            Route::post('createReportRequest','ReportRequestController@createReportRequest');
+            Route::post('getReportRequests', 'ReportRequestController@getReportRequests');
+            Route::post('createReportRequest', 'ReportRequestController@createReportRequest');
         });
 
         //Rutas Pagos
@@ -223,11 +221,8 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('removeCustomer', 'WorkLinesController@removeCustomer');
             Route::post('update', 'WorkLinesController@updateWorkLine');
             Route::post('create', 'WorkLinesController@createWorkLine');
-
         });
-
     });
-
 });
 
 
@@ -291,19 +286,15 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::group(['prefix' => 'payments'], function () {
             Route::post('get', 'PaymentController@getCustomerPayments');
         });
-
     });
-
-    
 });
 Route::group(['prefix' => 'appDelivery'], function () {
     Route::group(['middleware' => 'auth:api'], function () {
         Route::post('createTraslate', 'DeliveriesController@createTraslate');
         Route::post('createDelivery', 'DeliveriesController@createDeliveryFromApp');
-        Route::post('updateCustomerData','DeliveryUsersController@updateCustomer');
-        Route::post('getPendingCustomerDeliveries','DeliveriesController@getCustomerPendingDeliveries');
+        Route::post('updateCustomerData', 'DeliveryUsersController@updateCustomer');
+        Route::post('getPendingCustomerDeliveries', 'DeliveriesController@getCustomerPendingDeliveries');
     });
-   
 });
 
 

@@ -101,6 +101,86 @@ class AuthController extends Controller
         }
     }
 
+    public function numberLogin(Request $request)
+    {
+        $request->validate([
+            'number' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
+        $number = $request->number;
+        $password = $request->password;
+        $user =  User::whereHas('cliente', function($q) use ($number){
+            $q->where('numTelefono',$number);
+        })->first();
+        $nickname = $user->nickUsuario;
+
+        /*if (Carbon::now()->hour >= 22) {
+            return response()->json([
+                'error' => 1,
+                'message' => 'Lo sentimos, en estos momentos nuestra plataforma se encuentra en mantenimiento.',
+                'status' => 401
+            ], 401);
+        }*/
+
+
+        if (UsersController::usuarioActivo($nickname) > 0) {
+            $cripPass = $this->obtenerCifrado($password);
+
+            $auth = User::whereIn('idPerfil', [1, 8, 9])->where('nickUsuario', $nickname)->get();
+
+            if ($auth->where('passUsuario', $cripPass)->count() > 0 || Hash::check($password, User::whereIn('idPerfil', [1, 8, 9])->where('nickUsuario', $nickname)->get()->first()->getAuthPassword())) {
+
+                Auth::login($auth->first());
+                $user = Auth::user();
+                $tkn = $user->createToken('XploreDeliverypApi')->accessToken;
+                $user->access_token = $tkn;
+                $user->cliente;
+                $custConsolidatedRates = Tarifa::where('idTipoTarifa', 2)
+                    ->whereHas('rateDetail', function ($q) use ($user) {
+                        $q->where('idCliente', $user->idCliente);
+                    })->count();
+                $custForConsolidatedRates = Tarifa::where('idTipoTarifa', 4)
+                    ->whereHas('rateDetail', function ($q) use ($user) {
+                        $q->where('idCliente', $user->idCliente);
+                    })->count();
+
+                $hasConsolidatedRate = false;
+                if ($custConsolidatedRates > 0) {
+                    $hasConsolidatedRate = true;
+                }
+
+                $hasFConsolidatedRate = false;
+                if ($custForConsolidatedRates > 0) {
+                    $hasFConsolidatedRate = true;
+                }
+
+                $user->permiteConsolidada = $hasConsolidatedRate;
+                $user->permiteConsolidadaForanea = $hasFConsolidatedRate;
+
+                return response()->json(
+                    [
+                        'error' => 0,
+                        'user' => $user,
+                        'status' => 200
+                    ],
+                    200
+                );
+            } else {
+                return response()->json([
+                    'error' => 1,
+                    'message' => 'Las credenciales que ha ingresado no son correctas.',
+                    'status' => 401
+                ], 401);
+            }
+        } else {
+            return response()->json([
+                'error' => 1,
+                'message' => 'Su usuario se encuentra inactivo. Comuníquese con el departamento de IT para resolver el conflicto. '.$nickname
+            ], 401);
+        }
+    }
+
     public function testGettingCript(Request $request)
     {
         return response()->json($this->obtenerCifrado($request->myPass));
@@ -237,6 +317,21 @@ class AuthController extends Controller
         $email = $request->mail;
         $ok = false;
         if (UsersController::existeUsuario($email) != 0 && UsersController::usuarioActivo($email) > 0) {
+            $ok = true;
+        }
+
+        return response()->json([
+            'error' => 0,
+            'data' => $ok
+        ]);
+    }
+
+    public function verifyNumber(Request $request)
+    {
+        $request->validate(['number' => 'required']);
+        $number = $request->number;
+        $ok = false;
+        if (DeliveryClient::where('numTelefono', $number)->count() > 0) {
             $ok = true;
         }
 
