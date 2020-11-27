@@ -181,6 +181,58 @@ class AuthController extends Controller
         }
     }
 
+    public function signUp(Request $request){
+        try {
+            $rCustomer = $request->form;
+
+            if (UsersController::existeUsuario($rCustomer['email']) == 0) {
+                $nCustomer = new DeliveryClient();
+                $nCustomer->nomEmpresa = $rCustomer['nomEmpresa'];
+                $nCustomer->nomRepresentante = $rCustomer['nomRepresentante'];
+                $nCustomer->numIdentificacion = $rCustomer['numIdentificacion'];
+                $nCustomer->numTelefono = $rCustomer['numTelefono'];
+                $nCustomer->email = $rCustomer['email'];
+                $nCustomer->enviarNotificaciones = 0;
+                $nCustomer->isActivo = 1;
+                $nCustomer->montoGracia = 100;
+                $nCustomer->fechaAlta = Carbon::now();
+                $nCustomer->save();
+
+                $nUser = new User();
+                $nUser->idPerfil = 8;
+                $nUser->nomUsuario = $rCustomer['nomRepresentante'];
+                $nUser->nickUsuario = $rCustomer['email'];
+                $nUser->passUsuario = Hash::make($rCustomer['numIdentificacion']);
+                $nUser->isActivo = 1;
+                $nUser->idCliente = $nCustomer->idCliente;
+                $nUser->fechaCreacion = Carbon::now();
+                $nUser->save();
+
+                $receivers = $nCustomer->email;
+
+                $this->sendmail($receivers, $nCustomer);
+                return response()->json([
+                    'error' => 0,
+                    'message' => 'Registro completado correctamente. ¡Bienvenido(a)!'
+                ], 200);
+            } else {
+                return response()->json([
+                    'error' => 1,
+                    'message' => 'El email que ingresaste está en uso.'
+                ], 500);
+            }
+        } catch (Exception $exception) {
+            Log::error($exception->getMessage(), array(
+                'User' => Auth::user()->nomUsuario,
+                'context' => $exception->getTrace()
+            ));
+            return response()->json([
+                'error' => 1,
+                'message' => 'Ocurrió un error al agregar el cliente' //$exception->getMessage()
+            ], 500);
+        }
+    }
+
     public function testGettingCript(Request $request)
     {
         return response()->json($this->obtenerCifrado($request->myPass));
@@ -340,4 +392,6 @@ class AuthController extends Controller
             'data' => $ok
         ]);
     }
+
+
 }

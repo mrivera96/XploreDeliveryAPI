@@ -29,7 +29,10 @@ class UsersController extends Controller
     public function listDrivers()
     {
         try {
-            $drivers = User::with(['agency', 'agency.city'])->where('isActivo', 1)->where('idPerfil', 7)->get();
+            $drivers = User::with(['agency', 'agency.city'])->where('isActivo', 1)
+            ->where('idPerfil', 7)
+            ->orderBy('nomUsuario', 'ASC')
+            ->get();
 
             foreach ($drivers as $driver) {
                 $driverOrdersPending = DetalleDelivery::where('idEstado', 41)->where('idConductor', $driver->idUsuario)->count();

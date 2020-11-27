@@ -42,7 +42,7 @@ class DeliveriesController extends Controller
     {
         try {
             if (Auth::user()->idPerfil == 1 || Auth::user()->idPerfil == 9) {
-                $delivery = Delivery::with(['estado', 'detalle.conductor', 'detalle.estado', 'detalle.photography', 'detalle.delivery'])
+                $delivery = Delivery::with(['estado', 'detalle.conductor', 'detalle.estado', 'detalle.photography', 'detalle.delivery','detalle.extraCharges.extracharge', 'detalle.extraCharges.option'])
                     ->where('idDelivery', $request->id)->with(['category', 'detalle'])
                     ->get()->first();
             } else {
@@ -714,13 +714,13 @@ class DeliveriesController extends Controller
                                             if (floatval($order[$i]->distancia) > 20) {
                                                 $o20CounterCamion11 = $o20CounterCamion11 + intval($time);
                                             }
-                                            $order[$i]->tiempo = 40 + intval($time);
+                                            $order[$i]->tiempo = 70 + intval($time);
                                             $tCounterCamion11 = $tCounterCamion11 + intval($order[$i]->tiempo);
                                         } else {
                                             if (floatval($order[$i]->distancia) > 20) {
                                                 $o20CounterCamion11 = $o20CounterCamion11 + intval($order[$i]->tiempo);
                                             }
-                                            $order[$i]->tiempo = 40 + intval($order[$i]->tiempo);
+                                            $order[$i]->tiempo = 70 + intval($order[$i]->tiempo);
                                             $tCounterCamion11 = $tCounterCamion11 + intval($order[$i]->tiempo);
                                         }
                                     }
@@ -1065,13 +1065,13 @@ class DeliveriesController extends Controller
                                         if (floatval($order[$i]->distancia) > 20) {
                                             $o20CounterCamion11 = $o20CounterCamion11 + intval($time);
                                         }
-                                        $order[$i]->tiempo = 40 + intval($time);
+                                        $order[$i]->tiempo = 70 + intval($time);
                                         $tCounterCamion11 = $tCounterCamion11 + intval($order[$i]->tiempo);
                                     } else {
                                         if (floatval($order[$i]->distancia) > 20) {
                                             $o20CounterCamion11 = $o20CounterCamion11 + intval($order[$i]->tiempo);
                                         }
-                                        $order[$i]->tiempo = 40 + intval($order[$i]->tiempo);
+                                        $order[$i]->tiempo = 70 + intval($order[$i]->tiempo);
                                         $tCounterCamion11 = $tCounterCamion11 + intval($order[$i]->tiempo);
                                     }
                                 }
@@ -2291,7 +2291,7 @@ class DeliveriesController extends Controller
             $user = Auth::user();
 
             $allDeliveries = Delivery::where('idCliente', $user->idCliente)
-                ->with(['category', 'detalle', 'estado'])->get();
+                ->with(['category', 'detalle', 'estado'])->orderBy('fechaReserva', 'DESC')->get();
 
             foreach ($allDeliveries as $delivery) {
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d H:i');
