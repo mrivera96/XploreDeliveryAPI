@@ -2291,7 +2291,7 @@ class DeliveriesController extends Controller
             $user = Auth::user();
 
             $allDeliveries = Delivery::where('idCliente', $user->idCliente)
-                ->with(['category', 'detalle', 'estado'])->orderBy('fechaReserva', 'DESC')->get();
+                ->with(['category', 'detalle.conductor', 'estado'])->orderBy('fechaReserva', 'DESC')->get();
 
             foreach ($allDeliveries as $delivery) {
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d H:i');
