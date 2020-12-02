@@ -42,7 +42,7 @@ class DeliveriesController extends Controller
     {
         try {
             if (Auth::user()->idPerfil == 1 || Auth::user()->idPerfil == 9) {
-                $delivery = Delivery::with(['estado', 'detalle.conductor', 'detalle.estado', 'detalle.photography', 'detalle.delivery','detalle.extraCharges.extracharge', 'detalle.extraCharges.option'])
+                $delivery = Delivery::with(['estado', 'detalle.conductor', 'detalle.estado', 'detalle.photography', 'detalle.delivery', 'detalle.extraCharges.extracharge', 'detalle.extraCharges.option'])
                     ->where('idDelivery', $request->id)->with(['category', 'detalle'])
                     ->get()->first();
             } else {
@@ -1880,7 +1880,7 @@ class DeliveriesController extends Controller
                             $nECOrder->idDetalle = $nDetalle->idDetalle;
                             $nECOrder->idCargoExtra = $exCharge["idCargoExtra"];
                             $nECOrder->idDetalleOpcion = $exCharge["idDetalleOpcion"];
-                            if(isset($exCharge["montoCobertura"])){
+                            if (isset($exCharge["montoCobertura"])) {
                                 $nECOrder->montoCobertura = $exCharge["montoCobertura"];
                             }
                             $nECOrder->save();
@@ -1894,8 +1894,8 @@ class DeliveriesController extends Controller
                 return response()->json(
                     [
                         'error' => 0,
-                        'message' => 'Solicitud de Delivery enviada correctamente.
-                        Recibirás un email con los detalles de tu reserva. Nos pondremos en contacto contigo.',
+                        'message' => "Solicitud de Delivery enviada correctamente.
+                        Recibirás un email con los detalles de tu reserva. Nos pondremos en contacto contigo. ",
                         'nDelivery' => $lastId
                     ],
                     200
@@ -2879,23 +2879,27 @@ class DeliveriesController extends Controller
     public
     function cancelDelivery(Request $request)
     {
-        $request->validate(['idDelivery' => 'required', 'motivoAnul' => 'required']);
-        $idDelivery = $request->idDelivery;
-        $motivoAnul = $request->motivoAnul;
+        $request->validate(['id' => 'required']);
+        $idDelivery = $request->id;
 
         try {
-            $currDelivery = Delivery::where('idDelivery', $idDelivery)->get();
+            $currDelivery = Delivery::where('idDelivery', $idDelivery)->get()->first();
             $currDelivery->idEstado = 36;
             $currDelivery->usrAnuloReserva = Auth::user()->idUsuario;
             $currDelivery->fechaAnulado = Carbon::now();
-            $currDelivery->motivoAnul = $motivoAnul;
+            $currDelivery->motivoAnul = 'Cancelada por el cliente';
             $currDelivery->save();
+
+            DetalleDelivery::where('idDelivery', $idDelivery)
+                ->update([
+                    'idEstado' => 42,
+                    'observaciones' => 'Cliente esperó ventana de 30 minutos y no fue conectado con un conductor.'
+                ]);
 
             return response()->json(
                 [
                     'error' => 0,
-                    'message' => 'Delivery anulada correctamente.',
-
+                    'message' => 'Delivery cancelada correctamente.',
                 ],
                 200
             );

@@ -251,6 +251,7 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::post('getToday', 'DeliveriesController@getTodayCustomerDeliveries');
             Route::post('getAll', 'DeliveriesController@getAllCustomerDeliveries');
             Route::post('new', 'DeliveriesController@createCustomerDelivery');
+            Route::post('cancel', 'DeliveriesController@cancelDelivery');
         });
 
         //Rutas Direcciones
