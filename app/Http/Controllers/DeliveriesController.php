@@ -1766,6 +1766,11 @@ class DeliveriesController extends Controller
         }
     }
 
+    public function characterReplace($string){
+        $newString = str_replace(array('#','?','¿'),'',$string);
+        return $newString;
+    }
+
 
     public function createCustomerDelivery(Request $request)
     {
@@ -1821,7 +1826,7 @@ class DeliveriesController extends Controller
                 $customerDetails = DeliveryClient::where('idCliente', $customer)
                     ->get()
                     ->first();
-
+                
                 $nDelivery = new Delivery();
                 $nDelivery->nomCliente = $customerDetails->nomEmpresa;
                 $nDelivery->numIdentificacion = $customerDetails->numIdentificacion;
@@ -1832,7 +1837,7 @@ class DeliveriesController extends Controller
 
                 $datetime = $date . ' ' . $time;
                 $nDelivery->fechaReserva = new Carbon($datetime);
-                $nDelivery->dirRecogida = $hDelivery['dirRecogida'];
+                $nDelivery->dirRecogida = $this->characterReplace($hDelivery['dirRecogida']);
                 $nDelivery->email = $customerDetails->email;
                 $nDelivery->idCategoria = $hDelivery['idCategoria'];
                 $nDelivery->idEstado = 34;
@@ -1842,7 +1847,7 @@ class DeliveriesController extends Controller
                 $nDelivery->total = $pago['total'];
                 $nDelivery->idCliente = $customerDetails->idCliente;
                 $nDelivery->coordsOrigen = $hDelivery['coordsOrigen'];
-                $nDelivery->instrucciones = $hDelivery['instrucciones'];
+                $nDelivery->instrucciones = $this->characterReplace($hDelivery['instrucciones']);
                 if (isset($request->deliveryForm["idTarifa"])) {
                     $nDelivery->isConsolidada = true;
                 }
@@ -1859,10 +1864,10 @@ class DeliveriesController extends Controller
                 foreach ($deliveryOrders as $detalle) {
                     $nDetalle = new DetalleDelivery();
                     $nDetalle->idDelivery = $lastId;
-                    $nDetalle->nFactura = $detalle['nFactura'];
-                    $nDetalle->nomDestinatario = $detalle['nomDestinatario'];
+                    $nDetalle->nFactura = $this->characterReplace($detalle['nFactura']);
+                    $nDetalle->nomDestinatario = $this->characterReplace($detalle['nomDestinatario']);
                     $nDetalle->numCel = $detalle['numCel'];
-                    $nDetalle->direccion = $detalle['direccion'];
+                    $nDetalle->direccion = $this->characterReplace($detalle['direccion']);
                     $nDetalle->distancia = $detalle['distancia'];
                     $nDetalle->tiempo = $detalle['tiempo'];
                     $nDetalle->tarifaBase = $detalle['tarifaBase'];
@@ -1870,7 +1875,7 @@ class DeliveriesController extends Controller
                     $nDetalle->cTotal = $detalle['cTotal'];
                     $nDetalle->cargosExtra = $detalle['cargosExtra'];
                     $nDetalle->tomarFoto = true;
-                    $nDetalle->instrucciones = $detalle['instrucciones'];
+                    $nDetalle->instrucciones = $this->characterReplace($detalle['instrucciones']);
                     $nDetalle->coordsDestino = $detalle['coordsDestino'];
                     $nDetalle->save();
 
