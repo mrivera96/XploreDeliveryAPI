@@ -187,7 +187,7 @@ class AuthController extends Controller
 
             if (UsersController::existeUsuario($rCustomer['email']) == 0) {
                 $nCustomer = new DeliveryClient();
-                $nCustomer->nomEmpresa = $rCustomer['nomEmpresa'];
+                $nCustomer->nomEmpresa = $rCustomer['nomRepresentante'];
                 $nCustomer->nomRepresentante = $rCustomer['nomRepresentante'];
                 $nCustomer->numIdentificacion = $rCustomer['numIdentificacion'];
                 $nCustomer->numTelefono = $rCustomer['numTelefono'];
@@ -202,7 +202,7 @@ class AuthController extends Controller
                 $nUser->idPerfil = 8;
                 $nUser->nomUsuario = $rCustomer['nomRepresentante'];
                 $nUser->nickUsuario = $rCustomer['email'];
-                $nUser->passUsuario = Hash::make($rCustomer['numIdentificacion']);
+                $nUser->passUsuario = Hash::make($rCustomer['newPass']);
                 $nUser->isActivo = 1;
                 $nUser->idCliente = $nCustomer->idCliente;
                 $nUser->fechaCreacion = Carbon::now();
@@ -210,7 +210,7 @@ class AuthController extends Controller
 
                 $receivers = $nCustomer->email;
 
-                $this->sendmail($receivers, $nCustomer);
+                $this->welcomeMail($receivers, $nCustomer);
                 return response()->json([
                     'error' => 0,
                     'message' => 'Registro completado correctamente. ¡Bienvenido(a)!'
@@ -338,6 +338,28 @@ class AuthController extends Controller
 
         try {
             Mail::send('passwordRecoveryNotification', $data, function ($message) use ($data) {
+                $message
+                    ->from('noreply@xplorerentacar.com', $data["from"])
+                    ->to($data["email"], $data["client_name"])
+                    ->subject($data["subject"]);
+            });
+        } catch (Exception $exception) {
+            Log::error($exception->getMessage(), ['context' => $exception->getTrace()]);
+            $this->serverstatuscode = "0";
+            $this->serverstatusdes = $exception->getMessage();
+        }
+    }
+
+    public function welcomeMail($mail, $cliente)
+    {
+        $data["email"] = $mail;
+        $data["client_name"] = $cliente->Representante;
+        $data["subject"] = 'Xplore Delivery - ¡Bienvenido(a)!';
+        $data["cliente"] = $cliente;
+        $data["from"] = 'Xplore Delivery';
+
+        try {
+            Mail::send('welcomeMail', $data, function ($message) use ($data) {
                 $message
                     ->from('noreply@xplorerentacar.com', $data["from"])
                     ->to($data["email"], $data["client_name"])

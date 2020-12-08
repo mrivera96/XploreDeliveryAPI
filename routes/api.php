@@ -36,6 +36,7 @@ Route::group(['prefix' => 'auth'], function () {
     Route::post('numberLogin', 'AuthController@numberLogin');
     Route::post('verifyMail', 'AuthController@verifyMail');
     Route::post('verifyNumber', 'AuthController@verifyNumber');
+    Route::post('signUp','AuthController@signUp');
 });
 
 //WS que NO requieren autenticación

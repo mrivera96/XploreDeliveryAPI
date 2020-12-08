@@ -577,12 +577,10 @@ class DeliveryUsersController extends Controller
                 ->sum('monto'), 2);
 
             if ($balance > 0) {
-                $graceDays = Auth::user()->cliente->diasGracia;
-                $lastPaymentDate = new Carbon($payments);
-                $todayDate = Carbon::today();
-                $dif = $lastPaymentDate->addDays($graceDays);
+                $graceAmount = Auth::user()->cliente->montoGracia;
+                $dif = $balance - $graceAmount;
 
-                if ($todayDate > $dif || $payments == null) {
+                if ($dif >= 0) {
                     $output = false;
                 }
             }
