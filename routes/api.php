@@ -288,6 +288,11 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::group(['prefix' => 'payments'], function () {
             Route::post('get', 'PaymentController@getCustomerPayments');
         });
+
+        //Rutas Metodos de pago
+        Route::group(['prefix' => 'paymentMethods'], function () {
+            Route::post('get', 'PaymentMethodsController@getCustomerPaymentMethods');
+        });
     });
 });
 Route::group(['prefix' => 'appDelivery'], function () {

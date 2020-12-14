@@ -20,6 +20,14 @@ class CreateTblFormasDePagoClientesDelivery extends Migration
             $table->integer('anio');
             $table->string('cvv');
             $table->dateTime('fechaRegistro');
+            $table->integer('idCliente')->unsigned();  
+        });
+
+        Schema::table('tblFormasPagoClientesDelivery', function (Blueprint $table) {
+            $table->foreign('idCliente')
+            ->references('idCliente')
+            ->on('tblClientesDelivery')
+            ->onDelete('cascade');
         });
     }
 
