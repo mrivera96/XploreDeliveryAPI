@@ -41,7 +41,7 @@ Route::group(['prefix' => 'auth'], function () {
 
 //WS que NO requieren autenticación
 Route::group(['prefix' => 'drivers'], function () {
-    Route::get('report', 'UsersController@deliveriesReport');
+    Route::get('report', 'DriversController@deliveriesReport');
 });
 
 Route::group(['prefix' => 'shared'], function () {
@@ -166,9 +166,12 @@ Route::group(['prefix' => 'admins'], function () {
 
         //Rutas Conductores
         Route::group(['prefix' => 'drivers'], function () {
-            Route::post('get', 'UsersController@listDrivers');
-            Route::post('create', 'UsersController@createDriver');
-            Route::post('update', 'UsersController@updateDriver');
+            Route::post('get', 'DriversController@listDrivers');
+            Route::post('create', 'DriversController@createDriver');
+            Route::post('update', 'DriversController@updateDriver');
+            Route::post('getCategories', 'DriversController@getDriverCategories');
+            Route::post('assignCategory', 'DriversController@assignCategory');
+            Route::post('removeCategory', 'DriversController@removeCategory');
         });
 
         //Rutas Ciudades
