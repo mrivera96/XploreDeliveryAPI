@@ -1856,6 +1856,13 @@ class DeliveriesController extends Controller
                     $nDelivery->isRuteo = true;
                     $nDelivery->distTotal = $hDelivery['distancia'];
                 }
+
+                if(strpos($this->characterReplace($hDelivery['dirRecogida']),'Tegucigalpa')){
+                    $nDelivery->ciudad = 'Tegucigalpa';
+                }else if(strpos($this->characterReplace($hDelivery['dirRecogida']),'San Pedro Sula')){
+                    $nDelivery->ciudad = 'San Pedro Sula';
+                }
+                
                 $nDelivery->fechaRegistro = Carbon::now();
                 $nDelivery->save();
 
