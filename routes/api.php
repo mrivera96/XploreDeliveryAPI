@@ -296,6 +296,14 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::group(['prefix' => 'paymentMethods'], function () {
             Route::post('get', 'PaymentMethodsController@getCustomerPaymentMethods');
         });
+
+        //Rutas Etiquetas
+        Route::group(['prefix' => 'labels'], function () {
+            Route::post('get', 'LabelsController@getLabels');
+            Route::post('create', 'LabelsController@createLabel');
+            Route::post('update', 'LabelsController@updateLabel');
+            Route::post('delete', 'LabelsController@deleteLabel');
+        });
     });
 });
 Route::group(['prefix' => 'appDelivery'], function () {
