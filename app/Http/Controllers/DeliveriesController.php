@@ -1785,10 +1785,10 @@ class DeliveriesController extends Controller
             'pago' => 'required'
         ]);
 
-        /*$customer = Auth::user()->idCliente;
+        $customer = Auth::user()->idCliente;
         if (Auth::user()->idPerfil !== 1 && Auth::user()->idPerfil !== 9) {
             $customer = $request->idCliente;
-        }*/
+        }
 
         if ($request->idCustomer == null) {
             $customer = Auth::user()->idCliente;
@@ -1857,11 +1857,11 @@ class DeliveriesController extends Controller
                     $nDelivery->distTotal = $hDelivery['distancia'];
                 }
 
-                /* if(strpos($this->characterReplace($hDelivery['dirRecogida']),'Tegucigalpa')){
+                 if(strpos($this->characterReplace($hDelivery['dirRecogida']),'Tegucigalpa')){
                     $nDelivery->ciudad = 'Tegucigalpa';
                 }else if(strpos($this->characterReplace($hDelivery['dirRecogida']),'San Pedro Sula')){
                     $nDelivery->ciudad = 'San Pedro Sula';
-                } */
+                } 
                 
                 $nDelivery->fechaRegistro = Carbon::now();
                 $nDelivery->save();
