@@ -1766,8 +1766,9 @@ class DeliveriesController extends Controller
         }
     }
 
-    public function characterReplace($string){
-        $newString = str_replace(array('#','?','¿'),'',$string);
+    public function characterReplace($string)
+    {
+        $newString = str_replace(array('#', '?', '¿'), '', $string);
         return $newString;
     }
 
@@ -1826,7 +1827,7 @@ class DeliveriesController extends Controller
                 $customerDetails = DeliveryClient::where('idCliente', $customer)
                     ->get()
                     ->first();
-                
+
                 $nDelivery = new Delivery();
                 $nDelivery->nomCliente = $customerDetails->nomEmpresa;
                 $nDelivery->numIdentificacion = $customerDetails->numIdentificacion;
@@ -1857,12 +1858,12 @@ class DeliveriesController extends Controller
                     $nDelivery->distTotal = $hDelivery['distancia'];
                 }
 
-                 /* if(strpos($this->characterReplace($hDelivery['dirRecogida']),'Tegucigalpa')){
+                if (strpos($this->characterReplace($hDelivery['dirRecogida']), 'Tegucigalpa')) {
                     $nDelivery->ciudad = 'Tegucigalpa';
-                }else if(strpos($this->characterReplace($hDelivery['dirRecogida']),'San Pedro Sula')){
+                } else if (strpos($this->characterReplace($hDelivery['dirRecogida']), 'San Pedro Sula')) {
                     $nDelivery->ciudad = 'San Pedro Sula';
-                }  */
-                
+                }
+
                 $nDelivery->fechaRegistro = Carbon::now();
                 $nDelivery->save();
 

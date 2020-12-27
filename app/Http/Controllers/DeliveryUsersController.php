@@ -588,7 +588,8 @@ class DeliveryUsersController extends Controller
             return response()->json(
                 [
                     'error' => 0,
-                    'data' => $output
+                    'data' => $output,
+                    'balance' => $balance
                 ],
                 200
             );
