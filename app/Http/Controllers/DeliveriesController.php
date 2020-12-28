@@ -1852,6 +1852,9 @@ class DeliveriesController extends Controller
                 if (isset($request->deliveryForm["idTarifa"])) {
                     $nDelivery->isConsolidada = true;
                 }
+                if (isset($request->deliveryForm["idEtiqueta"])) {
+                    $nDelivery->idEtiqueta = $request->deliveryForm["idEtiqueta"];
+                }
 
                 if (isset($request->deliveryForm["distancia"]) && $request->deliveryForm["distancia"] != 0) {
                     $nDelivery->isRuteo = true;
@@ -1862,6 +1865,9 @@ class DeliveriesController extends Controller
                     $nDelivery->ciudad = 'Tegucigalpa';
                 } else if (strpos($this->characterReplace($hDelivery['dirRecogida']), 'San Pedro Sula')) {
                     $nDelivery->ciudad = 'San Pedro Sula';
+                }
+                if ($request->idCustomer != null) {
+                    $nDelivery->regAdmin = true;
                 }
 
                 $nDelivery->fechaRegistro = Carbon::now();
