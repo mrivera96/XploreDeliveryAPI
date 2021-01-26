@@ -65,61 +65,43 @@ class CategoriesController extends Controller
             $tarCust = RateCustomer::where('idCliente', $currCust)->get();
 
             if ($tarCust->count() > 0) {
-                $idArray = [];
-                foreach ($tarCust as $item) {
-                    if (!in_array($item->rate->idCategoria, $idArray) && $item->rate->idTipoTarifa == 1) {
-                        array_push($idArray, $item->rate->idCategoria);
-                    }
-                }
 
                 $categories = Category::where('isActivo', 1)
-                    ->whereIn('idCategoria', $idArray)
+                    ->whereHas('rate', function ($q) use ($currCust) {
+                        $q->where(['idTipoTarifa' => 1, 'idCliente' => NULL])
+                            ->whereHas('rateDetail', function ($q) use ($currCust) {
+                                $q->where('idCliente', $currCust);
+                            });
+                    })
                     ->orderBy('orden')
                     ->get();
 
                 if ($categories->count() == 0) {
                     $categories = Category::where('isActivo', 1)
+                        ->whereHas('rate', function ($q) {
+                            $q->where(['idTipoTarifa' => 1, 'idCliente' => 1]);
+                        })
                         ->orderBy('orden')
                         ->get();
                 }
 
-                $routingRates = RateCustomer::where('idCliente', $currCust)
-                    ->whereHas('rate', function ($q) {
-                        $q->where('idTipoTarifa', 3);
-                    })->get();
-
-                $idArrayR = [];
-                if ($routingRates->count() > 0) {
-                    foreach ($routingRates as $item) {
-                        if (!in_array($item->rate->idCategoria, $idArrayR) && $item->rate->idTipoTarifa == 3) {
-                            array_push($idArrayR, $item->rate->idCategoria);
-                        }
-                    }
-                }
-
-                $routingCategories = Category::with('rate')
-                    ->where('isActivo', 1)
-                    ->whereIn('idCategoria', $idArrayR)
-                    ->orderBy('orden')->get();
+                $routingCategories = Category::where('isActivo', 1)
+                    ->whereHas('rate', function ($q) use ($currCust) {
+                        $q->where(['idTipoTarifa' => 3, 'idCliente' => NULL])
+                            ->whereHas('rateDetail', function ($q) use ($currCust) {
+                                $q->where('idCliente', $currCust);
+                            });
+                    })
+                    ->orderBy('orden')
+                    ->get();
 
                 if ($routingCategories->count() == 0) {
-                    $routingCategories = Category::with('rate')
-                        ->where('isActivo', 1)
-                        ->orderBy('orden')->get();
-                }
-
-                $consolidatedRates = RateCustomer::where('idCliente', $currCust)
-                    ->whereHas('rate', function ($q) {
-                        $q->where('idTipoTarifa', 2);
-                    })->get();
-
-                $idsConsolidated = [];
-                if ($consolidatedRates->count() > 0) {
-                    foreach ($consolidatedRates as $item) {
-                        if (!in_array($item->rate->idCategoria, $idsConsolidated) && $item->rate->idTipoTarifa == 2) {
-                            array_push($idsConsolidated, $item->rate->idCategoria);
-                        }
-                    }
+                    $routingCategories =  Category::where('isActivo', 1)
+                        ->whereHas('rate', function ($q) {
+                            $q->where(['idTipoTarifa' => 3, 'idCliente' => 1]);
+                        })
+                        ->orderBy('orden')
+                        ->get();
                 }
 
                 $consolidatedCategories = Category::with([
@@ -128,31 +110,27 @@ class CategoriesController extends Controller
                     'rate.consolidatedDetail'
                 ])
                     ->where('isActivo', 1)
-                    ->whereIn('idCategoria', $idsConsolidated)
+                    ->whereHas('rate', function ($q) use ($currCust) {
+                        $q->where(['idTipoTarifa' => 2, 'idCliente' => NULL])
+                            ->whereHas('rateDetail', function ($q) use ($currCust) {
+                                $q->where('idCliente', $currCust);
+                            });
+                    })
                     ->orderBy('orden')
                     ->get();
 
                 if ($consolidatedCategories->count() == 0) {
-                    $consolidatedCategories = Category::with('rate')
+                    $consolidatedCategories = Category::with([
+                        'rate.schedules',
+                        'rate.rateDetail',
+                        'rate.consolidatedDetail'
+                    ])
                         ->where('isActivo', 1)
                         ->whereHas('rate', function ($q) {
-                            $q->where(['idTipoTarifa' => 2]);
+                            $q->where(['idTipoTarifa' => 2, 'idCliente' => 1]);
                         })
-                        ->orderBy('orden')->get();
-                }
-
-                $consolidatedForeignRates = RateCustomer::whereHas('rate', function ($q) {
-                    $q->where('idTipoTarifa', 4);
-                })
-                    ->get();
-
-                $idsForeign = [];
-                if ($consolidatedForeignRates->count() > 0) {
-                    foreach ($consolidatedForeignRates as $item) {
-                        if (!in_array($item->rate->idCategoria, $idsForeign) && $item->rate->idTipoTarifa == 4) {
-                            array_push($idsForeign, $item->rate->idCategoria);
-                        }
-                    }
+                        ->orderBy('orden')
+                        ->get();
                 }
 
                 $consolidatedForeignCategories = Category::with([
@@ -161,53 +139,35 @@ class CategoriesController extends Controller
                     'rate.consolidatedDetail'
                 ])
                     ->where('isActivo', 1)
-                    ->whereIn('idCategoria', $idsForeign)
-                    ->orderBy('orden')->get();
-            } else {
-                $categories = Category::where('isActivo', 1)
+                    ->whereHas('rate', function ($q) use ($currCust) {
+                        $q->where(['idTipoTarifa' => 4, 'idCliente' => NULL])
+                            ->whereHas('rateDetail', function ($q) use ($currCust) {
+                                $q->where('idCliente', $currCust);
+                            });
+                    })
                     ->orderBy('orden')
                     ->get();
 
-                $consolidatedRates = RateCustomer::where('idCliente', 1)
+                if ($consolidatedForeignCategories->count() == 0) {
+                    $consolidatedForeignCategories = Category::with([
+                        'rate.schedules',
+                        'rate.rateDetail',
+                        'rate.consolidatedDetail'
+                    ])
+                        ->where('isActivo', 1)
+                        ->whereHas('rate', function ($q) {
+                            $q->where(['idTipoTarifa' => 4, 'idCliente' => 1]);
+                        })
+                        ->orderBy('orden')
+                        ->get();
+                }
+            } else {
+                $categories = Category::where('isActivo', 1)
                     ->whereHas('rate', function ($q) {
-                        $q->where('idTipoTarifa', 2);
-                    })->get();
-
-                $routingRates = RateCustomer::where('idCliente', 1)
-                    ->whereHas('rate', function ($q) {
-                        $q->where('idTipoTarifa', 3);
-                    })->get();
-
-                $consolidatedForeignRates = RateCustomer::whereHas('rate', function ($q) {
-                    $q->where('idTipoTarifa', 4);
-                })->get();
-
-                $idArray = [];
-                if ($consolidatedRates->count() > 0) {
-                    foreach ($consolidatedRates as $item) {
-                        if (!in_array($item->rate->idCategoria, $idArray) && $item->rate->idTipoTarifa == 2) {
-                            array_push($idArray, $item->rate->idCategoria);
-                        }
-                    }
-                }
-
-                $idArrayF = [];
-                if ($consolidatedRates->count() > 0) {
-                    foreach ($consolidatedForeignRates as $item) {
-                        if (!in_array($item->rate->idCategoria, $idArrayF) && $item->rate->idTipoTarifa == 4) {
-                            array_push($idArrayF, $item->rate->idCategoria);
-                        }
-                    }
-                }
-
-                $idArrayR = [];
-                if ($routingRates->count() > 0) {
-                    foreach ($routingRates as $item) {
-                        if (!in_array($item->rate->idCategoria, $idArrayR) && $item->rate->idTipoTarifa == 3) {
-                            array_push($idArrayR, $item->rate->idCategoria);
-                        }
-                    }
-                }
+                        $q->where(['idTipoTarifa' => 1, 'idCliente' => 1]);
+                    })
+                    ->orderBy('orden')
+                    ->get();
 
                 $consolidatedCategories = Category::with([
                     'rate.schedules',
@@ -215,7 +175,16 @@ class CategoriesController extends Controller
                     'rate.consolidatedDetail'
                 ])
                     ->where('isActivo', 1)
-                    ->whereIn('idCategoria', $idArray)
+                    ->whereHas('rate', function ($q) {
+                        $q->where(['idTipoTarifa' => 2, 'idCliente' => 1]);
+                    })
+                    ->orderBy('orden')
+                    ->get();
+
+                $routingCategories = Category::where('isActivo', 1)
+                    ->whereHas('rate', function ($q) {
+                        $q->where(['idTipoTarifa' => 3, 'idCliente' => 1]);
+                    })
                     ->orderBy('orden')
                     ->get();
 
@@ -225,13 +194,11 @@ class CategoriesController extends Controller
                     'rate.consolidatedDetail'
                 ])
                     ->where('isActivo', 1)
-                    ->whereIn('idCategoria', $idArrayF)
+                    ->whereHas('rate', function ($q) {
+                        $q->where(['idTipoTarifa' => 4, 'idCliente' => 1]);
+                    })
                     ->orderBy('orden')
                     ->get();
-
-                $routingCategories = Category::where('isActivo', 1)
-                    ->whereIn('idCategoria', $idArrayR)
-                    ->orderBy('orden')->get();
             }
 
             foreach ($consolidatedCategories as $category) {
@@ -567,8 +534,8 @@ class CategoriesController extends Controller
                 'consolidatedCategories' => $consolidatedCategories,
                 'consolidatedForeignCategories' => $consolidatedForeignCategories,
                 'routingCategories' => $routingCategories,
-                'demand' => 'HORARIO NAVIDEÑO: Estimado cliente, comunicamos que el día 24 de Diciembre atenderemos pedidos en horario especial de 08:00am a 3:00pm; el 25 de Diciembre nuestra plataforma permanecerá cerrada. ¡Feliz Navidad!' /* 'Estimado cliente, comunicamos que estamos experimentando una alta demanda en todas nuestras 
-                categorías y mayor tráfico en la ciudad debido a la temporada. 
+                'demand' => 'HORARIO NAVIDEÑO: Estimado cliente, comunicamos que el día 24 de Diciembre atenderemos pedidos en horario especial de 08:00am a 3:00pm; el 25 de Diciembre nuestra plataforma permanecerá cerrada. ¡Feliz Navidad!' /* 'Estimado cliente, comunicamos que estamos experimentando una alta demanda en todas nuestras
+                categorías y mayor tráfico en la ciudad debido a la temporada.
                 Agradecemos de antemano su comprensión ante cualquier atraso o inconveniente.' */
             ], 200);
         } catch (Exception $ex) {

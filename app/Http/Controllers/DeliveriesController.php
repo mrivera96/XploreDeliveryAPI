@@ -1807,8 +1807,8 @@ class DeliveriesController extends Controller
             $todaySchedule = Schedule::where('cod', $deliveryDayCode)->where('idTarifaDelivery', null)->get()->first();
 
             if (
-                date('H:i', strtotime($hDelivery['hora'])) < $todaySchedule->inicio ||
-                date('H:i', strtotime($hDelivery['hora'])) > $todaySchedule->final
+                date('H:i', strtotime($hDelivery['hora'])) <= $todaySchedule->inicio ||
+                date('H:i', strtotime($hDelivery['hora'])) >= $todaySchedule->final
             ) {
                 return response()->json(
                     [
