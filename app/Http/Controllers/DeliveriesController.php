@@ -278,7 +278,7 @@ class DeliveriesController extends Controller
     {
         try {
             $deliveriesDia = DetalleDelivery::with([
-                'delivery', 'estado', 'conductor', 'photography',
+                'delivery.category', 'estado', 'conductor', 'photography',
                 'extraCharges.extracharge', 'extraCharges.option'
             ])
                 ->whereHas('delivery', function ($q) {
@@ -322,7 +322,7 @@ class DeliveriesController extends Controller
     {
         try {
             $allDeliveries = DetalleDelivery::with([
-                'delivery', 'estado', 'conductor', 'auxiliar',
+                'delivery.category', 'estado', 'conductor', 'auxiliar',
                 'photography', 'extraCharges.extracharge', 'extraCharges.option'
             ])
                 ->whereHas('delivery', function ($q) {
@@ -375,7 +375,7 @@ class DeliveriesController extends Controller
 
         try {
             $orders = DetalleDelivery::with([
-                'delivery', 'estado', 'conductor', 'photography', 'auxiliar',
+                'delivery.category', 'estado', 'conductor', 'photography', 'auxiliar',
                 'extraCharges.extracharge', 'extraCharges.option'
             ])
                 ->whereHas('delivery', function ($q) use ($request) {
@@ -2189,7 +2189,7 @@ class DeliveriesController extends Controller
     {
         try {
             $user = Auth::user();
-            $deliveriesDia = DetalleDelivery::with(['conductor', 'estado', 'photography'])
+            $deliveriesDia = DetalleDelivery::with(['delivery.category','conductor', 'estado', 'photography'])
                 ->whereHas('delivery', function ($q) use ($user) {
                     $q->whereDate('fechaReserva', Carbon::today())
                         ->where('idCliente', $user->idCliente);
@@ -2231,7 +2231,7 @@ class DeliveriesController extends Controller
     {
         try {
             $user = Auth::user();
-            $allDeliveries = DetalleDelivery::with(['conductor', 'estado', 'photography'])
+            $allDeliveries = DetalleDelivery::with(['delivery.category','conductor', 'estado', 'photography'])
                 ->whereHas('delivery', function ($q) use ($user) {
                     $q->where('idCliente', $user->idCliente);
                 })->get();
@@ -2353,7 +2353,7 @@ class DeliveriesController extends Controller
         $custId = $request->customerId;
 
         try {
-            $allDeliveries = DetalleDelivery::with(['estado', 'conductor'])
+            $allDeliveries = DetalleDelivery::with(['delivery.category','estado', 'conductor'])
                 ->whereIn('idEstado', [44, 46, 47])
                 ->whereHas('delivery', function ($q) use ($custId) {
                     $q->where('idCliente', $custId);
