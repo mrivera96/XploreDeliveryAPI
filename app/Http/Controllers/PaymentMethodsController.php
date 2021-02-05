@@ -53,6 +53,7 @@ class PaymentMethodsController extends Controller
             $custPM = PaymentMethods::where('idCliente',Auth::user()->idCliente)->get();
             foreach($custPM as $paymntMethd){
                 $paymntMethd->vencimiento = Crypt::decryptString($paymntMethd->vencimiento);
+                $paymntMethd->cvv = Crypt::decryptString($paymntMethd->cvv);
             }
 
             return response()->json([
@@ -65,6 +66,40 @@ class PaymentMethodsController extends Controller
                 [
                     'error' => 1,
                     'message' => 'Error al cargar los métodos de pago.'
+                ],
+                500
+            );
+        }
+    }
+
+    public function updatePaymentMethod(Request $request)
+    {
+        $request->validate([
+            'form' => 'required',
+            'form.cardId' => 'required',
+            'form.expDate' => 'required',
+            'form.cvv' => 'required'
+        ]);
+
+        $form = $request->form;
+
+        try {
+            $currentCard = PaymentMethods::where('idFormaPago', $form['cardId']);
+            $currentCard->update([
+                'vencimiento' => Crypt::encryptString($form['expDate']),
+                'cvv' => Crypt::encryptString($form['cvv'])
+            ]);
+
+            return response()->json([
+                'error' => 0,
+                'message' => 'Tarjeta actualizada correctamente.'
+            ], 200);
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => 'Error al actualizar el método de pago.'
                 ],
                 500
             );

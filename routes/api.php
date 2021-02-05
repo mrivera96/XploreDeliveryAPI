@@ -296,6 +296,7 @@ Route::group(['middleware' => 'auth:api'], function () {
         Route::group(['prefix' => 'paymentMethods'], function () {
             Route::post('get', 'PaymentMethodsController@getCustomerPaymentMethods');
             Route::post('create', 'PaymentMethodsController@createPaymentMethod');
+            Route::post('update', 'PaymentMethodsController@updatePaymentMethod');
         });
 
         //Rutas Etiquetas
