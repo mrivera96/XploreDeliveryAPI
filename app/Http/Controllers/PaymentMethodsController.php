@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\DeliveryTransaction;
 use App\PaymentMethods;
 use Carbon\Carbon;
 use Exception;
@@ -48,10 +49,11 @@ class PaymentMethodsController extends Controller
         }
     }
 
-    public function getCustomerPaymentMethods(){
+    public function getCustomerPaymentMethods()
+    {
         try {
-            $custPM = PaymentMethods::where('idCliente',Auth::user()->idCliente)->get();
-            foreach($custPM as $paymntMethd){
+            $custPM = PaymentMethods::where('idCliente', Auth::user()->idCliente)->get();
+            foreach ($custPM as $paymntMethd) {
                 $paymntMethd->vencimiento = Crypt::decryptString($paymntMethd->vencimiento);
                 $paymntMethd->cvv = Crypt::decryptString($paymntMethd->cvv);
             }
@@ -104,5 +106,44 @@ class PaymentMethodsController extends Controller
                 500
             );
         }
+    }
+
+    public function saveFailTransaction(Request $request)
+    {
+        $request->validate([
+            'payDetails' => 'required'
+        ]);
+
+        try {
+            $newTransaction = new DeliveryTransaction();
+            $newTransaction->idCliente = Auth::user()->idCliente;
+            $newTransaction->reasonCode = $request->payDetails['reasonCode'];
+            $newTransaction->reasonCodeDescription = $request->payDetails['reasonCodeDescription'];
+            $newTransaction->authCode = $request->payDetails['authCode'];
+            $newTransaction->orderNumber = $request->payDetails['orderNumber'];
+            $newTransaction->fechaRegistro = Carbon::now();
+            $newTransaction->save();
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'message' => 'Transacción guardada correctamente.'
+                ],
+                500
+            );
+        } catch (Exception $ex) {
+            Log::error($ex->getMessage(), array(
+                'User' => Auth::user()->nomUsuario,
+                'context' => $ex->getTrace()
+            ));
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => 'Error al guardar la transacción.'
+                ],
+                500
+            );
+        }
+
     }
 }

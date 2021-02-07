@@ -13,6 +13,7 @@ use App\ExtraCharge;
 use App\ExtraChargesOrders;
 use App\Schedule;
 use App\User;
+use App\DeliveryTransaction;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -2000,6 +2001,16 @@ class DeliveriesController extends Controller
                     $nECOrder->save();
                 }
             }*/
+
+            $newTransaction = new DeliveryTransaction();
+            $newTransaction->idDelivery = $lastId;
+            $newTransaction->idCliente = $customer;
+            $newTransaction->reasonCode = $request->data['payDetails']['reasonCode'];
+            $newTransaction->reasonCodeDescription = $request->data['payDetails']['reasonCodeDescription'];
+            $newTransaction->authCode = $request->data['payDetails']['authCode'];
+            $newTransaction->orderNumber = $request->data['payDetails']['orderNumber'];
+            $newTransaction->fechaRegistro = Carbon::now();
+            $newTransaction->save();
 
 
             $receivers = $customerDetails->email;
