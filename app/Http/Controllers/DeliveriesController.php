@@ -2005,10 +2005,10 @@ class DeliveriesController extends Controller
             $newTransaction = new DeliveryTransaction();
             $newTransaction->idDelivery = $lastId;
             $newTransaction->idCliente = $customer;
-            $newTransaction->reasonCode = $request->data['payDetails']['reasonCode'];
-            $newTransaction->reasonCodeDescription = $request->data['payDetails']['reasonCodeDescription'];
-            $newTransaction->authCode = $request->data['payDetails']['authCode'];
-            $newTransaction->orderNumber = $request->data['payDetails']['orderNumber'];
+            $newTransaction->reasonCode = $request->data['transactionDetails']['reasonCode'];
+            $newTransaction->reasonCodeDescription = $request->data['transactionDetails']['reasonCodeDescription'];
+            $newTransaction->authCode = $request->data['transactionDetails']['authCode'];
+            $newTransaction->orderNumber = $request->data['transactionDetails']['orderNumber'];
             $newTransaction->fechaRegistro = Carbon::now();
             $newTransaction->save();
 
@@ -2103,6 +2103,16 @@ class DeliveriesController extends Controller
                 $nECOrder->idDetalleOpcion = $request->data['extra']["idDetalleOpcion"];
                 $nECOrder->save();
             }
+
+            $newTransaction = new DeliveryTransaction();
+            $newTransaction->idDelivery = $lastId;
+            $newTransaction->idCliente = $customer;
+            $newTransaction->reasonCode = $request->data['transactionDetails']['reasonCode'];
+            $newTransaction->reasonCodeDescription = $request->data['transactionDetails']['reasonCodeDescription'];
+            $newTransaction->authCode = $request->data['transactionDetails']['authCode'];
+            $newTransaction->orderNumber = $request->data['transactionDetails']['orderNumber'];
+            $newTransaction->fechaRegistro = Carbon::now();
+            $newTransaction->save();
 
             $receivers = $customerDetails->email;
             $this->sendmail($receivers, $lastId);

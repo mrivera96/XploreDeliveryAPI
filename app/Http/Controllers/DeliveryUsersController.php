@@ -578,7 +578,12 @@ class DeliveryUsersController extends Controller
 
             if ($balance > 0) {
                 $graceAmount = Auth::user()->cliente->montoGracia;
-                $dif = $balance - $graceAmount;
+                $balNonFormated = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                ->whereHas('delivery', function ($q) use ($customer) {
+                    $q->where('idCliente', $customer);
+                })->sum('cTotal') - Payment::where('idCliente', $customer)
+                ->sum('monto');
+                $dif = $balNonFormated - $graceAmount;
 
                 if ($dif >= 0) {
                     $output = false;
