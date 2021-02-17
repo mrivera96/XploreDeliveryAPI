@@ -2002,7 +2002,8 @@ class DeliveriesController extends Controller
                             $dataObj->totalMoney = $dataObj->motoMoney + $dataObj->turismoMoney + $dataObj->pickupMoney + $dataObj->panelMoney + $dataObj->pickupAuxiliarMoney + $dataObj->panelAuxiliarMoney + $dataObj->transTurismMoney + $dataObj->camion11Money;
                             $dataObj->totalOver20kms = $dataObj->motoOver20kms + $dataObj->turismoOver20kms + $dataObj->pickupOver20kms + $dataObj->panelOver20kms + $dataObj->pickupAuxiliarOver20kms + $dataObj->panelAuxiliarOver20kms + $dataObj->transTurismOver20kms + $dataObj->camion11Over20kms;
 
-                            $auxTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                            $auxTime = DetalleDelivery::with('delivery')
+                                ->whereIn('idEstado', [44, 46, 47])
                                 ->where([
                                     'idAuxiliar' => $driver->idUsuario,
                                 ])
@@ -2016,16 +2017,46 @@ class DeliveriesController extends Controller
 
                             foreach ($auxTime as $aux) {
                                 if ($aux->tiempo != null) {
-                                    if (strpos($aux->tiempo, 'hour')) {
-                                        $stime = explode(' ', $aux->tiempo);
-                                        $time = intval($stime[0]) * 60 + intval($stime[2]);
+                                    switch ($aux->delivery->idCategoria) {
+                                        case 4:
+                                            if (strpos($aux->tiempo, 'hour')) {
+                                                $stime = explode(' ', $aux->tiempo);
+                                                $time = intval($stime[0]) * 60 + intval($stime[2]);
 
-                                        $aux->tiempo = (40 + intval($time)) - 10;
-                                        $auxCounter = $auxCounter + intval($aux->tiempo);
-                                    } else {
-                                        $aux->tiempo = (40 + intval($aux->tiempo)) - 10;
-                                        $auxCounter = $auxCounter + intval($aux->tiempo);
+                                                $aux->tiempo = 30 + intval($time);
+                                                $auxCounter = $auxCounter + intval($aux->tiempo);
+                                            } else {
+                                                $aux->tiempo = 30 + intval($aux->tiempo);
+                                                $auxCounter = $auxCounter + intval($aux->tiempo);
+                                            }
+                                            break;
+                                        case 5:
+                                            if (strpos($aux->tiempo, 'hour')) {
+                                                $stime = explode(' ', $aux->tiempo);
+                                                $time = intval($stime[0]) * 60 + intval($stime[2]);
+
+                                                $aux->tiempo = 30 + intval($time);
+                                                $auxCounter = $auxCounter + intval($aux->tiempo);
+                                            } else {
+                                                $aux->tiempo = 30 + intval($aux->tiempo);
+                                                $auxCounter = $auxCounter + intval($aux->tiempo);
+                                            }
+                                            break;
+                                        case 8:
+                                            if (strpos($aux->tiempo, 'hour')) {
+                                                $stime = explode(' ', $aux->tiempo);
+                                                $time = intval($stime[0]) * 60 + intval($stime[2]);
+
+                                                $aux->tiempo = 60 + intval($time);
+                                                $auxCounter = $auxCounter + intval($aux->tiempo);
+                                            } else {
+                                                $aux->tiempo = 60 + intval($aux->tiempo);
+                                                $auxCounter = $auxCounter + intval($aux->tiempo);
+                                            }
+                                            break;
+
                                     }
+
                                 }
                             }
                             $dataObj->totalAuxTime = $auxCounter;
