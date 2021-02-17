@@ -1702,30 +1702,30 @@ class DeliveriesController extends Controller
                 $drivers = User::where(['isActivo' => 1, 'idPerfil' => 7])
                     ->orderBy('nomUsuario', 'ASC')
                     ->get(['nomUsuario', 'idUsuario']);
+                $results = [];
 
                 foreach ($drivers as $driver) {
                     $orders = DetalleDelivery::with(['delivery'])
-                        ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                         ->whereIn('idEstado', [44, 46, 47])
+                        ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
                         ->where('idConductor', $driver->idUsuario)
                         ->whereHas('delivery', function ($q) {
-                            $q->whereIn('isConsolidada', 1);
+                            $q->where('isConsolidada', 1);
                         })
                         ->orWhere('idAuxiliar', $driver->idUsuario)
                         ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                        ->whereIn('idEstado', [44, 46, 47])
                         ->whereHas('delivery', function ($q) {
-                            $q->whereIn('isConsolidada', 1);
+                            $q->where('isConsolidada', 1);
                         })
-                        // ->orderBy('fechaEntrega','ASC')
+                        ->orderBy('fechaEntrega')
                         ->get()
                         ->groupBy(function ($val) {
                             return Carbon::parse($val->fechaEntrega)->format('Y-m-d');
                         });
 
+
                     foreach ($orders as $key => $order) {
                         $dataObj = (object)array();
-                        $dataObj->driver = $driver->nomUsuario;
                         $dataObj->fecha = $key;
                         $dataObj->moto = 0;
                         $dataObj->turismo = 0;
@@ -1797,13 +1797,13 @@ class DeliveriesController extends Controller
                                             if (floatval($order[$i]->distancia) > 20) {
                                                 $o20CounterMoto = $o20CounterMoto + intval($time);
                                             }
-                                            $order[$i]->tiempo = 30 + intval($time);
+                                            $order[$i]->tiempo = 20 + intval($time);
                                             $tCounterMoto = $tCounterMoto + intval($order[$i]->tiempo);
                                         } else {
                                             if (floatval($order[$i]->distancia) > 20) {
                                                 $o20CounterMoto = $o20CounterMoto + intval($order[$i]->tiempo);
                                             }
-                                            $order[$i]->tiempo = 30 + intval($order[$i]->tiempo);
+                                            $order[$i]->tiempo = 20 + intval($order[$i]->tiempo);
                                             $tCounterMoto = $tCounterMoto + intval($order[$i]->tiempo);
                                         }
                                     }
@@ -1823,13 +1823,13 @@ class DeliveriesController extends Controller
                                             if (floatval($order[$i]->distancia) > 20) {
                                                 $o20CounterTurismo = $o20CounterTurismo + intval($time);
                                             }
-                                            $order[$i]->tiempo = 30 + intval($time);
+                                            $order[$i]->tiempo = 20 + intval($time);
                                             $tCounterTurismo = $tCounterTurismo + intval($order[$i]->tiempo);
                                         } else {
                                             if (floatval($order[$i]->distancia) > 20) {
                                                 $o20CounterTurismo = $o20CounterTurismo + intval($order[$i]->tiempo);
                                             }
-                                            $order[$i]->tiempo = 30 + intval($order[$i]->tiempo);
+                                            $order[$i]->tiempo = 20 + intval($order[$i]->tiempo);
                                             $tCounterTurismo = $tCounterTurismo + intval($order[$i]->tiempo);
                                         }
                                     }
@@ -1894,7 +1894,7 @@ class DeliveriesController extends Controller
                                 case 4:
                                     $dataObj->pickupAuxiliar++;
 
-                                    if ($order[$i]->tiempo != null && $order[$i]->idAuxiliar != $driver->idUsuario) {
+                                    if ($order[$i]->tiempo != null && $order[$i]->idAuxiliar != $driver) {
                                         if (strpos($order[$i]->tiempo, 'hour') || strpos($order[$i]->tiempo, 'h')) {
                                             $stime = explode(' ', $order[$i]->tiempo);
                                             $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -1920,7 +1920,7 @@ class DeliveriesController extends Controller
                                 case 5:
                                     $dataObj->panelAuxiliar++;
 
-                                    if ($order[$i]->tiempo != null && $order[$i]->idAuxiliar != $driver->idUsuario) {
+                                    if ($order[$i]->tiempo != null && $order[$i]->idAuxiliar != $driver) {
                                         if (strpos($order[$i]->tiempo, 'hour') || strpos($order[$i]->tiempo, 'h')) {
                                             $stime = explode(' ', $order[$i]->tiempo);
                                             $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -1972,7 +1972,7 @@ class DeliveriesController extends Controller
                                 case 8:
                                     $dataObj->camion11++;
 
-                                    if ($order[$i]->tiempo != null && $order[$i]->idAuxiliar != $driver->idUsuario) {
+                                    if ($order[$i]->tiempo != null && $order[$i]->idAuxiliar != $driver) {
                                         if (strpos($order[$i]->tiempo, 'hour') || strpos($order[$i]->tiempo, 'h')) {
                                             $stime = explode(' ', $order[$i]->tiempo);
                                             $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -2007,7 +2007,7 @@ class DeliveriesController extends Controller
                                     'idAuxiliar' => $driver->idUsuario,
                                 ])
                                 ->whereHas('delivery', function ($q) {
-                                    $q->whereIn('idCategoria', [4, 5, 8]);
+                                    $q->whereIn('idCategoria', [4, 5, 8])->where('isConsolidada', 1);
                                 })
                                 ->whereDate('fechaEntrega', $dataObj->fecha)
                                 ->get();
@@ -2036,8 +2036,14 @@ class DeliveriesController extends Controller
                                     'idConductor' => $driver->idUsuario,
                                 ])
                                 ->whereDate('fechaEntrega', $dataObj->fecha)
+                                ->whereHas('delivery', function ($q) {
+                                    $q->where('isConsolidada', 1);
+                                })
                                 ->orWhere('idAuxiliar', $driver->idUsuario)
                                 ->whereIn('idEstado', [44, 46, 47])
+                                ->whereHas('delivery', function ($q) {
+                                    $q->where('isConsolidada', 1);
+                                })
                                 ->whereDate('fechaEntrega', $dataObj->fecha)
                                 ->get();
 
@@ -2046,18 +2052,21 @@ class DeliveriesController extends Controller
                             foreach ($extTime as $ext) {
                                 if (sizeof($ext->extraCharges) > 0) {
                                     foreach ($ext->extraCharges as $exCharge) {
-                                        if (isset($exCharge->option->tiempo)) {
-                                            $extCounter += $exCharge->option->tiempo;
-                                        }
+                                        $extCounter += $exCharge->option->tiempo;
                                     }
                                 }
                             }
                             $dataObj->totalExtraTime = $extCounter;
+
                             $dataObj->tiempototal = $dataObj->totalTime + $dataObj->totalOver20kms + $dataObj->totalAuxTime + $dataObj->totalExtraTime;
                         }
 
                         array_push($outputData, $dataObj);
                     }
+                    $objToAdd = (object)array();
+                    $objToAdd->driver = $driver->nomUsuario;
+                    $objToAdd->orders = $outputData;
+                    array_push($results, $objToAdd);
                 }
             } else {
                 $orders = DetalleDelivery::with(['delivery'])
@@ -2422,7 +2431,7 @@ class DeliveriesController extends Controller
                 }
                 $objToAdd = (object)array();
                 $objToAdd->driver = $driverDetails->nomUsuario;
-                $objToAdd->orders =$outputData;
+                $objToAdd->orders = $outputData;
                 array_push($results, $objToAdd);
             }
 
@@ -2441,7 +2450,7 @@ class DeliveriesController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getMessage()//'Ocurrió un error al cargar los datos'
+                    'message' => $ex->getMessage() //'Ocurrió un error al cargar los datos'
                 ],
                 500
             );
