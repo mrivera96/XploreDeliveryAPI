@@ -116,6 +116,7 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('finish', 'DeliveriesController@finishDelivery');
             Route::post('changeState', 'DeliveriesController@changeStateDelivery');
             Route::post('getPending', 'DeliveriesController@getPendingDeliveries');
+            Route::post('filter', 'DeliveriesController@getFilteredDeliveries');
         });
 
         //Rutas Envios
