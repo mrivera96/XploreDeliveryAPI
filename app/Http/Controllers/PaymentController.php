@@ -213,7 +213,7 @@ class PaymentController extends Controller
     public function getPaymentTypes()
     {
         try {
-            $paymentTypes = PaymentType::where('isActivo', 1)->whereIn('idTipoPago', [6, 7, 8])->get();
+            $paymentTypes = PaymentType::where('isActivo', 1)->whereIn('idTipoPago', [6, 7, 8, 9])->get();
             return response()->json(
                 [
                     'error' => 0,

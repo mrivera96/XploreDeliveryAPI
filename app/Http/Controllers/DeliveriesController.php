@@ -215,12 +215,23 @@ class DeliveriesController extends Controller
         ]);
 
         try {
-            $deliveries = Delivery::with(['category', 'detalle', 'estado'])
-                ->whereBetween('fechaReserva', [
-                    $request->form['initDate'] . ' 00:00:00',
-                    $request->form['finDate'] . ' 23:59:59'
-                ])
-                ->get();
+            if (Auth::user()->idPerfil == 8) {
+                $deliveries = Delivery::with(['category', 'detalle', 'estado'])
+                    ->where(['idCliente' => Auth::user()->idCliente])
+                    ->whereBetween('fechaReserva', [
+                        $request->form['initDate'] . ' 00:00:00',
+                        $request->form['finDate'] . ' 23:59:59'
+                    ])
+                    ->get();
+            } else {
+                $deliveries = Delivery::with(['category', 'detalle', 'estado'])
+                    ->whereBetween('fechaReserva', [
+                        $request->form['initDate'] . ' 00:00:00',
+                        $request->form['finDate'] . ' 23:59:59'
+                    ])
+                    ->get();
+            }
+
             foreach ($deliveries as $delivery) {
                 $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('Y-m-d H:i');
                 $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
@@ -419,17 +430,33 @@ class DeliveriesController extends Controller
         ]);
 
         try {
-            $orders = DetalleDelivery::with([
-                'delivery.category', 'estado', 'conductor', 'photography', 'auxiliar',
-                'extraCharges.extracharge', 'extraCharges.option'
-            ])
-                ->whereHas('delivery', function ($q) use ($request) {
-                    $q->whereBetween('fechaReserva', [
-                        $request->form['initDate'] . ' 00:00:00',
-                        $request->form['finDate'] . ' 23:59:59'
-                    ]);
-                })
-                ->get();
+            if (Auth::user()->idPerfil == 8) {
+                $orders = DetalleDelivery::with([
+                    'delivery.category', 'estado', 'conductor', 'photography', 'auxiliar',
+                    'extraCharges.extracharge', 'extraCharges.option'
+                ])
+                    ->whereHas('delivery', function ($q) use ($request) {
+                        $q->where('idCliente', Auth::user()->idCliente)
+                            ->whereBetween('fechaReserva', [
+                                $request->form['initDate'] . ' 00:00:00',
+                                $request->form['finDate'] . ' 23:59:59'
+                            ]);
+                    })
+                    ->get();
+            } else {
+                $orders = DetalleDelivery::with([
+                    'delivery.category', 'estado', 'conductor', 'photography', 'auxiliar',
+                    'extraCharges.extracharge', 'extraCharges.option'
+                ])
+                    ->whereHas('delivery', function ($q) use ($request) {
+                        $q->whereBetween('fechaReserva', [
+                            $request->form['initDate'] . ' 00:00:00',
+                            $request->form['finDate'] . ' 23:59:59'
+                        ]);
+                    })
+                    ->get();
+            }
+
             $todosPedidos = [];
 
             foreach ($orders as $dtl) {
@@ -577,13 +604,13 @@ class DeliveriesController extends Controller
                                             if (floatval($order[$i]->distancia) > 20) {
                                                 $o20CounterMoto = $o20CounterMoto + intval($time);
                                             }
-                                            $order[$i]->tiempo = 30 + intval($time);
+                                            $order[$i]->tiempo = 20 + intval($time);
                                             $tCounterMoto = $tCounterMoto + intval($order[$i]->tiempo);
                                         } else {
                                             if (floatval($order[$i]->distancia) > 20) {
                                                 $o20CounterMoto = $o20CounterMoto + intval($order[$i]->tiempo);
                                             }
-                                            $order[$i]->tiempo = 30 + intval($order[$i]->tiempo);
+                                            $order[$i]->tiempo = 20 + intval($order[$i]->tiempo);
                                             $tCounterMoto = $tCounterMoto + intval($order[$i]->tiempo);
                                         }
                                     }
@@ -603,13 +630,13 @@ class DeliveriesController extends Controller
                                             if (floatval($order[$i]->distancia) > 20) {
                                                 $o20CounterTurismo = $o20CounterTurismo + intval($time);
                                             }
-                                            $order[$i]->tiempo = 30 + intval($time);
+                                            $order[$i]->tiempo = 20 + intval($time);
                                             $tCounterTurismo = $tCounterTurismo + intval($order[$i]->tiempo);
                                         } else {
                                             if (floatval($order[$i]->distancia) > 20) {
                                                 $o20CounterTurismo = $o20CounterTurismo + intval($order[$i]->tiempo);
                                             }
-                                            $order[$i]->tiempo = 30 + intval($order[$i]->tiempo);
+                                            $order[$i]->tiempo = 20 + intval($order[$i]->tiempo);
                                             $tCounterTurismo = $tCounterTurismo + intval($order[$i]->tiempo);
                                         }
                                     }
@@ -928,13 +955,13 @@ class DeliveriesController extends Controller
                                         if (floatval($order[$i]->distancia) > 20) {
                                             $o20CounterMoto = $o20CounterMoto + intval($time);
                                         }
-                                        $order[$i]->tiempo = 30 + intval($time);
+                                        $order[$i]->tiempo = 20 + intval($time);
                                         $tCounterMoto = $tCounterMoto + intval($order[$i]->tiempo);
                                     } else {
                                         if (floatval($order[$i]->distancia) > 20) {
                                             $o20CounterMoto = $o20CounterMoto + intval($order[$i]->tiempo);
                                         }
-                                        $order[$i]->tiempo = 30 + intval($order[$i]->tiempo);
+                                        $order[$i]->tiempo = 20 + intval($order[$i]->tiempo);
                                         $tCounterMoto = $tCounterMoto + intval($order[$i]->tiempo);
                                     }
                                 }
@@ -954,13 +981,13 @@ class DeliveriesController extends Controller
                                         if (floatval($order[$i]->distancia) > 20) {
                                             $o20CounterTurismo = $o20CounterTurismo + intval($time);
                                         }
-                                        $order[$i]->tiempo = 30 + intval($time);
+                                        $order[$i]->tiempo = 20 + intval($time);
                                         $tCounterTurismo = $tCounterTurismo + intval($order[$i]->tiempo);
                                     } else {
                                         if (floatval($order[$i]->distancia) > 20) {
                                             $o20CounterTurismo = $o20CounterTurismo + intval($order[$i]->tiempo);
                                         }
-                                        $order[$i]->tiempo = 30 + intval($order[$i]->tiempo);
+                                        $order[$i]->tiempo = 20 + intval($order[$i]->tiempo);
                                         $tCounterTurismo = $tCounterTurismo + intval($order[$i]->tiempo);
                                     }
                                 }
@@ -1225,334 +1252,196 @@ class DeliveriesController extends Controller
 
         $form = $request->form;
         $customer = $form['customerId'];
-        if ($customer != -1) {
-            $customerDetails = DeliveryClient::where('idCliente', $customer)->get()->first();
-        }
 
         $initDateTime = new Carbon(date('Y-m-d', strtotime($form['initDate'])) . ' 00:00:00');
         $finDateTime = new Carbon(date('Y-m-d', strtotime($form['finDate'])) . ' 23:59:59');
 
+        $dates = [];
+        array_push($dates, $form['initDate']);
+        $diff = $finDateTime->diff($initDateTime)->days + 1;
+        for ($i = 1; $i < $diff; $i++) {
+            $iniDate = new Carbon(date('Y-m-d', strtotime($form['initDate'])) . ' 00:00:00');
+            array_push($dates, Carbon::parse($iniDate->addDays($i))->format('Y-m-d'));
+        }
+
         try {
-            $outputData = [];
-
-            $categories = Category::where('isActivo', 1)->get();
-            $ordersByCatArray = [];
-
-            foreach ($categories as $category) {
-                $mydataObj = (object)array();
-                $mydataObj->category = $category->descCategoria;
-                $mydataObj->orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                    ->whereHas('delivery', function ($q) use ($customerDetails, $category) {
-                        $q->where('idCliente', $customerDetails->idCliente)->where('idCategoria', $category->idCategoria);
-                    })->count();
-                $mydataObj->totalSurcharges = number_format(DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                    ->whereHas('delivery', function ($q) use ($customerDetails, $category) {
-                        $q->where('idCliente', $customerDetails->idCliente)->where('idCategoria', $category->idCategoria);
-                    })->sum('recargo'), 2);
-
-                $mydataObj->totalExtraCharges = number_format(DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                    ->whereHas('delivery', function ($q) use ($customerDetails, $category) {
-                        $q->where('idCliente', $customerDetails->idCliente)->where('idCategoria', $category->idCategoria);
-                    })->sum('cargosExtra'), 2);
-
-                $mydataObj->cTotal = number_format(DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                    ->whereHas('delivery', function ($q) use ($customerDetails, $category) {
-                        $q->where('idCliente', $customerDetails->idCliente)->where('idCategoria', $category->idCategoria);
-                    })->sum('cTotal'), 2);
-
-                if ($mydataObj->orders > 0) {
-                    $exists = 0;
-                    foreach ($outputData as $output) {
-                        if ($mydataObj->category == $output->category) {
-                            $exists++;
-                        }
-                    }
-
-                    if ($exists == 0) {
-                        array_push($ordersByCatArray, $mydataObj);
-                    }
+            /*if ($customer == -1) {
+                $customers = DeliveryClient::where('isActivo', 1)->orderBy('nomEmpresa')->get();
+                foreach ($customers as $cust) {
+                    $this->modifyOrdersByCustomers($dates, $cust->idCliente);
                 }
+
+            } else {*/
+
+            //}
+
+            $outputData = $this->modifyOrdersByCustomers($dates, $customer);
+            $results = (object)[];
+            $results->finTotalOrders = 0;
+            $results->finTotalCosts = 0;
+            $results->finTotalSurcharges = 0;
+            $results->finTotalExtraCharges = 0;
+            $results->orders = $outputData;
+            foreach ($outputData as $output) {
+                $results->finTotalOrders += $output->totalOrders;
+                $results->finTotalCosts += $output->totalCosts;
+                $results->finTotalSurcharges += $output->totalSurcharges;
+                $results->finTotalExtraCharges += $output->totalExtraCharges;
             }
 
-            $totalOrders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                ->whereHas('delivery', function ($q) use ($customerDetails) {
-                    $q->where('idCliente', $customerDetails->idCliente);
-                })->count();
-
-            /*if ($customer == -1 && $isSameDay) {
-                $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->get();
-
-                foreach ($customers as $custr) {
-
-                    foreach ($orders as $order) {
-                        $dataObj = (object)array();
-                        $dataObj->fecha = Carbon::parse($order->fechaEntrega)->format('Y-m-d');
-                        $dataObj->customer = $custr->nomEmpresa;
-                        $dataObj->orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                            ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                            ->whereHas('delivery', function ($q) use ($custr) {
-                                $q->where('idCliente', $custr->idCliente);
-                            })->count();
-
-                        if ($dataObj->orders > 0) {
-                            $exist = 0;
-                            foreach ($outputData as $output) {
-                                if ($dataObj->customer == $output->customer) {
-                                    $exist++;
-                                }
-                            }
-
-                            if ($exist == 0) {
-                                array_push($outputData, $dataObj);
-                            }
-
-                        }
-
-                    }
-
-                }
-
-                return response()->json(
-                    [
-                        'error' => 0,
-                        'data' => array('ordersReport' => $outputData)
-                    ],
-                    200
-                );
-
-            } else if ($customer == -1 && !$isSameDay) {
-                $datedOrders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])->orderBy('fechaEntrega', 'desc')->get()
-                    ->groupBy(function ($val) {
-                        return Carbon::parse($val->fechaEntrega)->format('Y-m-d');
-                    });
-
-                foreach ($customers as $custr) {
-                    foreach ($datedOrders as $dOrders) {
-                        foreach ($dOrders as $order) {
-
-                            if ($custr->idCliente == $order->delivery->idCliente) {
-                                $dataObj = (object)array();
-                                $dataObj->customer = $custr->nomEmpresa;
-                                $dataObj->fecha = Carbon::parse($order->fechaEntrega)->format('Y-m-d');
-                                $initDateTime = new Carbon(date('Y-m-d', strtotime($dataObj->fecha)) . ' 00:00:00');
-                                $finDateTime = new Carbon(date('Y-m-d', strtotime($dataObj->fecha)) . ' 23:59:59');
-                                $dataObj->orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                                    ->whereHas('delivery', function ($q) use ($custr) {
-                                        $q->where('idCliente', $custr->idCliente);
-                                    })->count();
-
-                                if ($dataObj->orders > 0) {
-                                    $exist = 0;
-                                    foreach ($outputData as $output) {
-                                        if ($dataObj->fecha == $output->fecha && $dataObj->customer == $output->customer) {
-                                            $exist++;
-                                        }
-                                    }
-
-                                    if ($exist == 0) {
-                                        array_push($outputData, $dataObj);
-                                    }
-                                }
-
-
-                            }
-                        }
-                    }
-
-                }
-
-                return response()->json(
-                    [
-                        'error' => 0,
-                        'data' => array(
-                            'ordersReport' => $outputData
-                        )
-                    ],
-                    200
-                );
-
-
-            } else*/
-            /*if ($customer != -1 && $isSameDay) {
-                $orders = DetalleDelivery::with(['estado', 'extraCharges.extracharge', 'conductor'])
+            $results->details = DetalleDelivery::with(['estado', 'extraCharges.extracharge', 'conductor'])
                 ->whereIn('idEstado', [44, 46, 47])
-                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                    ->whereHas('delivery', function ($q) use ($customerDetails) {
-                        $q->where('idCliente', $customerDetails->idCliente);
-                    })->get();
-
-                if (sizeof($orders) > 0) {
-                    $ordersInRange = 0;
-                    foreach ($orders as $order) {
-                        $order->recargo = number_format($order->recargo, 2);
-                        $order->cTotal = number_format($order->cTotal, 2);
-                        $order->cargosExtra = number_format($order->cargosExtra, 2);
-                        $dataObj = (object)array();
-                        $dataObj->customer = $customerDetails->nomEmpresa;
-                        $dataObj->fecha = Carbon::parse($order->fechaEntrega)->format('Y-m-d');
-                        $dataObj->orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                            ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                            ->whereHas('delivery', function ($q) use ($customerDetails) {
-                                $q->where('idCliente', $customerDetails->idCliente);
-                            })->count();
-
-                        if ($dataObj->orders > 0) {
-                            $exist = 0;
-                            foreach ($outputData as $output) {
-                                if ($dataObj->fecha == $output->fecha && $dataObj->customer == $output->customer) {
-                                    $exist++;
-                                }
-                            }
-
-                            if ($exist == 0) {
-                                $ordersInRange = number_format($ordersInRange + $dataObj->orders);
-                                array_push($outputData, $dataObj);
-                            }
-                        }
-                    }
-                    $tempSurSum = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                        ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                        ->whereHas('delivery', function ($q) use ($customerDetails) {
-                            $q->where('idCliente', $customerDetails->idCliente);
-                        })->sum('recargo');
-
-                    $tempECSum = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                        ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                        ->whereHas('delivery', function ($q) use ($customerDetails) {
-                            $q->where('idCliente', $customerDetails->idCliente);
-                        })->sum('cargosExtra');
-
-                    $tempCostSum = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                        ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                        ->whereHas('delivery', function ($q) use ($customerDetails) {
-                            $q->where('idCliente', $customerDetails->idCliente);
-                        })->sum('cTotal');
-
-                    $totalSurcharges = number_format($tempSurSum, 2);
-                    $totalCosts = number_format($tempCostSum, 2);
-                    $totalExtraCharges = number_format($tempECSum, 2);
-                }
-
-                return response()->json(
-                    [
-                        'error' => 0,
-                        'data' => array(
-                            'ordersReport' => $outputData,
-                            'totalOrders' => $totalOrders,
-                            'totalSurcharges' => $totalSurcharges,
-                            'totalExtraCharges' => $totalExtraCharges,
-                            'totalCosts' => $totalCosts,
-                            'ordersInRange' => $ordersInRange,
-                            'ordersByCategory' => $ordersByCatArray,
-                            'orders' => $orders
-                        )
-                    ],
-                    200
-                );
-            } else if ($customer != -1 && !$isSameDay) {*/
-            $orders = DetalleDelivery::with(['estado'])->whereIn('idEstado', [44, 46, 47])
                 ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                ->whereHas('delivery', function ($q) use ($customerDetails) {
-                    $q->where('idCliente', $customerDetails->idCliente);
-                })
-                ->orderBy('fechaEntrega', 'desc')->get()
-                ->groupBy(function ($val) {
-                    return Carbon::parse($val->fechaEntrega)->format('Y-m-d');
-                });
-
-            foreach ($orders as $order) {
-
-                for ($i = 0; $i < sizeof($order); $i++) {
-
-                    $data = (object)array();
-                    $data->customer = $customerDetails->nomEmpresa;
-                    $data->fecha = Carbon::parse($order[$i]->fechaEntrega)->format('Y-m-d');
-                    $initDateTime = new Carbon(date('Y-m-d', strtotime($data->fecha)) . ' 00:00:00');
-                    $finDateTime = new Carbon(date('Y-m-d', strtotime($data->fecha)) . ' 23:59:59');
-                    $data->orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                        ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                        ->whereHas('delivery', function ($q) use ($customerDetails) {
-                            $q->where('idCliente', $customerDetails->idCliente);
-                        })->count();
-                }
-                if ($data->orders > 0) {
-                    array_push($outputData, $data);
-                }
-            }
-
-            $initDateTime = new Carbon(date('Y-m-d', strtotime($form['initDate'])) . ' 00:00:00');
-            $finDateTime = new Carbon(date('Y-m-d', strtotime($form['finDate'])) . ' 23:59:59');
-
-            $orders = DetalleDelivery::with(['estado', 'extraCharges.extracharge', 'conductor'])->whereIn('idEstado', [44, 46, 47])
-                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                ->whereHas('delivery', function ($q) use ($customerDetails) {
-                    $q->where('idCliente', $customerDetails->idCliente);
+                ->whereHas('delivery', function ($q) use ($customer) {
+                    $q->where('idCliente', $customer);
                 })->get();
-            $ordersInRange = sizeof($orders);
-            foreach ($orders as $order) {
+
+            foreach ($results->details as $order) {
                 $order->recargo = number_format($order->recargo, 2);
                 $order->cargosExtra = number_format($order->cargosExtra, 2);
                 $order->cTotal = number_format($order->cTotal, 2);
             }
 
-            $tempSurSum = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                ->whereHas('delivery', function ($q) use ($customerDetails) {
-                    $q->where('idCliente', $customerDetails->idCliente);
-                })->sum('recargo');
-
-            $tempECSum = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                ->whereHas('delivery', function ($q) use ($customerDetails) {
-                    $q->where('idCliente', $customerDetails->idCliente);
-                })->sum('cargosExtra');
-
-            $tempCostSum = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                ->whereHas('delivery', function ($q) use ($customerDetails) {
-                    $q->where('idCliente', $customerDetails->idCliente);
-                })->sum('cTotal');
-
-            $totalSurcharges = number_format($tempSurSum, 2);
-            $totalCosts = number_format($tempCostSum, 2);
-            $totalExtraCharges = number_format($tempECSum, 2);
             return response()->json(
                 [
                     'error' => 0,
-                    'data' => array(
-                        'ordersReport' => $outputData,
-                        'totalOrders' => $totalOrders,
-                        'ordersByCategory' => $ordersByCatArray,
-                        'totalSurcharges' => $totalSurcharges,
-                        'totalExtraCharges' => $totalExtraCharges,
-                        'totalCosts' => $totalCosts,
-                        'ordersInRange' => $ordersInRange,
-                        'orders' => $orders
-                    )
+                    'data' => $results
                 ],
                 200
             );
             //}
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array(
-                'User' => Auth::user()->nomUsuario,
                 'context' => $ex->getTrace()
             ));
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => 'Ocurrió un error al cargar los datos'
+                    'message' => $ex->getTrace()//'Ocurrió un error al cargar los datos'
                 ],
                 500
             );
         }
+    }
+
+    private function modifyOrdersByCustomers($dates, $customer)
+    {
+        $outputData = [];
+        foreach ($dates as $date) {
+            $orders = DetalleDelivery::with(['delivery'])
+                ->whereIn('idEstado', [44, 46, 47])
+                ->whereDate('fechaEntrega', $date)
+                ->whereHas('delivery', function ($q) use ($customer) {
+                    $q->where('idCliente', $customer);
+                })
+                ->orderBy('fechaEntrega')
+                ->get();
+
+            if (sizeof($orders) > 0) {
+                $dataObj = (object)array();
+                $dataObj->fecha = $date;
+                $dataObj->totalCosts = 0;
+                $dataObj->totalSurcharges = 0;
+                $dataObj->totalExtraCharges = 0;
+
+                $dataObj->moto = 0;
+                $dataObj->turismo = 0;
+                $dataObj->pickup = 0;
+                $dataObj->panel = 0;
+                $dataObj->pickupAuxiliar = 0;
+                $dataObj->panelAuxiliar = 0;
+                $dataObj->transTurism = 0;
+                $dataObj->camion11 = 0;
+
+                $dataObj->motocTotal = 0;
+                $dataObj->turismocTotal = 0;
+                $dataObj->pickupcTotal = 0;
+                $dataObj->panelcTotal = 0;
+                $dataObj->pickupAuxiliarcTotal = 0;
+                $dataObj->panelAuxiliarcTotal = 0;
+                $dataObj->transTurismcTotal = 0;
+                $dataObj->camion11cTotal = 0;
+
+                $dataObj->motoRecargo = 0;
+                $dataObj->turismoRecargo = 0;
+                $dataObj->pickupRecargo = 0;
+                $dataObj->panelRecargo = 0;
+                $dataObj->pickupAuxiliarRecargo = 0;
+                $dataObj->panelAuxiliarRecargo = 0;
+                $dataObj->transTurismRecargo = 0;
+                $dataObj->camion11Recargo = 0;
+
+                $dataObj->motocExtras = 0;
+                $dataObj->turismocExtras = 0;
+                $dataObj->pickupcExtras = 0;
+                $dataObj->panelcExtras = 0;
+                $dataObj->pickupAuxiliarcExtras = 0;
+                $dataObj->panelAuxiliarcExtras = 0;
+                $dataObj->transTurismcExtras = 0;
+                $dataObj->camion11cExtras = 0;
+                foreach ($orders as $order) {
+                    switch ($order->delivery->idCategoria) {
+                        case 6:
+                            $dataObj->moto++;
+                            $dataObj->motocTotal += $order->cTotal;
+                            $dataObj->motoRecargo += $order->recargo;
+                            $dataObj->motocExtras += $order->cargosExtra;
+                            break;
+                        case 1:
+                            $dataObj->turismo++;
+                            $dataObj->turismocTotal += $order->cTotal;
+                            $dataObj->turismoRecargo += $order->recargo;
+                            $dataObj->turismocExtras += $order->cargosExtra;
+                            break;
+                        case 2:
+                            $dataObj->pickup++;
+                            $dataObj->pickupcTotal += $order->cTotal;
+                            $dataObj->pickupRecargo += $order->recargo;
+                            $dataObj->pickupcExtras += $order->cargosExtra;
+                            break;
+                        case 3:
+                            $dataObj->panel++;
+                            $dataObj->panelcTotal += $order->cTotal;
+                            $dataObj->panelRecargo += $order->recargo;
+                            $dataObj->panelcExtras += $order->cargosExtra;
+                            break;
+                        case 4:
+                            $dataObj->pickupAuxiliar++;
+                            $dataObj->pickupAuxiliarcTotal += $order->cTotal;
+                            $dataObj->pickupAuxiliarRecargo += $order->recargo;
+                            $dataObj->pickupAuxiliarcExtras += $order->cargosExtra;
+                            break;
+                        case 5:
+                            $dataObj->panelAuxiliar++;
+                            $dataObj->panelAuxiliarcTotal += $order->cTotal;
+                            $dataObj->panelAuxiliarRecargo += $order->recargo;
+                            $dataObj->panelAuxiliarcExtras += $order->cargosExtra;
+                            break;
+                        case 7:
+                            $dataObj->transTurism++;
+                            $dataObj->transTurismcTotal += $order->cTotal;
+                            $dataObj->transTurismRecargo += $order->recargo;
+                            $dataObj->transTurismcExtras += $order->cargosExtra;
+                            break;
+                        case 8:
+                            $dataObj->camion11++;
+                            $dataObj->camion11cTotal += $order->cTotal;
+                            $dataObj->camion11Recargo += $order->recargo;
+                            $dataObj->camion11cExtras += $order->cargosExtra;
+                            break;
+                    }
+                }
+                $dataObj->totalOrders = $dataObj->moto + $dataObj->turismo + $dataObj->pickup + $dataObj->panel + $dataObj->pickupAuxiliar + $dataObj->panelAuxiliar + $dataObj->transTurism + $dataObj->camion11;
+                $dataObj->totalCosts = $dataObj->motocTotal + $dataObj->turismocTotal + $dataObj->pickupcTotal + $dataObj->panelcTotal + $dataObj->pickupAuxiliarcTotal + $dataObj->panelAuxiliarcTotal + $dataObj->transTurismcTotal + $dataObj->camion11cTotal;
+                $dataObj->totalSurcharges = $dataObj->motoRecargo + $dataObj->turismoRecargo + $dataObj->pickupRecargo + $dataObj->panelRecargo + $dataObj->pickupAuxiliarRecargo + $dataObj->panelAuxiliarRecargo + $dataObj->transTurismRecargo + $dataObj->camion11Recargo;
+                $dataObj->totalExtraCharges = $dataObj->motocExtras + $dataObj->turismocExtras + $dataObj->pickupcExtras + $dataObj->panelcExtras + $dataObj->pickupAuxiliarcExtras + $dataObj->panelAuxiliarcExtras + $dataObj->transTurismcExtras + $dataObj->camion11cExtras;
+                array_push($outputData, $dataObj);
+            }
+
+        }
+
+        return $outputData;
+
     }
 
     //Reporte de envíos
@@ -1566,8 +1455,6 @@ class DeliveriesController extends Controller
 
         $form = $request->form;
 
-        $initDate = date('Y-m-d', strtotime($form['initDate']));
-        $finDate = date('Y-m-d', strtotime($form['finDate']));
         $initDateTime = new Carbon(date('Y-m-d', strtotime($form['initDate'])) . ' 00:00:00');
         $finDateTime = new Carbon(date('Y-m-d', strtotime($form['finDate'])) . ' 23:59:59');
 
@@ -1743,14 +1630,12 @@ class DeliveriesController extends Controller
             $results = [];
 
             $dates = [];
-            array_push($dates, "");
             array_push($dates, $form['initDate']);
             $diff = $finDateTime->diff($initDateTime)->days + 1;
             for ($i = 1; $i < $diff; $i++) {
                 $iniDate = new Carbon(date('Y-m-d', strtotime($form['initDate'])) . ' 00:00:00');
                 array_push($dates, Carbon::parse($iniDate->addDays($i))->format('Y-m-d'));
             }
-
 
             if ($driver == -1) {
 
@@ -1759,21 +1644,46 @@ class DeliveriesController extends Controller
                     ->get(['nomUsuario', 'idUsuario']);
 
                 foreach ($drivers as $driver) {
-                    $outputData = $this->modificateConsolidatedOrderByCategory($dates, $driver->idUsuario);
+                    $outputData = $this->modifyConsolidatedOrderByCategory($dates, $driver->idUsuario);
 
-                    $objToAdd = (object)array();
-                    $objToAdd->driver = $driver->nomUsuario;
-                    $objToAdd->orders = $outputData;
+                    $objToAdd = [];
+                    array_push($objToAdd, $driver->nomUsuario);
+                    $finTotalOrdes = 0;
+                    $finTotalTime = 0;
+                    $finTotalMoney = 0;
+                    foreach ($outputData as $output) {
+                        array_push($objToAdd, $output->totalOrders);
+                        array_push($objToAdd, $output->tiempototal);
+                        $finTotalOrdes += $output->totalOrders;
+                        $finTotalTime += $output->tiempototal;
+                        $finTotalMoney += $output->totalMoney;
+                    }
+                    array_push($objToAdd, $finTotalOrdes);
+                    array_push($objToAdd, $finTotalTime);
+                    array_push($objToAdd, $finTotalMoney);
+
                     array_push($results, $objToAdd);
                 }
             } else {
                 $driverDetails = User::where('idUsuario', $driver)->get()->first();
-                $outputData = $this->modificateConsolidatedOrderByCategory($dates, $driver);
-                $objToAdd = (object)array();
-                $objToAdd->driver = $driverDetails->nomUsuario;
-                $objToAdd->orders = $outputData;
-                array_push($results, $objToAdd);
+                $outputData = $this->modifyConsolidatedOrderByCategory($dates, $driver);
+                $objToAdd = [];
+                array_push($objToAdd, $driverDetails->nomUsuario);
+                $finTotalOrdes = 0;
+                $finTotalTime = 0;
+                $finTotalMoney = 0;
+                foreach ($outputData as $output) {
+                    array_push($objToAdd, $output->totalOrders);
+                    array_push($objToAdd, $output->tiempototal);
+                    $finTotalOrdes += $output->totalOrders;
+                    $finTotalTime += $output->tiempototal;
+                    $finTotalMoney += $output->totalMoney;
+                }
+                array_push($objToAdd, $finTotalOrdes);
+                array_push($objToAdd, $finTotalTime);
+                array_push($objToAdd, $finTotalMoney);
 
+                array_push($results, $objToAdd);
             }
 
             return response()->json(
@@ -1799,15 +1709,17 @@ class DeliveriesController extends Controller
         }
     }
 
-    private function modificateConsolidatedOrderByCategory($dates, $driver){
+    private function modifyConsolidatedOrderByCategory($dates, $driver)
+    {
         $outputData = [];
-        foreach (array_slice($dates, 1) as $date) {
+        foreach ($dates as $date) {
             $orders = DetalleDelivery::with(['delivery'])
                 ->whereIn('idEstado', [44, 46, 47])
                 ->whereDate('fechaEntrega', $date)
                 ->where('idConductor', $driver)
                 ->orWhere('idAuxiliar', $driver)
                 ->whereDate('fechaEntrega', $date)
+                ->whereIn('idEstado', [44, 46, 47])
                 ->orderBy('fechaEntrega')
                 ->get();
             $dataObj = (object)array();
@@ -1845,34 +1757,33 @@ class DeliveriesController extends Controller
             $camion11Money = 0;
             $camion11Over20kms = 0;
 
-            $tCounterMoto = 0;
-            $mCounterMoto = 0;
-            $o20CounterMoto = 0;
-            $tCounterTurismo = 0;
-            $mCounterTurismo = 0;
-            $o20CounterTurismo = 0;
-            $tCounterPickup = 0;
-            $mCounterPickup = 0;
-            $o20CounterPickup = 0;
-            $tCounterPanel = 0;
-            $mCounterPanel = 0;
-            $o20CounterPanel = 0;
-            $tCounterPickupAuxiliar = 0;
-            $mCounterPickupAuxiliar = 0;
-            $o20CounterPickupAuxiliar = 0;
-            $tCounterPanelAuxiliar = 0;
-            $mCounterPanelAuxiliar = 0;
-            $o20CounterPanelAuxiliar = 0;
-            $tCounterTransTurism = 0;
-            $mCounterTransTurism = 0;
-            $o20CounterTransTurism = 0;
-            $tCounterCamion11 = 0;
-            $mCounterCamion11 = 0;
-            $o20CounterCamion11 = 0;
 
             if (sizeof($orders) > 0) {
                 foreach ($orders as $order) {
-
+                    $tCounterMoto = 0;
+                    $mCounterMoto = 0;
+                    $o20CounterMoto = 0;
+                    $tCounterTurismo = 0;
+                    $mCounterTurismo = 0;
+                    $o20CounterTurismo = 0;
+                    $tCounterPickup = 0;
+                    $mCounterPickup = 0;
+                    $o20CounterPickup = 0;
+                    $tCounterPanel = 0;
+                    $mCounterPanel = 0;
+                    $o20CounterPanel = 0;
+                    $tCounterPickupAuxiliar = 0;
+                    $mCounterPickupAuxiliar = 0;
+                    $o20CounterPickupAuxiliar = 0;
+                    $tCounterPanelAuxiliar = 0;
+                    $mCounterPanelAuxiliar = 0;
+                    $o20CounterPanelAuxiliar = 0;
+                    $tCounterTransTurism = 0;
+                    $mCounterTransTurism = 0;
+                    $o20CounterTransTurism = 0;
+                    $tCounterCamion11 = 0;
+                    $mCounterCamion11 = 0;
+                    $o20CounterCamion11 = 0;
                     switch ($order->delivery->idCategoria) {
                         case 6:
                             $moto++;
@@ -2084,64 +1995,63 @@ class DeliveriesController extends Controller
                             break;
                     }
 
-                    $dataObj->totalOrders = $moto + $turismo + $pickup + $panel + $pickupAuxiliar + $panelAuxiliar + $transTurism + $camion11;
-                    $dataObj->totalTime = $motoTime + $turismoTime + $pickupTime + $panelTime + $pickupAuxiliarTime + $panelAuxiliarTime + $transTurismTime + $camion11Time;
-                    $dataObj->totalMoney = $motoMoney + $turismoMoney + $pickupMoney + $panelMoney + $pickupAuxiliarMoney + $panelAuxiliarMoney + $transTurismMoney + $camion11Money;
-                    $dataObj->totalOver20kms = $motoOver20kms + $turismoOver20kms + $pickupOver20kms + $panelOver20kms + $pickupAuxiliarOver20kms + $panelAuxiliarOver20kms + $transTurismOver20kms + $camion11Over20kms;
-
-                    $auxTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                        ->where([
-                            'idAuxiliar' => $driver,
-                        ])
-                        ->whereHas('delivery', function ($q) {
-                            $q->whereIn('idCategoria', [4, 5, 8]);
-                        })
-                        ->whereDate('fechaEntrega', $date)
-                        ->get();
-
-                    $auxCounter = 0;
-
-                    foreach ($auxTime as $aux) {
-                        if ($aux->tiempo != null) {
-                            if (strpos($aux->tiempo, 'hour')) {
-                                $stime = explode(' ', $aux->tiempo);
-                                $time = intval($stime[0]) * 60 + intval($stime[2]);
-
-                                $aux->tiempo = (40 + intval($time)) - 10;
-                                $auxCounter = $auxCounter + intval($aux->tiempo);
-                            } else {
-                                $aux->tiempo = (40 + intval($aux->tiempo)) - 10;
-                                $auxCounter = $auxCounter + intval($aux->tiempo);
-                            }
-                        }
-                    }
-                    $dataObj->totalAuxTime = $auxCounter;
-
-                    $extTime = DetalleDelivery::with('extraCharges')
-                        ->whereIn('idEstado', [44, 46, 47])
-                        ->where([
-                            'idConductor' => $driver,
-                        ])
-                        ->whereDate('fechaEntrega', $date)
-                        ->orWhere('idAuxiliar', $driver)
-                        ->whereIn('idEstado', [44, 46, 47])
-                        ->whereDate('fechaEntrega', $date)
-                        ->get();
-
-                    $extCounter = 0;
-
-                    foreach ($extTime as $ext) {
-                        if (sizeof($ext->extraCharges) > 0) {
-                            foreach ($ext->extraCharges as $exCharge) {
-                                $extCounter += $exCharge->option->tiempo;
-                            }
-                        }
-                    }
-                    $dataObj->totalExtraTime = $extCounter;
-
-                    $dataObj->tiempototal = $dataObj->totalTime + $dataObj->totalOver20kms + $dataObj->totalAuxTime + $dataObj->totalExtraTime;
-
                 }
+                $dataObj->totalOrders = $moto + $turismo + $pickup + $panel + $pickupAuxiliar + $panelAuxiliar + $transTurism + $camion11;
+                $dataObj->totalTime = $motoTime + $turismoTime + $pickupTime + $panelTime + $pickupAuxiliarTime + $panelAuxiliarTime + $transTurismTime + $camion11Time;
+                $dataObj->totalMoney = $motoMoney + $turismoMoney + $pickupMoney + $panelMoney + $pickupAuxiliarMoney + $panelAuxiliarMoney + $transTurismMoney + $camion11Money;
+                $dataObj->totalOver20kms = $motoOver20kms + $turismoOver20kms + $pickupOver20kms + $panelOver20kms + $pickupAuxiliarOver20kms + $panelAuxiliarOver20kms + $transTurismOver20kms + $camion11Over20kms;
+
+                $auxTime = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                    ->where([
+                        'idAuxiliar' => $driver,
+                    ])
+                    ->whereHas('delivery', function ($q) {
+                        $q->whereIn('idCategoria', [4, 5, 8]);
+                    })
+                    ->whereDate('fechaEntrega', $date)
+                    ->get();
+
+                $auxCounter = 0;
+
+                foreach ($auxTime as $aux) {
+                    if ($aux->tiempo != null) {
+                        if (strpos($aux->tiempo, 'hour')) {
+                            $stime = explode(' ', $aux->tiempo);
+                            $time = intval($stime[0]) * 60 + intval($stime[2]);
+
+                            $aux->tiempo = (40 + intval($time)) - 10;
+                            $auxCounter = $auxCounter + intval($aux->tiempo);
+                        } else {
+                            $aux->tiempo = (40 + intval($aux->tiempo)) - 10;
+                            $auxCounter = $auxCounter + intval($aux->tiempo);
+                        }
+                    }
+                }
+                $dataObj->totalAuxTime = $auxCounter;
+
+                $extTime = DetalleDelivery::with('extraCharges')
+                    ->whereIn('idEstado', [44, 46, 47])
+                    ->where([
+                        'idConductor' => $driver,
+                    ])
+                    ->whereDate('fechaEntrega', $date)
+                    ->orWhere('idAuxiliar', $driver)
+                    ->whereIn('idEstado', [44, 46, 47])
+                    ->whereDate('fechaEntrega', $date)
+                    ->get();
+
+                $extCounter = 0;
+
+                foreach ($extTime as $ext) {
+                    if (sizeof($ext->extraCharges) > 0) {
+                        foreach ($ext->extraCharges as $exCharge) {
+                            $extCounter += $exCharge->option->tiempo;
+                        }
+                    }
+                }
+                $dataObj->totalExtraTime = $extCounter;
+
+                $dataObj->tiempototal = $dataObj->totalTime + $dataObj->totalOver20kms + $dataObj->totalAuxTime + $dataObj->totalExtraTime;
             } else {
                 $dataObj->totalOrders = 0;
                 $dataObj->totalTime = 0;
