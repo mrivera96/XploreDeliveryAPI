@@ -69,7 +69,7 @@ class DeliveryUsersController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getMessage() //'Ocurrió un error al cargar los datos'
+                    'message' => 'Ocurrió un error al cargar los datos'
                 ],
                 500
             );
@@ -106,7 +106,7 @@ class DeliveryUsersController extends Controller
             );
             return response()->json([
                 'error' => 1,
-                'message' => $exception->getMessage()
+                'message' => 'Ocurrió un error' //$exception->getMessage()
             ], 500);
         }
     }
@@ -384,8 +384,6 @@ class DeliveryUsersController extends Controller
 
         $form = $request->form;
 
-        /*$initDate = date('Y-m-d', strtotime($form['initDate']));
-        $finDate = date('Y-m-d', strtotime($form['finDate']));*/
         $initDateTime = new Carbon(date('Y-m-d', strtotime($form['initDate'])) . ' 00:00:00');
         $finDateTime = new Carbon(date('Y-m-d', strtotime($form['finDate'])) . ' 23:59:59');
 
@@ -396,6 +394,7 @@ class DeliveryUsersController extends Controller
             $totalOrders = 0;
             $totalPayments = 0;
             $totalBalance = 0;
+            $totalCredit = 0;
 
             foreach ($customers as $customer) {
                 $dataObj = (object)array();
@@ -415,6 +414,13 @@ class DeliveryUsersController extends Controller
                     })->sum('cTotal') - Payment::where('idCliente', $customer->idCliente)
                     ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
                     ->sum('monto'), 2);
+                $dataObj->credit = number_format($customer->montoGracia - (DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                            ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                            ->whereHas('delivery', function ($q) use ($customer) {
+                                $q->where('idCliente', $customer->idCliente);
+                            })->sum('cTotal') - Payment::where('idCliente', $customer->idCliente)
+                            ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
+                            ->sum('monto')),2);
 
                 if ($dataObj->orders > 0) {
                     array_push($outputData, $dataObj);
@@ -429,6 +435,13 @@ class DeliveryUsersController extends Controller
                         })->sum('cTotal') - Payment::where('idCliente', $customer->idCliente)
                         ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
                         ->sum('monto');
+                    $totalCredit += $customer->montoGracia - (DetalleDelivery::whereIn('idEstado', [44, 46, 47])
+                                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                                ->whereHas('delivery', function ($q) use ($customer) {
+                                    $q->where('idCliente', $customer->idCliente);
+                                })->sum('cTotal') - Payment::where('idCliente', $customer->idCliente)
+                                ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
+                                ->sum('monto'));
                 }
             }
 
@@ -439,7 +452,8 @@ class DeliveryUsersController extends Controller
                     'data' => $outputData,
                     'totalOrders' => $totalOrders,
                     'totalPayments' => number_format($totalPayments, 2),
-                    'totalBalance' => number_format($totalBalance, 2)
+                    'totalBalance' => number_format($totalBalance, 2),
+                    'totalCredit' => number_format($totalCredit, 2)
                 ],
                 200
             );

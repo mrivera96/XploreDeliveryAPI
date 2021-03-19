@@ -1976,23 +1976,26 @@ class DeliveriesController extends Controller
             } else {
                 $driverDetails = User::where('idUsuario', $driver)->get()->first();
                 $outputData = $this->modifyConsolidatedOrderByCategory($dates, $driver);
-                $objToAdd = [];
-                array_push($objToAdd, $driverDetails->nomUsuario);
-                $finTotalOrdes = 0;
-                $finTotalTime = 0;
-                $finTotalMoney = 0;
-                foreach ($outputData as $output) {
-                    array_push($objToAdd, $output->totalOrders);
-                    array_push($objToAdd, $output->tiempototal);
-                    $finTotalOrdes += $output->totalOrders;
-                    $finTotalTime += $output->tiempototal;
-                    $finTotalMoney += $output->totalMoney;
-                }
-                array_push($objToAdd, $finTotalOrdes);
-                array_push($objToAdd, $finTotalTime);
-                array_push($objToAdd, $finTotalMoney);
+                if (sizeof($outputData) > 0) {
+                    $objToAdd = [];
+                    array_push($objToAdd, $driverDetails->nomUsuario);
+                    $finTotalOrdes = 0;
+                    $finTotalTime = 0;
+                    $finTotalMoney = 0;
+                    foreach ($outputData as $output) {
+                        array_push($objToAdd, $output->totalOrders);
+                        array_push($objToAdd, $output->tiempototal);
+                        $finTotalOrdes += $output->totalOrders;
+                        $finTotalTime += $output->tiempototal;
+                        $finTotalMoney += $output->totalMoney;
+                    }
+                    array_push($objToAdd, $finTotalOrdes);
+                    array_push($objToAdd, $finTotalTime);
+                    array_push($objToAdd, $finTotalMoney);
 
-                array_push($results, $objToAdd);
+                    array_push($results, $objToAdd);
+                }
+
             }
 
             return response()->json(
@@ -2011,7 +2014,7 @@ class DeliveriesController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getTrace() //'Ocurrió un error al cargar los datos'
+                    'message' => 'Ocurrió un error al cargar los datos'
                 ],
                 500
             );
@@ -2449,9 +2452,18 @@ class DeliveriesController extends Controller
                 $dataObj->totalExtraTime = $extCounter;
 
                 $dataObj->tiempototal = $dataObj->totalTime + $dataObj->totalOver20kms + $dataObj->totalAuxTime + $dataObj->totalExtraTime;
-            }
 
+            } else {
+                $dataObj->totalOrders = 0;
+                $dataObj->totalTime = 0;
+                $dataObj->totalMoney = 0;
+                $dataObj->totalOver20kms = 0;
+                $dataObj->totalAuxTime = 0;
+                $dataObj->totalExtraTime = 0;
+                $dataObj->tiempototal = 0;
+            }
             array_push($outputData, $dataObj);
+
         }
 
         return $outputData;
@@ -2984,18 +2996,22 @@ class DeliveriesController extends Controller
         }
     }
 
-    public
-    function getTodayCustomerOrders()
+    public function getTodayCustomerOrders()
     {
         try {
             $user = Auth::user();
-            $deliveriesDia = DetalleDelivery::with(['delivery.category', 'conductor', 'estado', 'photography'])
+            $deliveriesDia = DetalleDelivery::with([
+                'delivery.category',
+                'conductor',
+                'estado',
+                'photography',
+                'extraCharges.extracharge',
+                'extraCharges.option'])
                 ->whereHas('delivery', function ($q) use ($user) {
                     $q->whereDate('fechaReserva', Carbon::today())
                         ->where('idCliente', $user->idCliente);
                 })->get();
             $pedidosDia = [];
-
 
             foreach ($deliveriesDia as $dtl) {
                 $dtl->fechaEntrega = \Carbon\Carbon::parse($dtl->fechaEntrega)->format('Y-m-d H:i');
@@ -3005,7 +3021,6 @@ class DeliveriesController extends Controller
                 $dtl->cTotal = number_format($dtl->cTotal, 2);
                 array_push($pedidosDia, $dtl);
             }
-
 
             return response()->json(
                 [
@@ -3026,8 +3041,7 @@ class DeliveriesController extends Controller
         }
     }
 
-    public
-    function getAllCustomerOrders()
+    public function getAllCustomerOrders()
     {
         try {
             $user = Auth::user();
