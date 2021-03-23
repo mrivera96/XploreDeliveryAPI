@@ -724,8 +724,8 @@ class DeliveriesController extends Controller
                                             $order[$i]->tiempo = 40 + intval($order[$i]->tiempo);
                                             $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($order[$i]->tiempo);
                                         }
+                                        $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order[$i]->efectivoRecibido;
                                     }
-                                    $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order[$i]->efectivoRecibido;
 
                                     $dataObj->pickupAuxiliarTime += $tCounterPickupAuxiliar;
                                     $dataObj->pickupAuxiliarMoney += $mCounterPickupAuxiliar;
@@ -750,8 +750,8 @@ class DeliveriesController extends Controller
                                             $order[$i]->tiempo = 40 + intval($order[$i]->tiempo);
                                             $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($order[$i]->tiempo);
                                         }
+                                        $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order[$i]->efectivoRecibido;
                                     }
-                                    $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order[$i]->efectivoRecibido;
 
                                     $dataObj->pickupAuxiliarTime += $tCounterPickupAuxiliar;
                                     $dataObj->pickupAuxiliarMoney += $mCounterPickupAuxiliar;
@@ -776,8 +776,8 @@ class DeliveriesController extends Controller
                                             $order[$i]->tiempo = 40 + intval($order[$i]->tiempo);
                                             $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($order[$i]->tiempo);
                                         }
+                                        $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order[$i]->efectivoRecibido;
                                     }
-                                    $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order[$i]->efectivoRecibido;
 
                                     $dataObj->pickupAuxiliarTime += $tCounterPickupAuxiliar;
                                     $dataObj->pickupAuxiliarMoney += $mCounterPickupAuxiliar;
@@ -802,8 +802,8 @@ class DeliveriesController extends Controller
                                             $order[$i]->tiempo = 40 + intval($order[$i]->tiempo);
                                             $tCounterPanelAuxiliar = $tCounterPanelAuxiliar + intval($order[$i]->tiempo);
                                         }
+                                        $mCounterPanelAuxiliar = $mCounterPanelAuxiliar + $order[$i]->efectivoRecibido;
                                     }
-                                    $mCounterPanelAuxiliar = $mCounterPanelAuxiliar + $order[$i]->efectivoRecibido;
 
                                     $dataObj->panelAuxiliarTime += $tCounterPanelAuxiliar;
                                     $dataObj->panelAuxiliarMoney += $mCounterPanelAuxiliar;
@@ -854,8 +854,8 @@ class DeliveriesController extends Controller
                                             $order[$i]->tiempo = 70 + intval($order[$i]->tiempo);
                                             $tCounterCamion11 = $tCounterCamion11 + intval($order[$i]->tiempo);
                                         }
+                                        $mCounterCamion11 = $mCounterCamion11 + $order[$i]->efectivoRecibido;
                                     }
-                                    $mCounterCamion11 = $mCounterCamion11 + $order[$i]->efectivoRecibido;
 
                                     $dataObj->camion11Time += $tCounterCamion11;
                                     $dataObj->camion11Money += $mCounterCamion11;
@@ -1161,8 +1161,8 @@ class DeliveriesController extends Controller
                                         $order[$i]->tiempo = 40 + intval($order[$i]->tiempo);
                                         $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($order[$i]->tiempo);
                                     }
+                                    $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order[$i]->efectivoRecibido;
                                 }
-                                $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order[$i]->efectivoRecibido;
 
                                 $dataObj->pickupAuxiliarTime += $tCounterPickupAuxiliar;
                                 $dataObj->pickupAuxiliarMoney += $mCounterPickupAuxiliar;
@@ -1187,8 +1187,9 @@ class DeliveriesController extends Controller
                                         $order[$i]->tiempo = 40 + intval($order[$i]->tiempo);
                                         $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($order[$i]->tiempo);
                                     }
+                                    $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order[$i]->efectivoRecibido;
                                 }
-                                $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order[$i]->efectivoRecibido;
+
 
                                 $dataObj->pickupAuxiliarTime += $tCounterPickupAuxiliar;
                                 $dataObj->pickupAuxiliarMoney += $mCounterPickupAuxiliar;
@@ -1213,8 +1214,8 @@ class DeliveriesController extends Controller
                                         $order[$i]->tiempo = 40 + intval($order[$i]->tiempo);
                                         $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($order[$i]->tiempo);
                                     }
+                                    $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order[$i]->efectivoRecibido;
                                 }
-                                $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order[$i]->efectivoRecibido;
 
                                 $dataObj->pickupAuxiliarTime += $tCounterPickupAuxiliar;
                                 $dataObj->pickupAuxiliarMoney += $mCounterPickupAuxiliar;
@@ -1239,8 +1240,8 @@ class DeliveriesController extends Controller
                                         $order[$i]->tiempo = 40 + intval($order[$i]->tiempo);
                                         $tCounterPanelAuxiliar = $tCounterPanelAuxiliar + intval($order[$i]->tiempo);
                                     }
+                                    $mCounterPanelAuxiliar = $mCounterPanelAuxiliar + $order[$i]->efectivoRecibido;
                                 }
-                                $mCounterPanelAuxiliar = $mCounterPanelAuxiliar + $order[$i]->efectivoRecibido;
 
                                 $dataObj->panelAuxiliarTime += $tCounterPanelAuxiliar;
                                 $dataObj->panelAuxiliarMoney += $mCounterPanelAuxiliar;
@@ -1291,8 +1292,8 @@ class DeliveriesController extends Controller
                                         $order[$i]->tiempo = 70 + intval($order[$i]->tiempo);
                                         $tCounterCamion11 = $tCounterCamion11 + intval($order[$i]->tiempo);
                                     }
+                                    $mCounterCamion11 = $mCounterCamion11 + $order[$i]->efectivoRecibido;
                                 }
-                                $mCounterCamion11 = $mCounterCamion11 + $order[$i]->efectivoRecibido;
 
                                 $dataObj->camion11Time += $tCounterCamion11;
                                 $dataObj->camion11Money += $mCounterCamion11;
@@ -2228,8 +2229,8 @@ class DeliveriesController extends Controller
                                     $order->tiempo = 40 + intval($order->tiempo);
                                     $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($order->tiempo);
                                 }
+                                $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order->efectivoRecibido;
                             }
-                            $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order->efectivoRecibido;
 
                             $pickupAuxiliarTime += $tCounterPickupAuxiliar;
                             $pickupAuxiliarMoney += $mCounterPickupAuxiliar;
@@ -2254,8 +2255,8 @@ class DeliveriesController extends Controller
                                     $order->tiempo = 40 + intval($order->tiempo);
                                     $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($order->tiempo);
                                 }
+                                $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order->efectivoRecibido;
                             }
-                            $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order->efectivoRecibido;
 
                             $pickupAuxiliarTime += $tCounterPickupAuxiliar;
                             $pickupAuxiliarMoney += $mCounterPickupAuxiliar;
@@ -2280,8 +2281,8 @@ class DeliveriesController extends Controller
                                     $order->tiempo = 40 + intval($order->tiempo);
                                     $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($order->tiempo);
                                 }
+                                $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order->efectivoRecibido;
                             }
-                            $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order->efectivoRecibido;
 
                             $pickupAuxiliarTime += $tCounterPickupAuxiliar;
                             $pickupAuxiliarMoney += $mCounterPickupAuxiliar;
@@ -2306,8 +2307,8 @@ class DeliveriesController extends Controller
                                     $order->tiempo = 40 + intval($order->tiempo);
                                     $tCounterPanelAuxiliar = $tCounterPanelAuxiliar + intval($order->tiempo);
                                 }
+                                $mCounterPanelAuxiliar = $mCounterPanelAuxiliar + $order->efectivoRecibido;
                             }
-                            $mCounterPanelAuxiliar = $mCounterPanelAuxiliar + $order->efectivoRecibido;
 
                             $panelAuxiliarTime += $tCounterPanelAuxiliar;
                             $panelAuxiliarMoney += $mCounterPanelAuxiliar;
@@ -2358,8 +2359,8 @@ class DeliveriesController extends Controller
                                     $order->tiempo = 70 + intval($order->tiempo);
                                     $tCounterCamion11 = $tCounterCamion11 + intval($order->tiempo);
                                 }
+                                $mCounterCamion11 = $mCounterCamion11 + $order->efectivoRecibido;
                             }
-                            $mCounterCamion11 = $mCounterCamion11 + $order->efectivoRecibido;
 
                             $camion11Time += $tCounterCamion11;
                             $camion11Money += $mCounterCamion11;

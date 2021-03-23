@@ -11,7 +11,7 @@ class AgenciesController extends Controller
 {
     public function listCities(){
         try{
-            $cities = City::where('isActivo', 1)->get();
+            $cities = City::where('isActivo', 1)->whereIn('idCiudad', [1,2,3])->get();
             return response()->json([
                 'error' => 0,
                 'data' => $cities
@@ -27,7 +27,7 @@ class AgenciesController extends Controller
 
     public function listAgencies(){
         try{
-            $agencies = Agency::where('isActivo', 1)->get();
+            $agencies = Agency::where(['isActivo' => 1, 'idEmpresa' => 1])->get();
             return response()->json([
                 'error' => 0,
                 'data' => $agencies
