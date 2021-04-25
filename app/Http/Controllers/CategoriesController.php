@@ -534,7 +534,7 @@ class CategoriesController extends Controller
                 'consolidatedCategories' => $consolidatedCategories,
                 'consolidatedForeignCategories' => $consolidatedForeignCategories,
                 'routingCategories' => $routingCategories,
-                'demand' => 'HORARIO NAVIDEÑO: Estimado cliente, comunicamos que el día 24 de Diciembre atenderemos pedidos en horario especial de 08:00am a 3:00pm; el 25 de Diciembre nuestra plataforma permanecerá cerrada. ¡Feliz Navidad!' /* 'Estimado cliente, comunicamos que estamos experimentando una alta demanda en todas nuestras
+                'demand' => null/*'HORARIO NAVIDEÑO: Estimado cliente, comunicamos que el día 24 de Diciembre atenderemos pedidos en horario especial de 08:00am a 3:00pm; el 25 de Diciembre nuestra plataforma permanecerá cerrada. ¡Feliz Navidad!'*/ /* 'Estimado cliente, comunicamos que estamos experimentando una alta demanda en todas nuestras
                 categorías y mayor tráfico en la ciudad debido a la temporada.
                 Agradecemos de antemano su comprensión ante cualquier atraso o inconveniente.' */
             ], 200);

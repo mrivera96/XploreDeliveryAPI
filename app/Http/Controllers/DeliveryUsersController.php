@@ -22,7 +22,9 @@ class DeliveryUsersController extends Controller
     public function list()
     {
         try {
-            $customers = DeliveryClient::where('isActivo', 1)->get();
+            $customers = DeliveryClient::where('isActivo', 1)
+                ->orderBy('nomEmpresa', 'ASC')
+                ->get();
 
             return response()
                 ->json([
