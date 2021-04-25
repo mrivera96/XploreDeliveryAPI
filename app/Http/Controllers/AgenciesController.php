@@ -20,7 +20,7 @@ class AgenciesController extends Controller
             Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
-                'message' => $ex->getMessage()
+                'message' => 'Ha ocurrido un error al consultar los datos'
             ], 500);
         }
     }
@@ -36,7 +36,7 @@ class AgenciesController extends Controller
             Log::error($ex->getMessage(),['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
-                'message' => $ex->getMessage()
+                'message' => 'Ha ocurrido un error al consultar los datos'
             ], 500);
         }
     }
