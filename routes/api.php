@@ -309,6 +309,11 @@ Route::group(['middleware' => 'auth:api'], function () {
             Route::post('update', 'LabelsController@updateLabel');
             Route::post('delete', 'LabelsController@deleteLabel');
         });
+
+        //Rutas Profile
+        Route::group(['prefix' => 'profile'], function () {
+            Route::post('changePhotoInstructions', 'DeliveryUsersController@changePhotoInstructions');
+        });
     });
 });
 Route::group(['prefix' => 'appDelivery'], function () {
