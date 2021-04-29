@@ -24,7 +24,9 @@ class Delivery extends Model
         'cargosExtra',
         'total',
         'distTotal',
-        'isRuteo'
+        'isRuteo',
+        'regAdmin',
+        'registradoPor'
     ];
 
 
@@ -47,6 +49,10 @@ class Delivery extends Model
 
     public function cliente(){
         return $this->belongsTo('App\DeliveryClient', 'idCliente', 'idCliente');
+    }
+
+    public function usuario(){
+        return $this->belongsTo('App\User', 'registradoPor', 'idUsuario');
     }
 
 

@@ -43,11 +43,11 @@ class DeliveriesController extends Controller
     {
         try {
             if (Auth::user()->idPerfil == 1 || Auth::user()->idPerfil == 9) {
-                $delivery = Delivery::with(['estado', 'detalle.conductor', 'detalle.estado', 'detalle.photography', 'detalle.delivery', 'detalle.extraCharges.extracharge', 'detalle.extraCharges.option'])
+                $delivery = Delivery::with(['usuario','estado', 'detalle.conductor', 'detalle.estado', 'detalle.photography', 'detalle.delivery', 'detalle.extraCharges.extracharge', 'detalle.extraCharges.option'])
                     ->where('idDelivery', $request->id)->with(['category', 'detalle'])
                     ->get()->first();
             } else {
-                $delivery = Delivery::with(['estado', 'detalle.conductor', 'detalle.estado', 'detalle.photography', 'category'])
+                $delivery = Delivery::with(['estado', 'detalle.conductor','detalle.extraCharges', 'detalle.estado', 'detalle.photography', 'category'])
                     ->where('idCliente', Auth::user()->idCliente)->where('idDelivery', $request->id)
                     ->get()->first();
             }
@@ -2882,6 +2882,7 @@ class DeliveriesController extends Controller
                 }
                 if ($request->idCustomer != null) {
                     $nDelivery->regAdmin = true;
+                    $nDelivery->registradoPor = Auth::user()->idUsuario;
                 }
 
                 $nDelivery->fechaRegistro = Carbon::now();
