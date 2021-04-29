@@ -2821,8 +2821,8 @@ class DeliveriesController extends Controller
             $todaySchedule = Schedule::where('cod', $deliveryDayCode)->where('idTarifaDelivery', null)->get()->first();
 
             if (
-                date('H:i', strtotime($hDelivery['hora'])) < $todaySchedule->inicio ||
-                date('H:i', strtotime($hDelivery['hora'])) > $todaySchedule->final
+                date('H:i', strtotime($hDelivery['hora'])) < date('H:i',strtotime($todaySchedule->inicio)) ||
+                date('H:i', strtotime($hDelivery['hora'])) > date('H:i',strtotime($todaySchedule->final))
             ) {
                 return response()->json(
                     [
@@ -4095,6 +4095,29 @@ class DeliveriesController extends Controller
             return false;
         } else {
             return true;
+        }
+    }
+
+    public function changeDestinationAddress(Request $request){
+        $request->validate([
+           'form' => 'required',
+           'form.idDetalle' => 'required',
+           'form.direccion' => 'required'
+        ]);
+
+        $order = $request->form['idDetalle'];
+        $newAddress = $request->form['direccion'];
+        try {
+
+        }catch (Exception $ex) {
+            Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
+            return response()->json(
+                [
+                    'error' => 1,
+                    'message' => 'Ocurrió un error al actualizar la dirección'
+                ],
+                500
+            );
         }
     }
 }

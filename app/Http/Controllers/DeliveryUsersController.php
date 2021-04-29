@@ -659,7 +659,6 @@ class DeliveryUsersController extends Controller
             ]);
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array(
-                'User' => Auth::user()->nomUsuario,
                 'context' => $ex->getTrace()
             ));
             return response()->json(
