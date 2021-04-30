@@ -338,7 +338,7 @@ class DeliveryUsersController extends Controller
 
             return response()->json([
                 'error' => 1,
-                'message' => 'Ha ocurrido un error al cargar sus datos'
+                'message' => $ex->getMessage()//'Ha ocurrido un error al cargar sus datos'
             ], 500);
         }
     }
