@@ -324,7 +324,7 @@ class DeliveryUsersController extends Controller
             return response()->json([
                 'error' => 0,
                 'finishedOrdersCount' => $finishedOrders->count(),
-                'actualBalance' => $actualBalance,
+                'actualBalance' => number_format($actualBalance,2),
                 'pendingOrdersCount' => $pendingOrders->count(),
                 'pendingOrders' => $pendingOrders->get(),
                 'assignedOrdersCount' => $assignedOrders->count(),
