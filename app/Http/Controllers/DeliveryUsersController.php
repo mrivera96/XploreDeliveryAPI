@@ -305,7 +305,7 @@ class DeliveryUsersController extends Controller
             $pendingOrders = DetalleDelivery::with('delivery')->where('idEstado', 34)
                 ->whereHas('delivery', function ($q) {
                     $q->where('idCliente', Auth::user()->idCliente);
-                });
+                })->get();
 
             $assignedOrders = DetalleDelivery::with('conductor')->whereIn('idEstado', [41, 43])
                 ->whereHas('delivery', function ($q) {
@@ -317,7 +317,8 @@ class DeliveryUsersController extends Controller
                 ->sum('monto');
             $actualBalance = $subtotal - $paid;
 
-            foreach ($pendingOrders->get() as $order){
+
+            foreach ($pendingOrders as $order){
                 $order->delivery->fechaReserva = \Carbon\Carbon::parse($order->delivery->fechaReserva)->format('d/m/Y, h:i a');
             }
 
@@ -326,7 +327,7 @@ class DeliveryUsersController extends Controller
                 'finishedOrdersCount' => $finishedOrders->count(),
                 'actualBalance' => number_format($actualBalance,2),
                 'pendingOrdersCount' => $pendingOrders->count(),
-                'pendingOrders' => $pendingOrders->get(),
+                'pendingOrders' => $pendingOrders,
                 'assignedOrdersCount' => $assignedOrders->count(),
                 'assignedOrders' => $assignedOrders->get()
             ]);
