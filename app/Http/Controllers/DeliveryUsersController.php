@@ -323,7 +323,7 @@ class DeliveryUsersController extends Controller
 
             return response()->json([
                 'error' => 0,
-                'finishedOrdersCount' => number_format($finishedOrders->count()),
+                'finishedOrdersCount' => $finishedOrders->count(),
                 'actualBalance' => $actualBalance,
                 'pendingOrdersCount' => $pendingOrders->count(),
                 'pendingOrders' => $pendingOrders->get(),
