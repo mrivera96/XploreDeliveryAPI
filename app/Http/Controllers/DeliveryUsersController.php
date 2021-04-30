@@ -326,7 +326,7 @@ class DeliveryUsersController extends Controller
                 'error' => 0,
                 'finishedOrdersCount' => $finishedOrders->count(),
                 'actualBalance' => number_format($actualBalance,2),
-                'pendingOrdersCount' => $pendingOrders->count(),
+                'pendingOrdersCount' => sizeof($pendingOrders),
                 'pendingOrders' => $pendingOrders,
                 'assignedOrdersCount' => $assignedOrders->count(),
                 'assignedOrders' => $assignedOrders->get()
