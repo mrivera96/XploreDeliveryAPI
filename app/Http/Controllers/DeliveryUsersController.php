@@ -321,7 +321,7 @@ class DeliveryUsersController extends Controller
             return response()->json([
                 'error' => 0,
                 'finishedOrdersCount' => number_format($finishedOrders->count()),
-                'actualBalance' => number_format($actualBalance, 2),
+                'actualBalance' => $actualBalance,
                 'pendingOrdersCount' => $pendingOrders->count(),
                 'pendingOrders' => $pendingOrders->get(),
                 'assignedOrdersCount' => $assignedOrders->count(),
@@ -329,7 +329,6 @@ class DeliveryUsersController extends Controller
             ]);
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array(
-                'User' => Auth::user()->nomUsuario,
                 'context' => $ex->getTrace()
             ));
 
