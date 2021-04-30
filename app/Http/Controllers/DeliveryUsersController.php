@@ -319,7 +319,7 @@ class DeliveryUsersController extends Controller
 
 
             foreach ($pendingOrders as $order){
-                $order->delivery->fechaReserva = \Carbon\Carbon::parse($order->delivery->fechaReserva)->format('Y-m-d h:i a');
+                $order->delivery->fechaReserva = \Carbon\Carbon::parse($order->delivery->fechaReserva)->format('Y-m-d h:i');
             }
 
             return response()->json([
@@ -338,7 +338,7 @@ class DeliveryUsersController extends Controller
 
             return response()->json([
                 'error' => 1,
-                'message' => $ex->getMessage()//'Ha ocurrido un error al cargar sus datos'
+                'message' => 'Ha ocurrido un error al cargar sus datos'
             ], 500);
         }
     }
