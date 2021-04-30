@@ -319,7 +319,7 @@ class DeliveryUsersController extends Controller
 
 
             foreach ($pendingOrders as $order){
-                $order->delivery->fechaReserva = \Carbon\Carbon::parse($order->delivery->fechaReserva)->format('Y-m-d h:i');
+                $order->delivery->fechaReserva = \Carbon\Carbon::parse($order->delivery->fechaReserva)->format('Y-m-d H:i');
             }
 
             return response()->json([
