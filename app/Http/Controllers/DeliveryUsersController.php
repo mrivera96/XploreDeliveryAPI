@@ -317,8 +317,8 @@ class DeliveryUsersController extends Controller
                 ->sum('monto');
             $actualBalance = $subtotal - $paid;
 
-            foreach ($pendingOrders as $order){
-                $order->fechaReserva = \Carbon\Carbon::parse($order->delivery->fechaReserva)->format('d/m/Y, h:i a');
+            foreach ($pendingOrders->get() as $order){
+                $order->delivery->fechaReserva = \Carbon\Carbon::parse($order->delivery->fechaReserva)->format('d/m/Y, h:i a');
             }
 
             return response()->json([
