@@ -43,8 +43,11 @@ class DeliveriesController extends Controller
     {
         try {
             if (Auth::user()->idPerfil == 1 || Auth::user()->idPerfil == 9) {
-                $delivery = Delivery::with(['usuario','estado', 'detalle.conductor', 'detalle.estado', 'detalle.photography', 'detalle.delivery', 'detalle.extraCharges.extracharge', 'detalle.extraCharges.option'])
-                    ->where('idDelivery', $request->id)->with(['category', 'detalle'])
+                $delivery = Delivery::with(['usuario','estado', 'detalle.conductor',
+                    'detalle.estado', 'detalle.photography', 'detalle.delivery',
+                    'detalle.extraCharges.extracharge', 'detalle.extraCharges.option'])
+                    ->where('idDelivery', $request->id)
+                    ->with(['category.surcharges', 'detalle'])
                     ->get()->first();
             } else {
                 $delivery = Delivery::with(['estado', 'detalle.conductor','detalle.extraCharges', 'detalle.estado', 'detalle.photography', 'category'])
@@ -2824,15 +2827,20 @@ class DeliveriesController extends Controller
                 date('H:i', strtotime($hDelivery['hora'])) < date('H:i',strtotime($todaySchedule->inicio)) ||
                 date('H:i', strtotime($hDelivery['hora'])) > date('H:i',strtotime($todaySchedule->final))
             ) {
-                return response()->json(
-                    [
-                        'error' => 1,
-                        'message' => 'Lo sentimos, la hora de reservación está fuera del horario.
+                if( Auth::user()->idPerfil == 9 || Auth::user()->idPerfil == 1){
+
+                }else{
+                    return response()->json(
+                        [
+                            'error' => 1,
+                            'message' => 'Lo sentimos, la hora de reservación está fuera del horario.
                         Puede que el horario haya cambiado recientemente.
                         Por favor recargue la página por lo menos 2 veces para verificar el cambio.'
-                    ],
-                    500
-                );
+                        ],
+                        500
+                    );
+                }
+
             }
         }
 
@@ -2922,8 +2930,10 @@ class DeliveriesController extends Controller
                     }
                 }
 
-                $receivers = $customerDetails->email;
-                $this->sendmail($receivers, $lastId);
+                if($customerDetails->enviarNotificaciones){
+                    $receivers = $customerDetails->email;
+                    $this->sendmail($receivers, $lastId);
+                }
 
                 return response()->json(
                     [
@@ -4103,12 +4113,27 @@ class DeliveriesController extends Controller
         $request->validate([
            'form' => 'required',
            'form.idDetalle' => 'required',
-           'form.direccion' => 'required'
+            'form.idDelivery' => 'required',
+            'form.direccion' => 'required',
+            'form.distancia' => 'required',
+            'form.tiempo' => 'required',
+            'form.coordsDestino' => 'required',
+            'form.recargo' => 'required',
+            'form.cTotal' => 'required'
         ]);
 
         $order = $request->form['idDetalle'];
         $newAddress = $request->form['direccion'];
         try {
+            DetalleDelivery::where('idDetalle', $order)
+                ->update([
+                    'direccion' => $request->form['direccion'],
+                    'distancia' => $request->form['distancia'],
+                    'tiempo' => $request->form['tiempo'],
+                    'coordsDestino' => $request->form['coordsDestino'],
+                    'recargo' => $request->form['recargo'],
+                    'cTotal' => $request->form['cTotal']
+                ]);
 
         }catch (Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);

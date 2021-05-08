@@ -669,7 +669,13 @@ class DeliveryUsersController extends Controller
                 ->whereHas('rateDetail', function ($q) use ($customer) {
                     $q->where('idCliente', $customer);
                 })->count();
+
             $custForConsolidatedRates = Tarifa::where('idTipoTarifa', 4)
+                ->whereHas('rateDetail', function ($q) use ($customer) {
+                    $q->where('idCliente', $customer);
+                })->count();
+
+            $custRoutingRates = Tarifa::where('idTipoTarifa', 3)
                 ->whereHas('rateDetail', function ($q) use ($customer) {
                     $q->where('idCliente', $customer);
                 })->count();
@@ -684,9 +690,14 @@ class DeliveryUsersController extends Controller
                 $hasFConsolidatedRate = true;
             }
 
+            $hasRoutingRate = false;
+            if ($custRoutingRates > 0) {
+                $hasRoutingRate = true;
+            }
+
             return response()->json([
                 'error' => 0,
-                'data' => array('consolidated' => $hasConsolidatedRate, 'foreign' => $hasFConsolidatedRate)
+                'data' => array('consolidated' => $hasConsolidatedRate, 'foreign' => $hasFConsolidatedRate, 'routing' => $hasRoutingRate)
             ]);
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array(

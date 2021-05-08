@@ -542,7 +542,7 @@ class CategoriesController extends Controller
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
-                'message' => 'Ocurrió un error al cargar los datos' //$ex->getMessage()
+                'message' => $ex->getMessage()//'Ocurrió un error al cargar los datos' //
             ], 500);
         }
     }

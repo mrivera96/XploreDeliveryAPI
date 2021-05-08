@@ -332,7 +332,7 @@ Route::group(['prefix' => 'appDelivery'], function () {
  * ***************************/
 
 Route::get('testCript', 'DeliveryUsersController@testEncryption');
-Route::get('testDeCript', 'DeliveryUsersController@testDecryption');
+Route::post('testDeCript', 'AuthController@testGettingCript');
 Route::get('testAuthCript', 'AuthController@testGettingCript');
 Route::post('testReport', 'DeliveriesController@reportOrdersByDriver');
 Route::post('sendMail', 'DeliveriesController@resendMail');

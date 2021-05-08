@@ -235,7 +235,10 @@ class AuthController extends Controller
 
     public function testGettingCript(Request $request)
     {
-        return response()->json($this->obtenerCifrado($request->myPass));
+        $httpClient = new Client();
+        $psswd = $request->password;
+        $res = $httpClient->get('https://appconductores.xplorerentacar.com/mod.ajax/encriptar.php?password=' . $psswd);
+        return json_decode($res->getBody());
     }
 
 
@@ -280,13 +283,18 @@ class AuthController extends Controller
             'form.numIdentificacion' => 'required'
         ]);
 
+
+
         try {
             $remail = $request->form['email'];
             $rNumId = $request->form['numIdentificacion'];
 
+
             if (UsersController::existeUsuario($remail) != 0) {
+
                 if (UsersController::usuarioActivo($remail) > 0) {
-                    $correct = DeliveryClient::where('email', $remail)->where('numIdentificacion', $rNumId);
+
+                    $correct = DeliveryClient::where(['email' => $remail, 'numIdentificacion' => $rNumId])->get();
                     if ($correct->count() > 0) {
                         $newPass = Hash::make($rNumId);
                         User::where('nickUsuario', $remail)
@@ -296,12 +304,18 @@ class AuthController extends Controller
 
                         $receivers = $remail;
 
-                        $this->sendmail($receivers, $correct->get()->first());
+                        $this->sendmail($receivers, $correct->first());
 
                         return response()->json([
                             'error' => 0,
                             'message' => 'Recuperación de contraseña realizada correctamente. Recibirás un e-mail con tus detalles de acceso'
                         ], 200);
+                    }else{
+                        return response()->json([
+                            'error' => 1,
+                            'message' => 'Las credenciales ingresadas no coinciden en nuestros registros.',
+                            'status' => 500
+                        ], 401);
                     }
                 } else {
                     return response()->json([
@@ -313,7 +327,7 @@ class AuthController extends Controller
                 return response()->json([
                     'error' => 1,
                     'message' => 'El email ingresado no se encuentra en nuestros registros.',
-                    'status' => 401
+                    'status' => 500
                 ], 401);
             }
         } catch (Exception $ex) {
@@ -324,7 +338,7 @@ class AuthController extends Controller
             return response()->json([
                 'error' => 1,
                 'message' => 'Ocurrió un error en la recuperación de tu contraseña, por favor intenta nuevamente.'
-            ]);
+            ],500);
         }
     }
 
