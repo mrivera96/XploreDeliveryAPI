@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\ConsolidatedRateDetail;
+use App\ItemDetail;
 use App\RateCustomer;
 use App\Schedule;
 use App\Tarifa;
@@ -16,7 +17,7 @@ class RatesController extends Controller
     public function getRates()
     {
         try {
-            $tarifas = Tarifa::with(['category', 'customer', 'rateType', 'consolidatedDetail', 'schedules'])->get();
+            $tarifas = Tarifa::with(['category', 'customer', 'rateType', 'consolidatedDetail', 'schedules','itemDetail'])->get();
             foreach ($tarifas as $tarifa) {
                 $tarifa->precio = number_format($tarifa->precio, 2);
                 foreach ($tarifa->schedules as $schedule) {
@@ -113,6 +114,7 @@ class RatesController extends Controller
             'form.precio' => 'required',
             'form.idTipoTarifa' => 'required',
         ]);
+
         $idRate = $request->form["idTarifaDelivery"];
         $descRate = $request->form["descTarifa"];
         $idCategoria = $request->form["idCategoria"];
@@ -132,6 +134,40 @@ class RatesController extends Controller
                     'idTipoTarifa' => $rateType
                 ]
             );
+
+            $tK = $request->form['tYK'];
+            $vehC = $request->form['cobVehiculo'];
+            $dS = $request->form['servChofer'];
+            $cR = $request->form['recCombustible'];
+            $tCob = $request->form['cobTransporte'];
+            $isv = $request->form['isv'];
+            $tr = $request->form['tasaTuris'];
+
+            $currItemDetail = ItemDetail::where('idTarifaDelivery', $currRate->get()->first()->idTarifaDelivery);
+
+            if ($currItemDetail->count() > 0) {
+                $currItemDetail->update([
+                    'tYK' => $tK,
+                    'cobVehiculo' => $vehC,
+                    'servChofer' => $dS,
+                    'recCombustible' => $cR,
+                    'cobTransporte' => $tCob,
+                    'isv' => $isv,
+                    'tasaTuris' => $tr
+                ]);
+
+            } else {
+                $nID = new ItemDetail();
+                $nID->idTarifaDelivery = $currRate->get()->first()->idTarifaDelivery;
+                $nID->tYK = $tK;
+                $nID->cobVehiculo = $vehC;
+                $nID->servChofer = $dS;
+                $nID->recCombustible = $cR;
+                $nID->cobTransporte = $tCob;
+                $nID->isv = $isv;
+                $nID->tasaTuris = $tr;
+                $nID->save();
+            }
 
             return response()->json([
                 'error' => 0,

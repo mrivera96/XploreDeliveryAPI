@@ -11,6 +11,11 @@ class Tarifa extends Model
     protected $primaryKey = 'idTarifaDelivery';
 
     protected $fillable = ['idCategoria', 'entregasMinimas', 'entregasMaximas', 'precio'];
+    protected $casts = [
+        'precio' => 'float:2',
+        'entregasMinimas' => 'int',
+        'entregasMaximas' => 'int',
+    ];
 
     public function category(){
         return $this->belongsTo('App\Category', 'idCategoria', 'idCategoria');
@@ -39,4 +44,9 @@ class Tarifa extends Model
     public function rateDetail(){
         return $this->hasMany('App\RateCustomer', 'idTarifaDelivery', 'idTarifaDelivery');
     }
+
+    public function itemDetail(){
+        return $this->hasOne('App\ItemDetail', 'idTarifaDelivery', 'idTarifaDelivery');
+    }
+
 }

@@ -337,7 +337,7 @@ class DeliveriesController extends Controller
     {
         try {
             $deliveriesDia = DetalleDelivery::with([
-                'delivery.category', 'estado', 'conductor', 'photography',
+                'delivery.category.surcharges', 'estado', 'conductor', 'photography',
                 'extraCharges.extracharge', 'extraCharges.option'
             ])
                 ->whereHas('delivery', function ($q) {
@@ -381,7 +381,7 @@ class DeliveriesController extends Controller
     {
         try {
             $allDeliveries = DetalleDelivery::with([
-                'delivery.category', 'estado', 'conductor', 'auxiliar',
+                'delivery.category.surcharges', 'estado', 'conductor', 'auxiliar',
                 'photography', 'extraCharges.extracharge', 'extraCharges.option'
             ])
                 ->whereHas('delivery', function ($q) {
@@ -435,7 +435,7 @@ class DeliveriesController extends Controller
         try {
             if (Auth::user()->idPerfil == 8) {
                 $orders = DetalleDelivery::with([
-                    'delivery.category', 'estado', 'conductor', 'photography', 'auxiliar',
+                    'delivery.category.surcharges', 'estado', 'conductor', 'photography', 'auxiliar',
                     'extraCharges.extracharge', 'extraCharges.option'
                 ])
                     ->whereHas('delivery', function ($q) use ($request) {
@@ -448,7 +448,7 @@ class DeliveriesController extends Controller
                     ->get();
             } else {
                 $orders = DetalleDelivery::with([
-                    'delivery.category', 'estado', 'conductor', 'photography', 'auxiliar',
+                    'delivery.category.surcharges', 'estado', 'conductor', 'photography', 'auxiliar',
                     'extraCharges.extracharge', 'extraCharges.option'
                 ])
                     ->whereHas('delivery', function ($q) use ($request) {
@@ -4151,6 +4151,8 @@ class DeliveriesController extends Controller
                 'recargos' => $delivery->get()->first()->recargos + $request->form['recargo'],
                 'total' => $delivery->get()->first()->total + $request->form['cTotal'] + $ordToUp->get()->first()->cargosExtra
             ]);
+
+            Log::info('Direccion Modificada',['envio' => $order,'usuario' => Auth::user()->idUsuario]);
 
             return response()->json(
                 [
