@@ -31,4 +31,8 @@ class Category extends Model
         return $this->hasMany('App\RecargoDelivery', 'idCategoria', 'idCategoria');
     }
 
+    public function serviceType(){
+        return $this->hasOne('App\ServiceType', 'idTipoServicio', 'idTipoServicio');
+    }
+
 }

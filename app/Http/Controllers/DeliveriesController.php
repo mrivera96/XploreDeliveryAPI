@@ -43,14 +43,14 @@ class DeliveriesController extends Controller
     {
         try {
             if (Auth::user()->idPerfil == 1 || Auth::user()->idPerfil == 9) {
-                $delivery = Delivery::with(['usuario','estado', 'detalle.conductor',
+                $delivery = Delivery::with(['usuario', 'estado', 'detalle.conductor',
                     'detalle.estado', 'detalle.photography', 'detalle.delivery',
                     'detalle.extraCharges.extracharge', 'detalle.extraCharges.option'])
                     ->where('idDelivery', $request->id)
                     ->with(['category.surcharges', 'detalle'])
                     ->get()->first();
             } else {
-                $delivery = Delivery::with(['estado', 'detalle.conductor','detalle.extraCharges', 'detalle.estado', 'detalle.photography', 'category'])
+                $delivery = Delivery::with(['estado', 'detalle.conductor', 'detalle.extraCharges', 'detalle.estado', 'detalle.photography', 'category'])
                     ->where('idCliente', Auth::user()->idCliente)->where('idDelivery', $request->id)
                     ->get()->first();
             }
@@ -728,7 +728,7 @@ class DeliveriesController extends Controller
                                             $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($order[$i]->tiempo);
                                         }
                                         $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order[$i]->efectivoRecibido;
-                                    }else if($order[$i]->idAuxiliar == $driver->idUsuario){
+                                    } else if ($order[$i]->idAuxiliar == $driver->idUsuario) {
                                         if (strpos($order[$i]->tiempo, 'hour') || strpos($order[$i]->tiempo, 'h')) {
                                             $stime = explode(' ', $order[$i]->tiempo);
                                             $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -766,7 +766,7 @@ class DeliveriesController extends Controller
                                             $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($order[$i]->tiempo);
                                         }
                                         $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order[$i]->efectivoRecibido;
-                                    }else if($order[$i]->idAuxiliar == $driver->idUsuario){
+                                    } else if ($order[$i]->idAuxiliar == $driver->idUsuario) {
                                         if (strpos($order[$i]->tiempo, 'hour') || strpos($order[$i]->tiempo, 'h')) {
                                             $stime = explode(' ', $order[$i]->tiempo);
                                             $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -804,7 +804,7 @@ class DeliveriesController extends Controller
                                             $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($order[$i]->tiempo);
                                         }
                                         $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order[$i]->efectivoRecibido;
-                                    }else if($order[$i]->idAuxiliar == $driver->idUsuario){
+                                    } else if ($order[$i]->idAuxiliar == $driver->idUsuario) {
                                         if (strpos($order[$i]->tiempo, 'hour') || strpos($order[$i]->tiempo, 'h')) {
                                             $stime = explode(' ', $order[$i]->tiempo);
                                             $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -842,7 +842,7 @@ class DeliveriesController extends Controller
                                             $tCounterPanelAuxiliar = $tCounterPanelAuxiliar + intval($order[$i]->tiempo);
                                         }
                                         $mCounterPanelAuxiliar = $mCounterPanelAuxiliar + $order[$i]->efectivoRecibido;
-                                    }else if($order[$i]->idAuxiliar == $driver->idUsuario){
+                                    } else if ($order[$i]->idAuxiliar == $driver->idUsuario) {
                                         if (strpos($order[$i]->tiempo, 'hour') || strpos($order[$i]->tiempo, 'h')) {
                                             $stime = explode(' ', $order[$i]->tiempo);
                                             $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -906,7 +906,7 @@ class DeliveriesController extends Controller
                                             $tCounterCamion11 = $tCounterCamion11 + intval($order[$i]->tiempo);
                                         }
                                         $mCounterCamion11 = $mCounterCamion11 + $order[$i]->efectivoRecibido;
-                                    }else if($order[$i]->idAuxiliar == $driver->idUsuario){
+                                    } else if ($order[$i]->idAuxiliar == $driver->idUsuario) {
                                         if (strpos($order[$i]->tiempo, 'hour') || strpos($order[$i]->tiempo, 'h')) {
                                             $stime = explode(' ', $order[$i]->tiempo);
                                             $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -972,7 +972,7 @@ class DeliveriesController extends Controller
 
                             foreach ($auxTime as $aux) {
                                 if ($aux->tiempo != null) {
-                                    if($aux->delivery->idCategoria == 8){
+                                    if ($aux->delivery->idCategoria == 8) {
                                         if (strpos($aux->tiempo, 'hour')) {
                                             $stime = explode(' ', $aux->tiempo);
                                             $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -983,7 +983,7 @@ class DeliveriesController extends Controller
                                             $aux->tiempo = 60 + intval($aux->tiempo);
                                             $auxCounter = $auxCounter + intval($aux->tiempo);
                                         }
-                                    }else{
+                                    } else {
                                         if (strpos($aux->tiempo, 'hour')) {
                                             $stime = explode(' ', $aux->tiempo);
                                             $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -1239,7 +1239,7 @@ class DeliveriesController extends Controller
                                         $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($order[$i]->tiempo);
                                     }
                                     $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order[$i]->efectivoRecibido;
-                                }else if($order[$i]->idAuxiliar == $driver){
+                                } else if ($order[$i]->idAuxiliar == $driver) {
                                     if (strpos($order[$i]->tiempo, 'hour') || strpos($order[$i]->tiempo, 'h')) {
                                         $stime = explode(' ', $order[$i]->tiempo);
                                         $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -1277,7 +1277,7 @@ class DeliveriesController extends Controller
                                         $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($order[$i]->tiempo);
                                     }
                                     $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order[$i]->efectivoRecibido;
-                                }else if($order[$i]->idAuxiliar == $driver){
+                                } else if ($order[$i]->idAuxiliar == $driver) {
                                     if (strpos($order[$i]->tiempo, 'hour') || strpos($order[$i]->tiempo, 'h')) {
                                         $stime = explode(' ', $order[$i]->tiempo);
                                         $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -1315,7 +1315,7 @@ class DeliveriesController extends Controller
                                         $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($order[$i]->tiempo);
                                     }
                                     $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order[$i]->efectivoRecibido;
-                                }else if($order[$i]->idAuxiliar == $driver){
+                                } else if ($order[$i]->idAuxiliar == $driver) {
                                     if (strpos($order[$i]->tiempo, 'hour') || strpos($order[$i]->tiempo, 'h')) {
                                         $stime = explode(' ', $order[$i]->tiempo);
                                         $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -1353,7 +1353,7 @@ class DeliveriesController extends Controller
                                         $tCounterPanelAuxiliar = $tCounterPanelAuxiliar + intval($order[$i]->tiempo);
                                     }
                                     $mCounterPanelAuxiliar = $mCounterPanelAuxiliar + $order[$i]->efectivoRecibido;
-                                }else if($order[$i]->idAuxiliar == $driver){
+                                } else if ($order[$i]->idAuxiliar == $driver) {
                                     if (strpos($order[$i]->tiempo, 'hour') || strpos($order[$i]->tiempo, 'h')) {
                                         $stime = explode(' ', $order[$i]->tiempo);
                                         $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -1417,7 +1417,7 @@ class DeliveriesController extends Controller
                                         $tCounterCamion11 = $tCounterCamion11 + intval($order[$i]->tiempo);
                                     }
                                     $mCounterCamion11 = $mCounterCamion11 + $order[$i]->efectivoRecibido;
-                                }else if($order[$i]->idAuxiliar == $driver){
+                                } else if ($order[$i]->idAuxiliar == $driver) {
                                     if (strpos($order[$i]->tiempo, 'hour') || strpos($order[$i]->tiempo, 'h')) {
                                         $stime = explode(' ', $order[$i]->tiempo);
                                         $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -1483,7 +1483,7 @@ class DeliveriesController extends Controller
 
                         foreach ($auxTime as $aux) {
                             if ($aux->tiempo != null) {
-                                if($aux->delivery->idCategoria == 8){
+                                if ($aux->delivery->idCategoria == 8) {
                                     if (strpos($aux->tiempo, 'hour')) {
                                         $stime = explode(' ', $aux->tiempo);
                                         $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -1494,7 +1494,7 @@ class DeliveriesController extends Controller
                                         $aux->tiempo = 60 + intval($aux->tiempo);
                                         $auxCounter = $auxCounter + intval($aux->tiempo);
                                     }
-                                }else{
+                                } else {
                                     if (strpos($aux->tiempo, 'hour')) {
                                         $stime = explode(' ', $aux->tiempo);
                                         $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -2264,7 +2264,7 @@ class DeliveriesController extends Controller
                                     $stime = explode(' ', $order->tiempo);
                                     $time = intval($stime[0]) * 60 + intval($stime[2]);
                                     if (floatval($order->distancia) > 20) {
-                                        $o20CounterMoto = $o20CounterMoto + intval($time) ;
+                                        $o20CounterMoto = $o20CounterMoto + intval($time);
                                     }
                                     $order->tiempo = 20 + intval($time);
                                     $tCounterMoto = $tCounterMoto + intval($order->tiempo);
@@ -2316,7 +2316,7 @@ class DeliveriesController extends Controller
                                     $stime = explode(' ', $order->tiempo);
                                     $time = intval($stime[0]) * 60 + intval($stime[2]);
                                     if (floatval($order->distancia) > 20) {
-                                        $o20CounterPickup = $o20CounterPickup + intval($time) ;
+                                        $o20CounterPickup = $o20CounterPickup + intval($time);
                                     }
                                     $order->tiempo = 40 + intval($time);
                                     $tCounterPickup = $tCounterPickup + intval($order->tiempo);
@@ -2374,13 +2374,13 @@ class DeliveriesController extends Controller
                                     $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($order->tiempo);
                                 } else {
                                     if (floatval($order->distancia) > 20) {
-                                        $o20CounterPickupAuxiliar = $o20CounterPickupAuxiliar + intval($order->tiempo) ;
+                                        $o20CounterPickupAuxiliar = $o20CounterPickupAuxiliar + intval($order->tiempo);
                                     }
                                     $order->tiempo = 40 + intval($order->tiempo);
                                     $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($order->tiempo);
                                 }
                                 $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order->efectivoRecibido;
-                            }else if($order->idAuxiliar == $driver){
+                            } else if ($order->idAuxiliar == $driver) {
                                 if (strpos($order->tiempo, 'hour') || strpos($order->tiempo, 'h')) {
                                     $stime = explode(' ', $order->tiempo);
                                     $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -2389,7 +2389,7 @@ class DeliveriesController extends Controller
                                     }
                                 } else {
                                     if (floatval($order->distancia) > 20) {
-                                        $o20CounterPickupAuxiliar = $o20CounterPickupAuxiliar + intval($order->tiempo) ;
+                                        $o20CounterPickupAuxiliar = $o20CounterPickupAuxiliar + intval($order->tiempo);
                                     }
                                 }
                             }
@@ -2418,12 +2418,12 @@ class DeliveriesController extends Controller
                                     $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($order->tiempo);
                                 }
                                 $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order->efectivoRecibido;
-                            }else if($order->idAuxiliar == $driver){
+                            } else if ($order->idAuxiliar == $driver) {
                                 if (strpos($order->tiempo, 'hour') || strpos($order->tiempo, 'h')) {
                                     $stime = explode(' ', $order->tiempo);
                                     $time = intval($stime[0]) * 60 + intval($stime[2]);
                                     if (floatval($order->distancia) > 20) {
-                                        $o20CounterPickupAuxiliar = $o20CounterPickupAuxiliar + intval($time) ;
+                                        $o20CounterPickupAuxiliar = $o20CounterPickupAuxiliar + intval($time);
                                     }
                                 } else {
                                     if (floatval($order->distancia) > 20) {
@@ -2456,7 +2456,7 @@ class DeliveriesController extends Controller
                                     $tCounterPickupAuxiliar = $tCounterPickupAuxiliar + intval($order->tiempo);
                                 }
                                 $mCounterPickupAuxiliar = $mCounterPickupAuxiliar + $order->efectivoRecibido;
-                            }else if($order->idAuxiliar == $driver){
+                            } else if ($order->idAuxiliar == $driver) {
                                 if (strpos($order->tiempo, 'hour') || strpos($order->tiempo, 'h')) {
                                     $stime = explode(' ', $order->tiempo);
                                     $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -2494,7 +2494,7 @@ class DeliveriesController extends Controller
                                     $tCounterPanelAuxiliar = $tCounterPanelAuxiliar + intval($order->tiempo);
                                 }
                                 $mCounterPanelAuxiliar = $mCounterPanelAuxiliar + $order->efectivoRecibido;
-                            }else if($order->idAuxiliar == $driver){
+                            } else if ($order->idAuxiliar == $driver) {
                                 if (strpos($order->tiempo, 'hour') || strpos($order->tiempo, 'h')) {
                                     $stime = explode(' ', $order->tiempo);
                                     $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -2558,7 +2558,7 @@ class DeliveriesController extends Controller
                                     $tCounterCamion11 = $tCounterCamion11 + intval($order->tiempo);
                                 }
                                 $mCounterCamion11 = $mCounterCamion11 + $order->efectivoRecibido;
-                            }else if($order->idAuxiliar == $driver){
+                            } else if ($order->idAuxiliar == $driver) {
                                 if (strpos($order->tiempo, 'hour') || strpos($order->tiempo, 'h')) {
                                     $stime = explode(' ', $order->tiempo);
                                     $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -2626,7 +2626,7 @@ class DeliveriesController extends Controller
 
                 foreach ($auxTime as $aux) {
                     if ($aux->tiempo != null) {
-                        if($aux->delivery->idCategoria == 8){
+                        if ($aux->delivery->idCategoria == 8) {
                             if (strpos($aux->tiempo, 'hour')) {
                                 $stime = explode(' ', $aux->tiempo);
                                 $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -2637,7 +2637,7 @@ class DeliveriesController extends Controller
                                 $aux->tiempo = 60 + intval($aux->tiempo);
                                 $auxCounter = $auxCounter + intval($aux->tiempo);
                             }
-                        }else{
+                        } else {
                             if (strpos($aux->tiempo, 'hour')) {
                                 $stime = explode(' ', $aux->tiempo);
                                 $time = intval($stime[0]) * 60 + intval($stime[2]);
@@ -2824,12 +2824,12 @@ class DeliveriesController extends Controller
             $todaySchedule = Schedule::where('cod', $deliveryDayCode)->where('idTarifaDelivery', null)->get()->first();
 
             if (
-                date('H:i', strtotime($hDelivery['hora'])) < date('H:i',strtotime($todaySchedule->inicio)) ||
-                date('H:i', strtotime($hDelivery['hora'])) > date('H:i',strtotime($todaySchedule->final))
+                date('H:i', strtotime($hDelivery['hora'])) < date('H:i', strtotime($todaySchedule->inicio)) ||
+                date('H:i', strtotime($hDelivery['hora'])) > date('H:i', strtotime($todaySchedule->final))
             ) {
-                if( Auth::user()->idPerfil == 9 || Auth::user()->idPerfil == 1){
+                if (Auth::user()->idPerfil == 9 || Auth::user()->idPerfil == 1) {
 
-                }else{
+                } else {
                     return response()->json(
                         [
                             'error' => 1,
@@ -2930,7 +2930,7 @@ class DeliveriesController extends Controller
                     }
                 }
 
-                if($customerDetails->enviarNotificaciones){
+                if ($customerDetails->enviarNotificaciones) {
                     $receivers = $customerDetails->email;
                     $this->sendmail($receivers, $lastId);
                 }
@@ -4109,10 +4109,11 @@ class DeliveriesController extends Controller
         }
     }
 
-    public function changeDestinationAddress(Request $request){
+    public function changeDestinationAddress(Request $request)
+    {
         $request->validate([
-           'form' => 'required',
-           'form.idDetalle' => 'required',
+            'form' => 'required',
+            'form.idDetalle' => 'required',
             'form.idDelivery' => 'required',
             'form.direccion' => 'required',
             'form.distancia' => 'required',
@@ -4125,22 +4126,46 @@ class DeliveriesController extends Controller
         $order = $request->form['idDetalle'];
         $newAddress = $request->form['direccion'];
         try {
-            DetalleDelivery::where('idDetalle', $order)
-                ->update([
-                    'direccion' => $request->form['direccion'],
-                    'distancia' => $request->form['distancia'],
-                    'tiempo' => $request->form['tiempo'],
-                    'coordsDestino' => $request->form['coordsDestino'],
-                    'recargo' => $request->form['recargo'],
-                    'cTotal' => $request->form['cTotal']
-                ]);
+            $ordToUp = DetalleDelivery::where('idDetalle', $order);
+            $delivery = Delivery::where('idDelivery', $ordToUp->get()->first()->idDelivery);
 
-        }catch (Exception $ex) {
+            //restar valores antiguos
+            $nSurch = $delivery->get()->first()->recargos - $ordToUp->get()->first()->recargo;
+            $nTotal = $delivery->get()->first()->total - $ordToUp->get()->first()->cTotal;
+
+            $delivery->update([
+                'recargos' => $nSurch,
+                'total' => $nTotal
+            ]);
+
+            $ordToUp->update([
+                'direccion' => $newAddress,
+                'distancia' => $request->form['distancia'],
+                'tiempo' => $request->form['tiempo'],
+                'coordsDestino' => $request->form['coordsDestino'],
+                'recargo' => $request->form['recargo'],
+                'cTotal' => $request->form['cTotal'] + $ordToUp->get()->first()->cargosExtra
+            ]);
+
+            $delivery->update([
+                'recargos' => $delivery->get()->first()->recargos + $request->form['recargo'],
+                'total' => $delivery->get()->first()->total + $request->form['cTotal'] + $ordToUp->get()->first()->cargosExtra
+            ]);
+
+            return response()->json(
+                [
+                    'error' => 0,
+                    'message' => 'Dirección de entrega actualizada correctamente'
+                ],
+                200
+            );
+
+        } catch (Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => 'Ocurrió un error al actualizar la dirección'
+                    'message' => $ex->getMessage()//'Ocurrió un error al actualizar la dirección'
                 ],
                 500
             );

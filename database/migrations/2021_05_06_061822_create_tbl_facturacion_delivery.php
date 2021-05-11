@@ -13,11 +13,12 @@ class CreateTblFacturacionDelivery extends Migration
      */
     public function up()
     {
-        Schema::create('tblFacturacionDelivery', function (Blueprint $table) {
+        Schema::create('tblValoresFactDelivery', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('idTarifaDelivery');
-            $table->integer('idCargoExtra');
-            $table->integer('idRecargo');
+            $table->integer('idTarifaDelivery')->unsigned()->nullable();
+            $table->integer('idCargoExtra')->unsigned()->nullable();
+            $table->integer('idDetalleOpcion')->unsigned()->nullable();
+            $table->integer('idRecargo')->unsigned()->nullable();
             $table->float('tYK');
             $table->float('cobVehiculo');
             $table->float('servChofer');
@@ -25,6 +26,29 @@ class CreateTblFacturacionDelivery extends Migration
             $table->float('cobTransporte');
             $table->float('isv');
             $table->float('tasaTuris');
+        });
+
+        Schema::table('tblValoresFactDelivery', function (Blueprint $table) {
+            $table->foreign('idTarifaDelivery')
+                ->references('idTarifaDelivery')
+                ->on('clsTarifasDelivery')
+                ->onDelete('cascade');
+
+            $table->foreign('idCargoExtra')
+                ->references('idCargoExtra')
+                ->on('tblCargosExtrasDetalleEnvio')
+                ->onDelete('cascade');
+
+            $table->foreign('idDetalleOpcion')
+                ->references('idDetalleOpcion')
+                ->on('tblDetalleOpcionesCargosExtras')
+                ->onDelete('cascade');
+
+            $table->foreign('idRecargo')
+                ->references('idRecargo')
+                ->on('clsRecargosDelivery')
+                ->onDelete('cascade');
+
         });
     }
 
@@ -35,6 +59,6 @@ class CreateTblFacturacionDelivery extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tblFacturacionDelivery');
+        Schema::dropIfExists('tblValoresFactDelivery');
     }
 }
