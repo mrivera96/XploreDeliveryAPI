@@ -12,11 +12,6 @@ class Category extends Model
 
     protected $fillable = ['descCategoria', 'isActivo', 'fechaAlta'];
 
-    protected $casts = [
-        'idTipoServicio' => 'int',
-        'orden' => 'int',
-    ];
-
 
     public function delivery()
     {
