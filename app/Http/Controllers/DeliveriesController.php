@@ -4167,7 +4167,7 @@ class DeliveriesController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getMessage()//'Ocurrió un error al actualizar la dirección'
+                    'message' => 'Ocurrió un error al actualizar la dirección'
                 ],
                 500
             );

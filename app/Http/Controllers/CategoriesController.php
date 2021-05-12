@@ -553,7 +553,8 @@ class CategoriesController extends Controller
             [
                 'form' => 'required',
                 'form.descCategoria' => 'required',
-                'form.descripcion' => 'required'
+                'form.descripcion' => 'required',
+                'form.idTipoServicio' => 'required'
             ]
         );
         $rCat = $request->form;
@@ -562,6 +563,7 @@ class CategoriesController extends Controller
             $nCategory->descCategoria = $rCat['descCategoria'];
             $nCategory->descripcion = $rCat['descripcion'];
             $nCategory->fechaAlta = Carbon::now();
+            $nCategory->idTipoServicio = $rCat['idTipoServicio'];
             $nCategory->save();
             return response()->json([
                 'error' => 0,
@@ -583,7 +585,8 @@ class CategoriesController extends Controller
                 'form' => 'required',
                 'form.idCategoria' => 'required',
                 'form.descCategoria' => 'required',
-                'form.descripcion' => 'required'
+                'form.descripcion' => 'required',
+                'form.idTipoServicio' => 'required'
             ]
         );
         $idCat = $request->form["idCategoria"];
@@ -592,6 +595,7 @@ class CategoriesController extends Controller
             $currCat->update([
                 'descCategoria' => $request->form["descCategoria"],
                 'descripcion' => $request->form["descripcion"],
+                'idTipoServicio' => $request->form["idTipoServicio"],
                 'isActivo' => $request->form['isActivo']
             ]);
             return response()->json(
@@ -606,7 +610,7 @@ class CategoriesController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => 'Error al actualizar la categoría.'
+                    'message' => $ex->getMessage()//'Error al actualizar la categoría.'
                 ],
                 500
             );

@@ -229,6 +229,11 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('update', 'WorkLinesController@updateWorkLine');
             Route::post('create', 'WorkLinesController@createWorkLine');
         });
+
+        //Rutas Tipos de Servicios
+        Route::group(['prefix' => 'serviceTypes'], function () {
+            Route::post('get', 'ServiceTypesController@getServiceTypes');
+        });
     });
 });
 
