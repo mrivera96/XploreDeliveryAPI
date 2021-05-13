@@ -140,8 +140,8 @@ class RatesController extends Controller
             $dS = $request->form['servChofer'];
             $cR = $request->form['recCombustible'];
             $tCob = $request->form['cobTransporte'];
-            $isv = $request->form['isv'];
-            $tr = $request->form['tasaTuris'];
+            $isv = floatval($monto) * 0.15;
+            $tr = floatval($monto) * 0.04;
 
             $currItemDetail = ItemDetail::where('idTarifaDelivery', $currRate->get()->first()->idTarifaDelivery);
 

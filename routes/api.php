@@ -234,6 +234,11 @@ Route::group(['prefix' => 'admins'], function () {
         Route::group(['prefix' => 'serviceTypes'], function () {
             Route::post('get', 'ServiceTypesController@getServiceTypes');
         });
+
+        //Rutas Frecuencias de Facturacion
+        Route::group(['prefix' => 'billingFrequencies'], function () {
+            Route::post('get', 'BillingFrequenciesController@getBillingFrequencies');
+        });
     });
 });
 

@@ -19,6 +19,7 @@ class DeliveryClient extends Model
         'email',
         'enviarNotificaciones',
         'montoGracia',
+        'idFrecuenciaFact',
         'instFotografias'
     ];
 
@@ -59,5 +60,9 @@ class DeliveryClient extends Model
 
     public function reportRequests(){
         return $this->belongsToMany('App\ReportRequest','idCliente','idCliente');
+    }
+
+    public function billingFrequency(){
+        return $this->belongsToMany('App\BillingFrequency','idFrecuenciaFact','idFrecuenciaFact');
     }
 }

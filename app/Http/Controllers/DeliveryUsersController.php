@@ -128,6 +128,7 @@ class DeliveryUsersController extends Controller
                 $nCustomer->enviarNotificaciones = $rCustomer['enviarNotificaciones'];
                 $nCustomer->isActivo = 1;
                 $nCustomer->montoGracia = $rCustomer['montoGracia'];
+                $nCustomer->idFrecuenciaFact = $rCustomer['idFrecuenciaFact'];
                 $nCustomer->fechaAlta = Carbon::now();
                 $nCustomer->save();
 
@@ -156,7 +157,6 @@ class DeliveryUsersController extends Controller
             }
         } catch (Exception $exception) {
             Log::error($exception->getMessage(), array(
-                'User' => Auth::user()->nomUsuario,
                 'context' => $exception->getTrace()
             ));
             return response()->json([
@@ -180,7 +180,8 @@ class DeliveryUsersController extends Controller
                     'numIdentificacion' => $rCustomer['numIdentificacion'],
                     'enviarNotificaciones' => $rCustomer['enviarNotificaciones'],
                     'numTelefono' => $rCustomer['numTelefono'],
-                    'montoGracia' => $rCustomer['montoGracia']
+                    'montoGracia' => $rCustomer['montoGracia'],
+                    'idFrecuenciaFact' => $rCustomer['idFrecuenciaFact']
                 ]);
 
                 $currUser->update([
@@ -200,7 +201,8 @@ class DeliveryUsersController extends Controller
                         'numTelefono' => $rCustomer['numTelefono'],
                         'email' => $rCustomer['email'],
                         'enviarNotificaciones' => $rCustomer['enviarNotificaciones'],
-                        'montoGracia' => $rCustomer['montoGracia']
+                        'montoGracia' => $rCustomer['montoGracia'],
+                        'idFrecuenciaFact' => $rCustomer['idFrecuenciaFact']
                     ]);
 
                     $currUser->update([
