@@ -2799,6 +2799,7 @@ class DeliveriesController extends Controller
             'deliveryForm.coordsOrigen' => 'required',
             'deliveryForm.fecha' => 'required',
             'deliveryForm.hora' => 'required',
+            'deliveryForm.idTarifa' => 'required',
             'orders' => 'required|array|min:1',
             'pago' => 'required'
         ]);
@@ -2818,7 +2819,7 @@ class DeliveriesController extends Controller
         $deliveryOrders = $request->orders;
         $pago = $request->pago;
 
-        if (!isset($request->deliveryForm["idTarifa"])) {
+        if ($request->deliveryForm["idTarifa"]["idTipoTarifa"] != 2) {
             $deliveryDayCode = Carbon::create(date('Y-m-d', strtotime($hDelivery['fecha'])))->dayOfWeek;
 
             $todaySchedule = Schedule::where('cod', $deliveryDayCode)->where('idTarifaDelivery', null)->get()->first();
@@ -2871,7 +2872,8 @@ class DeliveriesController extends Controller
                 $nDelivery->idCliente = $customerDetails->idCliente;
                 $nDelivery->coordsOrigen = $hDelivery['coordsOrigen'];
                 $nDelivery->instrucciones = $this->characterReplace($hDelivery['instrucciones']);
-                if (isset($request->deliveryForm["idTarifa"])) {
+                $nDelivery->idTarifaDelivery = $request->deliveryForm["idTarifa"]["idTarifaDelivery"];
+                if ($request->deliveryForm["idTarifa"]["idTipoTarifa"] == 2) {
                     $nDelivery->isConsolidada = true;
                 }
                 if (isset($request->deliveryForm["idEtiqueta"])) {

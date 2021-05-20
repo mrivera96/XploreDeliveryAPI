@@ -692,11 +692,8 @@ class DeliveryUsersController extends Controller
                 $hasFConsolidatedRate = true;
             }
 
-            $hasRoutingRate = false;
-            if ($custRoutingRates > 0) {
-                $hasRoutingRate = true;
-            }
-
+            $hasRoutingRate = true;
+        
             return response()->json([
                 'error' => 0,
                 'data' => array('consolidated' => $hasConsolidatedRate, 'foreign' => $hasFConsolidatedRate, 'routing' => $hasRoutingRate)
