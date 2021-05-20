@@ -181,7 +181,7 @@ class DeliveryUsersController extends Controller
                     'enviarNotificaciones' => $rCustomer['enviarNotificaciones'],
                     'numTelefono' => $rCustomer['numTelefono'],
                     'montoGracia' => $rCustomer['montoGracia'],
-                    'idFrecuenciaFact' => $rCustomer['idFrecuenciaFact']
+                    //'idFrecuenciaFact' => $rCustomer['idFrecuenciaFact']
                 ]);
 
                 $currUser->update([
@@ -202,7 +202,7 @@ class DeliveryUsersController extends Controller
                         'email' => $rCustomer['email'],
                         'enviarNotificaciones' => $rCustomer['enviarNotificaciones'],
                         'montoGracia' => $rCustomer['montoGracia'],
-                        'idFrecuenciaFact' => $rCustomer['idFrecuenciaFact']
+                        //'idFrecuenciaFact' => $rCustomer['idFrecuenciaFact']
                     ]);
 
                     $currUser->update([
