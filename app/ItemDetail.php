@@ -20,7 +20,9 @@ class ItemDetail extends Model
         'recCombustible',
         'cobTransporte',
         'isv',
-        'tasaTuris'];
+        'tasaTuris',
+        'gastosReembolsables'
+    ];
 
     protected $casts = [
         'tYK' => 'float',

@@ -140,8 +140,9 @@ class RatesController extends Controller
             $dS = $request->form['servChofer'];
             $cR = $request->form['recCombustible'];
             $tCob = $request->form['cobTransporte'];
-            $isv = floatval($monto) * 0.15;
-            $tr = floatval($monto) * 0.04;
+            $isv = $request->form['isv'];
+            $tr = $request->form['tasaTuris'];
+            $gastR = $request->form['gastosReembolsables'];
 
             $currItemDetail = ItemDetail::where('idTarifaDelivery', $currRate->get()->first()->idTarifaDelivery);
 
@@ -153,7 +154,8 @@ class RatesController extends Controller
                     'recCombustible' => $cR,
                     'cobTransporte' => $tCob,
                     'isv' => $isv,
-                    'tasaTuris' => $tr
+                    'tasaTuris' => $tr,
+                    'gastosReembolsables' => $gastR
                 ]);
 
             } else {
@@ -166,6 +168,7 @@ class RatesController extends Controller
                 $nID->cobTransporte = $tCob;
                 $nID->isv = $isv;
                 $nID->tasaTuris = $tr;
+                $nID->gastosReembolsables = $gastR;
                 $nID->save();
             }
 
