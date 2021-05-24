@@ -20,7 +20,8 @@ class DeliveryClient extends Model
         'enviarNotificaciones',
         'montoGracia',
         'idFrecuenciaFact',
-        'instFotografias'
+        'instFotografias',
+        'correosFact'
     ];
 
     public function cliente()

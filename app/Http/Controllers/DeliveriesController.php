@@ -57,6 +57,7 @@ class DeliveriesController extends Controller
 
             $delivery->fechaNoFormatted = $delivery->fechaReserva;
             $delivery->fechaReserva = \Carbon\Carbon::parse($delivery->fechaReserva)->format('d/m/Y, h:i a');
+            $delivery->fechaRegistro = \Carbon\Carbon::parse($delivery->fechaRegistro)->format('d/m/Y, h:i a');
             $delivery->tarifaBase = number_format($delivery->tarifaBase, 2);
             $delivery->recargos = number_format($delivery->recargos, 2);
             $delivery->cargosExtra = number_format($delivery->cargosExtra, 2);
