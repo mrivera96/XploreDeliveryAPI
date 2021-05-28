@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\CustomerSurcharges;
 use App\RecargoDelivery;
 use Carbon\Carbon;
+use App\ItemDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -90,9 +91,46 @@ class SurchargesController extends Controller
                     'kilomMaximo' => $klmax,
                     'monto' => $monto,
                     'idCategoria' => $category,
-                   // 'idTipoEnvio' => $deliveryType
+                    'idTipoEnvio' => $deliveryType
                 ]
             );
+
+            $tK = $request->form['tYK'];
+            $vehC = $request->form['cobVehiculo'];
+            $dS = $request->form['servChofer'];
+            $cR = $request->form['recCombustible'];
+            $tCob = $request->form['cobTransporte'];
+            $isv = $request->form['isv'];
+            $tr = $request->form['tasaTuris'];
+            $gastR = $request->form['gastosReembolsables'];
+
+            $currItemDetail = ItemDetail::where('idRecargo', $currRate->get()->first()->idRecargo);
+
+            if ($currItemDetail->count() > 0) {
+                $currItemDetail->update([
+                    'tYK' => $tK,
+                    'cobVehiculo' => $vehC,
+                    'servChofer' => $dS,
+                    'recCombustible' => $cR,
+                    'cobTransporte' => $tCob,
+                    'isv' => $isv,
+                    'tasaTuris' => $tr,
+                    'gastosReembolsables' => $gastR
+                ]);
+
+            } else {
+                $nID = new ItemDetail();
+                $nID->idTarifaDelivery = $currRate->get()->first()->idRecargo;
+                $nID->tYK = $tK;
+                $nID->cobVehiculo = $vehC;
+                $nID->servChofer = $dS;
+                $nID->recCombustible = $cR;
+                $nID->cobTransporte = $tCob;
+                $nID->isv = $isv;
+                $nID->tasaTuris = $tr;
+                $nID->gastosReembolsables = $gastR;
+                $nID->save();
+            }
 
             return response()->json([
                 'error' => 0,
