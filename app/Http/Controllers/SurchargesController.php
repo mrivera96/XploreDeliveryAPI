@@ -15,7 +15,7 @@ class SurchargesController extends Controller
     public function getSurcharges()
     {
         try {
-            $recargos = RecargoDelivery::with(['customer','category','deliveryType'])->get();
+            $recargos = RecargoDelivery::with(['customer','category','deliveryType','itemDetail'])->get();
             foreach ($recargos as $recargo) {
                 $recargo->monto = number_format($recargo->monto, 2);
                 $recargo->kilomMinimo = number_format($recargo->kilomMinimo, 2);
@@ -120,7 +120,7 @@ class SurchargesController extends Controller
 
             } else {
                 $nID = new ItemDetail();
-                $nID->idTarifaDelivery = $currRate->get()->first()->idRecargo;
+                $nID->idRecargo = $currRate->get()->first()->idRecargo;
                 $nID->tYK = $tK;
                 $nID->cobVehiculo = $vehC;
                 $nID->servChofer = $dS;

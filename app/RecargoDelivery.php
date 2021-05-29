@@ -30,4 +30,8 @@ class RecargoDelivery extends Model
     {
         return $this->hasOne('App\RateType', 'idTipoTarifa', 'idTipoEnvio');
     }
+
+    public function itemDetail(){
+        return $this->hasOne('App\ItemDetail', 'idRecargo', 'idRecargo');
+    }
 }
