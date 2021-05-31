@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\ItemDetail;
 
 class ExtraChargesController extends Controller
 {
@@ -18,16 +19,18 @@ class ExtraChargesController extends Controller
             $extraCharges = ExtraCharge::with(['options'])->get();
 
             return response()
-                ->json([
-                    'error' => 0,
-                    'data' => $extraCharges
-                ],
-                    200);
-
+                ->json(
+                    [
+                        'error' => 0,
+                        'data' => $extraCharges
+                    ],
+                    200
+                );
         } catch (\Exception $ex) {
             Log::error($ex->getMessage(), array(
                 'User' => Auth::user()->nomUsuario,
-                'context' => $ex->getTrace()));
+                'context' => $ex->getTrace()
+            ));
             return response()->json(
                 [
                     'error' => 1,
@@ -102,20 +105,21 @@ class ExtraChargesController extends Controller
                         $nExtraChargeCategory->save();
                     }
                 }
-
             }
 
             return response()
-                ->json([
-                    'error' => 0,
-                    'message' => 'Cargo extra agregado correctamente.'
-                ],
-                    200);
-
+                ->json(
+                    [
+                        'error' => 0,
+                        'message' => 'Cargo extra agregado correctamente.'
+                    ],
+                    200
+                );
         } catch (\Exception $ex) {
             Log::error($ex->getMessage(), array(
                 'User' => Auth::user()->nomUsuario,
-                'context' => $ex->getTrace()));
+                'context' => $ex->getTrace()
+            ));
             return response()->json(
                 [
                     'error' => 1,
@@ -151,7 +155,6 @@ class ExtraChargesController extends Controller
                 'message' => 'Error al eliminar la categoría'
             ], 500);
         }
-
     }
 
     public function addCategory(Request $request)
@@ -178,14 +181,12 @@ class ExtraChargesController extends Controller
                     'error' => 0,
                     'message' => 'La categoría ha sido asignada correctamente'
                 ], 200);
-
             } else {
                 return response()->json([
                     'error' => 1,
                     'message' => 'Este cargo extra ya tiene asignado ésta categoría'
                 ], 500);
             }
-
         } catch (\Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
@@ -193,7 +194,6 @@ class ExtraChargesController extends Controller
                 'message' => 'Error al asignar la categoría'
             ], 500);
         }
-
     }
 
     public function update(Request $request)
@@ -221,17 +221,20 @@ class ExtraChargesController extends Controller
                 'tipoCargo' => $rTypeEC
             ]);
 
-            return response()
-                ->json([
-                    'error' => 0,
-                    'message' => 'Cargo extra actualizado correctamente.'
-                ],
-                    200);
 
+            return response()
+                ->json(
+                    [
+                        'error' => 0,
+                        'message' => 'Cargo extra actualizado correctamente.'
+                    ],
+                    200
+                );
         } catch (\Exception $ex) {
             Log::error($ex->getMessage(), array(
                 'User' => Auth::user()->nomUsuario,
-                'context' => $ex->getTrace()));
+                'context' => $ex->getTrace()
+            ));
             return response()->json(
                 [
                     'error' => 1,
@@ -247,19 +250,20 @@ class ExtraChargesController extends Controller
         $request->validate(['idCargoExtra' => 'required']);
         $extrachargeId = $request->idCargoExtra;
         try {
-            $options = DetalleOpcionesCargosExtras::where('idCargoExtra', $extrachargeId)->get();
+            $options = DetalleOpcionesCargosExtras::with('itemDetail')->where('idCargoExtra', $extrachargeId)->get();
             foreach ($options as $option) {
-                $option->costo = number_format($option->costo,2);
+                $option->costo = number_format($option->costo, 2);
             }
 
             return response()->json([
                 'error' => 0,
                 'data' => $options
             ], 200);
-
         } catch (\Exception $exception) {
-            Log::error($exception->getMessage(),
-                array('User' => Auth::user()->nomUsuario, 'context' => $exception->getTrace()));
+            Log::error(
+                $exception->getMessage(),
+                array('User' => Auth::user()->nomUsuario, 'context' => $exception->getTrace())
+            );
             return response()
                 ->json([
                     'error' => 1,
@@ -296,8 +300,6 @@ class ExtraChargesController extends Controller
                 'error' => 0,
                 'message' => 'La opción ha sido asignada correctamente'
             ], 200);
-
-
         } catch (\Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
@@ -305,7 +307,6 @@ class ExtraChargesController extends Controller
                 'message' => 'Error al asignar la opción'
             ], 500);
         }
-
     }
 
     public function removeOption(Request $request)
@@ -333,7 +334,6 @@ class ExtraChargesController extends Controller
                 'message' => 'Error al eliminar la Opción'
             ], 500);
         }
-
     }
 
     public function editOption(Request $request)
@@ -341,22 +341,60 @@ class ExtraChargesController extends Controller
         $request->validate([
             'idCargoExtra' => 'required',
             'idDetalleOpcion' => 'required',
-            'costo' => 'required',
-            'tiempo' => 'required'
+            'form.costo' => 'required',
+            'form.tiempo' => 'required'
         ]);
 
         $optionId = $request->idDetalleOpcion;
         $extraChargeId = $request->idCargoExtra;
 
         try {
-            DetalleOpcionesCargosExtras::where([
+            $currOption = DetalleOpcionesCargosExtras::where([
                 'idCargoExtra' => $extraChargeId,
                 'idDetalleOpcion' => $optionId
-                ])
-                ->update([
-                    'costo' => $request->costo,
-                    'tiempo' => $request->tiempo
-                    ]);
+            ]);
+
+            $currOption ->update([
+                    'costo' => $request->form['costo'],
+                    'tiempo' => $request->form['tiempo']
+                ]);
+
+            $tK = $request->form['tYK'];
+            $vehC = $request->form['cobVehiculo'];
+            $dS = $request->form['servChofer'];
+            $cR = $request->form['recCombustible'];
+            $tCob = $request->form['cobTransporte'];
+            $isv = $request->form['isv'];
+            $tr = $request->form['tasaTuris'];
+            $gastR = $request->form['gastosReembolsables'];
+
+            $currItemDetail = ItemDetail::where('idDetalleOpcion', $currOption->get()->first()->idDetalleOpcion);
+
+            if ($currItemDetail->count() > 0) {
+                $currItemDetail->update([
+                    'tYK' => $tK,
+                    'cobVehiculo' => $vehC,
+                    'servChofer' => $dS,
+                    'recCombustible' => $cR,
+                    'cobTransporte' => $tCob,
+                    'isv' => $isv,
+                    'tasaTuris' => $tr,
+                    'gastosReembolsables' => $gastR
+                ]);
+            } else {
+                $nID = new ItemDetail();
+                $nID->idDetalleOpcion = $currOption->get()->first()->idDetalleOpcion;
+                $nID->tYK = $tK;
+                $nID->cobVehiculo = $vehC;
+                $nID->servChofer = $dS;
+                $nID->recCombustible = $cR;
+                $nID->cobTransporte = $tCob;
+                $nID->isv = $isv;
+                $nID->tasaTuris = $tr;
+                $nID->gastosReembolsables = $gastR;
+                $nID->save();
+            }
+
 
             return response()->json([
                 'error' => 0,
@@ -366,30 +404,31 @@ class ExtraChargesController extends Controller
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
-                'message' => 'Error al actualizar la Opción'
+                'message' => $ex->getMessage() //'Error al actualizar la Opción'
             ], 500);
         }
-
     }
 
-    public function getFilteredExtraCharges(Request $request){
+    public function getFilteredExtraCharges(Request $request)
+    {
         $request->validate(['idCategoria' => 'required']);
         $category = $request->idCategoria;
-        try{
+        try {
             $extraCharges = ExtraCharge::with(['options'])
-            ->whereHas('extrachargeCategories', function($q) use($category){
-                $q->where('idCategoria', $category);
-            })
-            ->get();
+                ->whereHas('extrachargeCategories', function ($q) use ($category) {
+                    $q->where('idCategoria', $category);
+                })
+                ->get();
 
             return response()
-                ->json([
-                    'error' => 0,
-                    'data' => $extraCharges
-                ],
-                    200);
-
-        }catch (\Exception $ex) {
+                ->json(
+                    [
+                        'error' => 0,
+                        'data' => $extraCharges
+                    ],
+                    200
+                );
+        } catch (\Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
@@ -397,6 +436,4 @@ class ExtraChargesController extends Controller
             ], 500);
         }
     }
-
-
 }

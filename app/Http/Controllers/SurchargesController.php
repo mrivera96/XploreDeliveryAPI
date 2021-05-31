@@ -168,6 +168,27 @@ class SurchargesController extends Controller
 
             $lastIndex = RecargoDelivery::query()->max('idRecargo');
 
+            $tK = $request->form['tYK'];
+            $vehC = $request->form['cobVehiculo'];
+            $dS = $request->form['servChofer'];
+            $cR = $request->form['recCombustible'];
+            $tCob = $request->form['cobTransporte'];
+            $isv = $request->form['isv'];
+            $tr = $request->form['tasaTuris'];
+            $gastR = $request->form['gastosReembolsables'];
+            
+            $nID = new ItemDetail();
+            $nID->idRecargo = $lastIndex;
+            $nID->tYK = $tK;
+            $nID->cobVehiculo = $vehC;
+            $nID->servChofer = $dS;
+            $nID->recCombustible = $cR;
+            $nID->cobTransporte = $tCob;
+            $nID->isv = $isv;
+            $nID->tasaTuris = $tr;
+            $nID->gastosReembolsables = $gastR;
+            $nID->save();
+            
             if (isset($request->customers)) {
                 $customers = $request->customers;
                 if (sizeof($customers) > 0) {
