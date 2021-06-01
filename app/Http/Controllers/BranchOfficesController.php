@@ -33,7 +33,7 @@ class BranchOfficesController extends Controller
             Log::error($ex->getMessage(), array('User' => Auth::user()->nomUsuario, 'context' => $ex->getTrace()));
             return response()->json([
                 'error' => 1,
-                'message' => $ex->getMessage()
+                'message' => 'Ocurrió un error al obtener las direcciones.'//$ex->getMessage()
             ]);
         }
     }
@@ -78,7 +78,7 @@ class BranchOfficesController extends Controller
             return response()
                 ->json([
                     'error' => 1,
-                    'message' => $ex->getMessage()
+                    'message' => 'Ocurrió un error al agregar la dirección'//$ex->getMessage()
                 ], 500);
         }
     }

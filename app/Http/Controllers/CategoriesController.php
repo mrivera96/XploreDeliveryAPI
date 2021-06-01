@@ -29,7 +29,7 @@ class CategoriesController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getMessage()
+                    'message' =>'Ocurrió un error al obtener las categorías' //$ex->getMessage()
                 ],
                 500
             );
@@ -48,7 +48,7 @@ class CategoriesController extends Controller
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
-                'message' => $ex->getMessage()
+                'message' => 'Ocurrió un error al obtener las categorías'//$ex->getMessage()
             ], 500);
         }
     }
@@ -542,7 +542,7 @@ class CategoriesController extends Controller
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
-                'message' => $ex->getMessage()//'Ocurrió un error al cargar los datos' //
+                'message' => 'Ocurrió un error al cargar los datos' 
             ], 500);
         }
     }
@@ -610,7 +610,7 @@ class CategoriesController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getMessage()//'Error al actualizar la categoría.'
+                    'message' => 'Error al actualizar la categoría.'
                 ],
                 500
             );

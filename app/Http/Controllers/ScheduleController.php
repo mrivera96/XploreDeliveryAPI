@@ -30,7 +30,7 @@ class ScheduleController extends Controller
 
             return response()->json([
                 'error' => 1,
-                'message' => $ex->getMessage()//'Ha ocurrido un error al obtener los horarios.'
+                'message' => 'Ha ocurrido un error al obtener los horarios.'
             ]);
         }
     }

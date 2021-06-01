@@ -117,7 +117,7 @@ class PaymentController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getMessage()
+                    'message' => 'Ocurrió un error al registrar el pago.'//$ex->getMessage()
                 ],
                 500
             );
@@ -150,7 +150,7 @@ class PaymentController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getMessage()
+                    'message' => 'Ocurrió un error al obtener los pagos.' //$ex->getMessage()
                 ],
                 500
             );
@@ -203,7 +203,7 @@ class PaymentController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getMessage()
+                    'message' => 'Ocurrió un error al generar el reporte'//$ex->getMessage()
                 ],
                 500
             );
@@ -230,7 +230,7 @@ class PaymentController extends Controller
             return response()->json(
                 [
                     'error' => 1,
-                    'message' => $ex->getMessage()
+                    'message' => 'Ocurrió un error al obtener los datos'//$ex->getMessage()
                 ],
                 500
             );
