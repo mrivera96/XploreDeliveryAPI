@@ -359,14 +359,14 @@ class ExtraChargesController extends Controller
                     'tiempo' => $request->form['tiempo']
                 ]);
 
-            $tK = $request->form['tYK'];
-            $vehC = $request->form['cobVehiculo'];
-            $dS = $request->form['servChofer'];
-            $cR = $request->form['recCombustible'];
-            $tCob = $request->form['cobTransporte'];
-            $isv = $request->form['isv'];
-            $tr = $request->form['tasaTuris'];
-            $gastR = $request->form['gastosReembolsables'];
+            $tK = $request->form['tYK'] ?? 0;
+            $vehC = $request->form['cobVehiculo'] ?? 0;
+            $dS = $request->form['servChofer'] ?? 0;
+            $cR = $request->form['recCombustible'] ?? 0;
+            $tCob = $request->form['cobTransporte'] ?? 0;
+            $isv = $request->form['isv'] ?? 0;
+            $tr = $request->form['tasaTuris'] ?? 0;
+            $gastR = $request->form['gastosReembolsables'] ?? 0;
 
             $currItemDetail = ItemDetail::where('idDetalleOpcion', $currOption->get()->first()->idDetalleOpcion);
 

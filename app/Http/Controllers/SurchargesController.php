@@ -95,14 +95,14 @@ class SurchargesController extends Controller
                 ]
             );
 
-            $tK = $request->form['tYK'];
-            $vehC = $request->form['cobVehiculo'];
-            $dS = $request->form['servChofer'];
-            $cR = $request->form['recCombustible'];
-            $tCob = $request->form['cobTransporte'];
-            $isv = $request->form['isv'];
-            $tr = $request->form['tasaTuris'];
-            $gastR = $request->form['gastosReembolsables'];
+            $tK = $request->form['tYK'] ?? 0;
+            $vehC = $request->form['cobVehiculo'] ?? 0;
+            $dS = $request->form['servChofer'] ?? 0;
+            $cR = $request->form['recCombustible'] ?? 0;
+            $tCob = $request->form['cobTransporte'] ?? 0;
+            $isv = $request->form['isv'] ?? 0;
+            $tr = $request->form['tasaTuris'] ?? 0;
+            $gastR = $request->form['gastosReembolsables'] ?? 0;
 
             $currItemDetail = ItemDetail::where('idRecargo', $currRate->get()->first()->idRecargo);
 
@@ -176,7 +176,7 @@ class SurchargesController extends Controller
             $isv = $request->form['isv'];
             $tr = $request->form['tasaTuris'];
             $gastR = $request->form['gastosReembolsables'];
-            
+
             $nID = new ItemDetail();
             $nID->idRecargo = $lastIndex;
             $nID->tYK = $tK;
@@ -188,7 +188,7 @@ class SurchargesController extends Controller
             $nID->tasaTuris = $tr;
             $nID->gastosReembolsables = $gastR;
             $nID->save();
-            
+
             if (isset($request->customers)) {
                 $customers = $request->customers;
                 if (sizeof($customers) > 0) {

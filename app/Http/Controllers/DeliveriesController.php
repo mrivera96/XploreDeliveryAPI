@@ -11,6 +11,8 @@ use App\DetalleOpcionesCargosExtras;
 use App\Estado;
 use App\ExtraCharge;
 use App\ExtraChargesOrders;
+use App\ItemDetail;
+use App\OrderFactValues;
 use App\Schedule;
 use App\User;
 use App\DeliveryTransaction;
@@ -2900,6 +2902,8 @@ class DeliveriesController extends Controller
                 $nDelivery->save();
 
                 $lastId = Delivery::query()->max('idDelivery');
+                $itemDet = ItemDetail::where('idTarifaDelivery',$request->deliveryForm["idTarifa"]["idTarifaDelivery"])
+                    ->get()->first();
 
                 foreach ($deliveryOrders as $detalle) {
                     $nDetalle = new DetalleDelivery();
@@ -2931,6 +2935,20 @@ class DeliveriesController extends Controller
                             $nECOrder->save();
                         }
                     }
+
+                    $lastOrderId = DetalleDelivery::query()->max('idDetalle');
+
+                    $nValFact = new OrderFactValues();
+                    $nValFact->idDetalle = $lastOrderId;
+                    $nValFact->tYK = $itemDet->tYK;
+                    $nValFact->cobVehiculo = $itemDet->cobVehiculo;
+                    $nValFact->servChofer = $itemDet->servChofer;
+                    $nValFact->recCombustible = $itemDet->recCombustible;
+                    $nValFact->cobTransporte = $itemDet->cobTransporte;
+                    $nValFact->isv = $itemDet->isv;
+                    $nValFact->tasaTuris = $itemDet->tasaTuris;
+                    $nValFact->gastosReembolsables = $itemDet->gastosReembolsables;
+                    $nValFact->save();
                 }
 
                 if ($customerDetails->enviarNotificaciones) {
