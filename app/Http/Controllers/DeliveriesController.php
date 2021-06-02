@@ -2938,7 +2938,7 @@ class DeliveriesController extends Controller
 
                     $lastOrderId = DetalleDelivery::query()->max('idDetalle');
 
-                    if($itemDet->size() > 0){
+                    if($itemDet != null){
                         $nValFact = new OrderFactValues();
                         $nValFact->idDetalle = $lastOrderId;
                         $nValFact->tYK = $itemDet->tYK;
