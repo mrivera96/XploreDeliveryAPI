@@ -2938,17 +2938,21 @@ class DeliveriesController extends Controller
 
                     $lastOrderId = DetalleDelivery::query()->max('idDetalle');
 
-                    $nValFact = new OrderFactValues();
-                    $nValFact->idDetalle = $lastOrderId;
-                    $nValFact->tYK = $itemDet->tYK;
-                    $nValFact->cobVehiculo = $itemDet->cobVehiculo;
-                    $nValFact->servChofer = $itemDet->servChofer;
-                    $nValFact->recCombustible = $itemDet->recCombustible;
-                    $nValFact->cobTransporte = $itemDet->cobTransporte;
-                    $nValFact->isv = $itemDet->isv;
-                    $nValFact->tasaTuris = $itemDet->tasaTuris;
-                    $nValFact->gastosReembolsables = $itemDet->gastosReembolsables;
-                    $nValFact->save();
+                    if($itemDet->size() > 0){
+                        $nValFact = new OrderFactValues();
+                        $nValFact->idDetalle = $lastOrderId;
+                        $nValFact->tYK = $itemDet->tYK;
+                        $nValFact->cobVehiculo = $itemDet->cobVehiculo;
+                        $nValFact->servChofer = $itemDet->servChofer;
+                        $nValFact->recCombustible = $itemDet->recCombustible;
+                        $nValFact->cobTransporte = $itemDet->cobTransporte;
+                        $nValFact->isv = $itemDet->isv;
+                        $nValFact->tasaTuris = $itemDet->tasaTuris;
+                        $nValFact->gastosReembolsables = $itemDet->gastosReembolsables;
+                        $nValFact->save();
+                    }
+
+                    
                 }
 
                 if ($customerDetails->enviarNotificaciones) {
