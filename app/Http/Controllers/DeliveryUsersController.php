@@ -130,6 +130,8 @@ class DeliveryUsersController extends Controller
                 $nCustomer->montoGracia = $rCustomer['montoGracia'];
                 $nCustomer->idFrecuenciaFact = $rCustomer['idFrecuenciaFact'];
                 $nCustomer->correosFact = $rCustomer['correosFact'];
+                $nCustomer->razonSocial = $rCustomer['razonSocial'];
+                $nCustomer->rtn = $rCustomer['rtn'];
                 $nCustomer->fechaAlta = Carbon::now();
                 $nCustomer->save();
 
@@ -184,7 +186,9 @@ class DeliveryUsersController extends Controller
                     'numTelefono' => $rCustomer['numTelefono'],
                     'montoGracia' => $rCustomer['montoGracia'],
                     'idFrecuenciaFact' => $rCustomer['idFrecuenciaFact'],
-                    'correosFact' => $rCustomer['correosFact']
+                    'correosFact' => $rCustomer['correosFact'],
+                    'razonSocial' => $rCustomer['razonSocial'],
+                    'rtn' => $rCustomer['rtn'],
                 ]);
 
                 $currUser->update([
@@ -206,7 +210,9 @@ class DeliveryUsersController extends Controller
                         'enviarNotificaciones' => $rCustomer['enviarNotificaciones'],
                         'montoGracia' => $rCustomer['montoGracia'],
                         'idFrecuenciaFact' => $rCustomer['idFrecuenciaFact'],
-                        'correosFact' => $rCustomer['correosFact']
+                        'correosFact' => $rCustomer['correosFact'],
+                        'razonSocial' => $rCustomer['razonSocial'],
+                        'rtn' => $rCustomer['rtn'],
                     ]);
 
                     $currUser->update([
@@ -239,21 +245,21 @@ class DeliveryUsersController extends Controller
     public function changePhotoInstructions(Request $request)
     {
         $request->validate([
-            'form'=>'required',
-            'form.instFotografias'=>'required']);
+            'form' => 'required',
+            'form.instFotografias' => 'required'
+        ]);
 
         $instructions = $request->form['instFotografias'];
         $customer = Auth::user()->idCliente;
 
         try {
             DeliveryClient::where('idCliente', $customer)
-                ->update(['instFotografias'=>$instructions]);
+                ->update(['instFotografias' => $instructions]);
 
             return response()->json([
                 'error' => 0,
                 'message' => 'Instrucciones de Fotografías actualizadas correctamente.'
             ], 200);
-
         } catch (Exception $exception) {
             Log::error($exception->getMessage(), array(
                 'context' => $exception->getTrace()
@@ -324,14 +330,14 @@ class DeliveryUsersController extends Controller
             $actualBalance = $subtotal - $paid;
 
 
-            foreach ($pendingOrders as $order){
+            foreach ($pendingOrders as $order) {
                 $order->delivery->fechaReserva = \Carbon\Carbon::parse($order->delivery->fechaReserva)->format('Y-m-d H:i');
             }
 
             return response()->json([
                 'error' => 0,
                 'finishedOrdersCount' => $finishedOrders->count(),
-                'actualBalance' => number_format($actualBalance,2),
+                'actualBalance' => number_format($actualBalance, 2),
                 'pendingOrdersCount' => sizeof($pendingOrders),
                 'pendingOrders' => $pendingOrders,
                 'assignedOrdersCount' => $assignedOrders->count(),
@@ -436,7 +442,7 @@ class DeliveryUsersController extends Controller
             $totalCredit = 0;
 
             foreach ($customers as $customer) {
-                $dataObj = (object)array();
+                $dataObj = (object) array();
                 $dataObj->customer = $customer;
                 $dataObj->orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                     ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
@@ -447,19 +453,19 @@ class DeliveryUsersController extends Controller
                     ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
                     ->sum('monto'), 2);
                 $dataObj->balance = number_format(DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                        ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                        ->whereHas('delivery', function ($q) use ($customer) {
-                            $q->where('idCliente', $customer->idCliente);
-                        })->sum('cTotal') - Payment::where('idCliente', $customer->idCliente)
-                        ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
-                        ->sum('monto'), 2);
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->whereHas('delivery', function ($q) use ($customer) {
+                        $q->where('idCliente', $customer->idCliente);
+                    })->sum('cTotal') - Payment::where('idCliente', $customer->idCliente)
+                    ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
+                    ->sum('monto'), 2);
                 $dataObj->credit = number_format($customer->montoGracia - (DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                            ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                            ->whereHas('delivery', function ($q) use ($customer) {
-                                $q->where('idCliente', $customer->idCliente);
-                            })->sum('cTotal') - Payment::where('idCliente', $customer->idCliente)
-                            ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
-                            ->sum('monto')), 2);
+                    ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                    ->whereHas('delivery', function ($q) use ($customer) {
+                        $q->where('idCliente', $customer->idCliente);
+                    })->sum('cTotal') - Payment::where('idCliente', $customer->idCliente)
+                    ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
+                    ->sum('monto')), 2);
 
                 if ($dataObj->orders > 0) {
                     array_push($outputData, $dataObj);
@@ -468,19 +474,19 @@ class DeliveryUsersController extends Controller
                         ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
                         ->sum('monto');
                     $totalBalance += DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                            ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                            ->whereHas('delivery', function ($q) use ($customer) {
-                                $q->where('idCliente', $customer->idCliente);
-                            })->sum('cTotal') - Payment::where('idCliente', $customer->idCliente)
-                            ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
-                            ->sum('monto');
+                        ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                        ->whereHas('delivery', function ($q) use ($customer) {
+                            $q->where('idCliente', $customer->idCliente);
+                        })->sum('cTotal') - Payment::where('idCliente', $customer->idCliente)
+                        ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
+                        ->sum('monto');
                     $totalCredit += $customer->montoGracia - (DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                                ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
-                                ->whereHas('delivery', function ($q) use ($customer) {
-                                    $q->where('idCliente', $customer->idCliente);
-                                })->sum('cTotal') - Payment::where('idCliente', $customer->idCliente)
-                                ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
-                                ->sum('monto'));
+                        ->whereBetween('fechaEntrega', [$initDateTime, $finDateTime])
+                        ->whereHas('delivery', function ($q) use ($customer) {
+                            $q->where('idCliente', $customer->idCliente);
+                        })->sum('cTotal') - Payment::where('idCliente', $customer->idCliente)
+                        ->whereBetween('fechaPago', [$initDateTime, $finDateTime])
+                        ->sum('monto'));
                 }
             }
 
@@ -544,7 +550,7 @@ class DeliveryUsersController extends Controller
             $finalCustomersArray = [];
 
             foreach ($customersArray as $customer) {
-                $mydataObj = (object)array();
+                $mydataObj = (object) array();
                 $orders = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
                     ->whereBetween('fechaEntrega', [$initDateTimeWO, $finDateTimeWO])
                     ->whereHas('delivery', function ($q) use ($customer) {
@@ -624,18 +630,18 @@ class DeliveryUsersController extends Controller
                 ->max('fechaPago');
 
             $balance = number_format(DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                    ->whereHas('delivery', function ($q) use ($customer) {
-                        $q->where('idCliente', $customer);
-                    })->sum('cTotal') - Payment::where('idCliente', $customer)
-                    ->sum('monto'), 2);
+                ->whereHas('delivery', function ($q) use ($customer) {
+                    $q->where('idCliente', $customer);
+                })->sum('cTotal') - Payment::where('idCliente', $customer)
+                ->sum('monto'), 2);
 
             if ($balance > 0) {
                 $graceAmount = Auth::user()->cliente->montoGracia;
                 $balNonFormated = DetalleDelivery::whereIn('idEstado', [44, 46, 47])
-                        ->whereHas('delivery', function ($q) use ($customer) {
-                            $q->where('idCliente', $customer);
-                        })->sum('cTotal') - Payment::where('idCliente', $customer)
-                        ->sum('monto');
+                    ->whereHas('delivery', function ($q) use ($customer) {
+                        $q->where('idCliente', $customer);
+                    })->sum('cTotal') - Payment::where('idCliente', $customer)
+                    ->sum('monto');
                 $dif = $balNonFormated - $graceAmount;
 
                 if ($dif >= 0) {
@@ -697,7 +703,7 @@ class DeliveryUsersController extends Controller
             }
 
             $hasRoutingRate = true;
-        
+
             return response()->json([
                 'error' => 0,
                 'data' => array('consolidated' => $hasConsolidatedRate, 'foreign' => $hasFConsolidatedRate, 'routing' => $hasRoutingRate)

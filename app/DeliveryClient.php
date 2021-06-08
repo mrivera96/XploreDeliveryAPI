@@ -21,7 +21,9 @@ class DeliveryClient extends Model
         'montoGracia',
         'idFrecuenciaFact',
         'instFotografias',
-        'correosFact'
+        'correosFact',
+        'razonSocial',
+        'rtn'
     ];
 
     public function cliente()
