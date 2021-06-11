@@ -2921,6 +2921,7 @@ class DeliveriesController extends Controller
                     $nDetalle->tomarFoto = true;
                     $nDetalle->instrucciones = $this->characterReplace($detalle['instrucciones']);
                     $nDetalle->coordsDestino = $detalle['coordsDestino'];
+                    $nDetalle->idRecargo = $detalle['idRecargo'];
                     $nDetalle->save();
 
                     if (isset($detalle['extras'])) {
@@ -2952,7 +2953,6 @@ class DeliveriesController extends Controller
                         $nValFact->save();
                     }
 
-                    
                 }
 
                 if ($customerDetails->enviarNotificaciones) {

@@ -20,7 +20,8 @@ class DetalleDelivery extends Model
         'efectivoRecibido',
         'idConductor',
         'idAuxiliar',
-        'tiempo'
+        'tiempo',
+        'idRecargo'
     ];
 
     public function delivery(){
