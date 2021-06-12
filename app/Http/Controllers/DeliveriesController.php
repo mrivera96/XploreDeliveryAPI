@@ -12,7 +12,9 @@ use App\Estado;
 use App\ExtraCharge;
 use App\ExtraChargesOrders;
 use App\ItemDetail;
+use App\OrderExtrachargeFactValues;
 use App\OrderFactValues;
+use App\OrderSurchargeFactValues;
 use App\Schedule;
 use App\User;
 use App\DeliveryTransaction;
@@ -2934,6 +2936,22 @@ class DeliveriesController extends Controller
                                 $nECOrder->montoCobertura = $exCharge["montoCobertura"];
                             }
                             $nECOrder->save();
+
+                            $extrachargeItemDet = ItemDetail::where('idDetalleOpcion',$exCharge["idDetalleOpcion"])
+                                ->get()->first();
+                            if($extrachargeItemDet != null){
+                                $nSurValFact = new OrderExtrachargeFactValues();
+                                $nSurValFact->idDetalle = $lastOrderId;
+                                $nSurValFact->tYK = $extrachargeItemDet->tYK;
+                                $nSurValFact->cobVehiculo = $extrachargeItemDet->cobVehiculo;
+                                $nSurValFact->servChofer = $extrachargeItemDet->servChofer;
+                                $nSurValFact->recCombustible = $extrachargeItemDet->recCombustible;
+                                $nSurValFact->cobTransporte = $extrachargeItemDet->cobTransporte;
+                                $nSurValFact->isv = $extrachargeItemDet->isv;
+                                $nSurValFact->tasaTuris = $extrachargeItemDet->tasaTuris;
+                                $nSurValFact->gastosReembolsables = $extrachargeItemDet->gastosReembolsables;
+                                $nSurValFact->save();
+                            }
                         }
                     }
 
@@ -2951,6 +2969,25 @@ class DeliveriesController extends Controller
                         $nValFact->tasaTuris = $itemDet->tasaTuris;
                         $nValFact->gastosReembolsables = $itemDet->gastosReembolsables;
                         $nValFact->save();
+                    }
+
+                    if($detalle['idRecargo'] != null){
+                        $surchargeItemDet = ItemDetail::where('idRecargo',$detalle['idRecargo'])
+                            ->get()->first();
+                        if($surchargeItemDet != null){
+                            $nSurValFact = new OrderSurchargeFactValues();
+                            $nSurValFact->idDetalle = $lastOrderId;
+                            $nSurValFact->tYK = $surchargeItemDet->tYK;
+                            $nSurValFact->cobVehiculo = $surchargeItemDet->cobVehiculo;
+                            $nSurValFact->servChofer = $surchargeItemDet->servChofer;
+                            $nSurValFact->recCombustible = $surchargeItemDet->recCombustible;
+                            $nSurValFact->cobTransporte = $surchargeItemDet->cobTransporte;
+                            $nSurValFact->isv = $surchargeItemDet->isv;
+                            $nSurValFact->tasaTuris = $surchargeItemDet->tasaTuris;
+                            $nSurValFact->gastosReembolsables = $surchargeItemDet->gastosReembolsables;
+                            $nSurValFact->save();
+                        }
+
                     }
 
                 }
