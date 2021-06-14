@@ -661,6 +661,33 @@ class DeliveriesController extends Controller
                                     $dataObj->turismoMoney += $mCounterTurismo;
                                     $dataObj->turismoOver20kms += $o20CounterTurismo;
                                     break;
+
+                                case 13:
+                                    $dataObj->turismo++;
+
+                                    if ($order[$i]->tiempo != null) {
+                                        if (strpos($order[$i]->tiempo, 'hour') || strpos($order[$i]->tiempo, 'h')) {
+                                            $stime = explode(" ", $order[$i]->tiempo);
+                                            $time = intval($stime[0]) * 60 + intval($stime[2]);
+                                            if (floatval($order[$i]->distancia) > 20) {
+                                                $o20CounterTurismo = $o20CounterTurismo + intval($time);
+                                            }
+                                            $order[$i]->tiempo = 20 + intval($time);
+                                            $tCounterTurismo = $tCounterTurismo + intval($order[$i]->tiempo);
+                                        } else {
+                                            if (floatval($order[$i]->distancia) > 20) {
+                                                $o20CounterTurismo = $o20CounterTurismo + intval($order[$i]->tiempo);
+                                            }
+                                            $order[$i]->tiempo = 20 + intval($order[$i]->tiempo);
+                                            $tCounterTurismo = $tCounterTurismo + intval($order[$i]->tiempo);
+                                        }
+                                    }
+                                    $mCounterTurismo = $mCounterTurismo + $order[$i]->efectivoRecibido;
+
+                                    $dataObj->turismoTime += $tCounterTurismo;
+                                    $dataObj->turismoMoney += $mCounterTurismo;
+                                    $dataObj->turismoOver20kms += $o20CounterTurismo;
+                                    break;
                                 case 2:
                                     $dataObj->pickup++;
 
@@ -1147,6 +1174,32 @@ class DeliveriesController extends Controller
                                 $dataObj->motoOver20kms += $o20CounterMoto;
                                 break;
                             case 1:
+                                $dataObj->turismo++;
+
+                                if ($order[$i]->tiempo != null) {
+                                    if (strpos($order[$i]->tiempo, 'hour') || strpos($order[$i]->tiempo, 'h')) {
+                                        $stime = explode(" ", $order[$i]->tiempo);
+                                        $time = intval($stime[0]) * 60 + intval($stime[2]);
+                                        if (floatval($order[$i]->distancia) > 20) {
+                                            $o20CounterTurismo = $o20CounterTurismo + intval($time);
+                                        }
+                                        $order[$i]->tiempo = 20 + intval($time);
+                                        $tCounterTurismo = $tCounterTurismo + intval($order[$i]->tiempo);
+                                    } else {
+                                        if (floatval($order[$i]->distancia) > 20) {
+                                            $o20CounterTurismo = $o20CounterTurismo + intval($order[$i]->tiempo);
+                                        }
+                                        $order[$i]->tiempo = 20 + intval($order[$i]->tiempo);
+                                        $tCounterTurismo = $tCounterTurismo + intval($order[$i]->tiempo);
+                                    }
+                                }
+                                $mCounterTurismo = $mCounterTurismo + $order[$i]->efectivoRecibido;
+
+                                $dataObj->turismoTime += $tCounterTurismo;
+                                $dataObj->turismoMoney += $mCounterTurismo;
+                                $dataObj->turismoOver20kms += $o20CounterTurismo;
+                                break;
+                            case 13:
                                 $dataObj->turismo++;
 
                                 if ($order[$i]->tiempo != null) {
@@ -2313,6 +2366,32 @@ class DeliveriesController extends Controller
                             $turismoMoney += $mCounterTurismo;
                             $turismoOver20kms += $o20CounterTurismo;
                             break;
+                        case 13:
+                            $turismo++;
+
+                            if ($order->tiempo != null) {
+                                if (strpos($order->tiempo, 'hour') || strpos($order->tiempo, 'h')) {
+                                    $stime = explode(" ", $order->tiempo);
+                                    $time = intval($stime[0]) * 60 + intval($stime[2]);
+                                    if (floatval($order->distancia) > 20) {
+                                        $o20CounterTurismo = $o20CounterTurismo + intval($time);
+                                    }
+                                    $order->tiempo = 20 + intval($time);
+                                    $tCounterTurismo = $tCounterTurismo + intval($order->tiempo);
+                                } else {
+                                    if (floatval($order->distancia) > 20) {
+                                        $o20CounterTurismo = $o20CounterTurismo + intval($order->tiempo);
+                                    }
+                                    $order->tiempo = 20 + intval($order->tiempo);
+                                    $tCounterTurismo = $tCounterTurismo + intval($order->tiempo);
+                                }
+                            }
+                            $mCounterTurismo = $mCounterTurismo + $order->efectivoRecibido;
+
+                            $turismoTime += $tCounterTurismo;
+                            $turismoMoney += $mCounterTurismo;
+                            $turismoOver20kms += $o20CounterTurismo;
+                            break;
                         case 2:
                             $pickup++;
 
@@ -2904,7 +2983,7 @@ class DeliveriesController extends Controller
                 $nDelivery->save();
 
                 $lastId = Delivery::query()->max('idDelivery');
-                $itemDet = ItemDetail::where('idTarifaDelivery',$request->deliveryForm["idTarifa"]["idTarifaDelivery"])
+                $itemDet = ItemDetail::where('idTarifaDelivery', $request->deliveryForm["idTarifa"]["idTarifaDelivery"])
                     ->get()->first();
 
                 foreach ($deliveryOrders as $detalle) {
@@ -2938,9 +3017,9 @@ class DeliveriesController extends Controller
                             }
                             $nECOrder->save();
 
-                            $extrachargeItemDet = ItemDetail::where('idDetalleOpcion',$exCharge["idDetalleOpcion"])
+                            $extrachargeItemDet = ItemDetail::where('idDetalleOpcion', $exCharge["idDetalleOpcion"])
                                 ->get()->first();
-                            if($extrachargeItemDet != null){
+                            if ($extrachargeItemDet != null) {
                                 $nSurValFact = new OrderExtrachargeFactValues();
                                 $nSurValFact->idDetalle = $lastOrderId;
                                 $nSurValFact->tYK = $extrachargeItemDet->tYK;
@@ -2957,8 +3036,7 @@ class DeliveriesController extends Controller
                     }
 
 
-
-                    if($itemDet != null){
+                    if ($itemDet != null) {
                         $nValFact = new OrderFactValues();
                         $nValFact->idDetalle = $lastOrderId;
                         $nValFact->tYK = $itemDet->tYK;
@@ -2972,10 +3050,10 @@ class DeliveriesController extends Controller
                         $nValFact->save();
                     }
 
-                    if($detalle['idRecargo'] != null){
-                        $surchargeItemDet = ItemDetail::where('idRecargo',$detalle['idRecargo'])
+                    if ($detalle['idRecargo'] != null) {
+                        $surchargeItemDet = ItemDetail::where('idRecargo', $detalle['idRecargo'])
                             ->get()->first();
-                        if($surchargeItemDet != null){
+                        if ($surchargeItemDet != null) {
                             $nSurValFact = new OrderSurchargeFactValues();
                             $nSurValFact->idDetalle = $lastOrderId;
                             $nSurValFact->tYK = $surchargeItemDet->tYK;
@@ -4215,7 +4293,7 @@ class DeliveriesController extends Controller
                 'total' => $delivery->get()->first()->total + $request->form['cTotal'] + $ordToUp->get()->first()->cargosExtra
             ]);
 
-            Log::info('Direccion Modificada',['envio' => $order,'usuario' => Auth::user()->idUsuario]);
+            Log::info('Direccion Modificada', ['envio' => $order, 'usuario' => Auth::user()->idUsuario]);
 
             return response()->json(
                 [

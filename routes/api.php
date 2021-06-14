@@ -239,6 +239,13 @@ Route::group(['prefix' => 'admins'], function () {
         Route::group(['prefix' => 'billingFrequencies'], function () {
             Route::post('get', 'BillingFrequenciesController@getBillingFrequencies');
         });
+
+        //Rutas Restricciones
+        Route::group(['prefix' => 'restrictions'], function () {
+            Route::post('get', 'RestrictionController@get');
+            Route::post('create', 'RestrictionController@create');
+            Route::post('update', 'RestrictionController@update');
+        });
     });
 });
 
