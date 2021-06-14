@@ -2926,6 +2926,7 @@ class DeliveriesController extends Controller
                     $nDetalle->idRecargo = $detalle['idRecargo'];
                     $nDetalle->save();
 
+                    $lastOrderId = DetalleDelivery::query()->max('idDetalle');
                     if (isset($detalle['extras'])) {
                         foreach ($detalle['extras'] as $exCharge) {
                             $nECOrder = new ExtraChargesOrders();
@@ -2955,7 +2956,7 @@ class DeliveriesController extends Controller
                         }
                     }
 
-                    $lastOrderId = DetalleDelivery::query()->max('idDetalle');
+
 
                     if($itemDet != null){
                         $nValFact = new OrderFactValues();

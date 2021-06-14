@@ -8,4 +8,6 @@ class OrderExtrachargeFactValues extends Model
 {
     protected $table = 'tblValFactCargosExtraEnvios';
     public $timestamps = false;
+
+
 }
