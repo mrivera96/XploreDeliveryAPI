@@ -197,6 +197,7 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('getReportRequests', 'ReportRequestController@getReportRequests');
             Route::post('createReportRequest', 'ReportRequestController@createReportRequest');
             Route::post('consolidatedOrdersByDriver', 'DeliveriesController@reportConsolidatedOrdersByDriver');
+            Route::post('billingReport', 'BillingDataController@billingReport');
         });
 
         //Rutas Pagos
