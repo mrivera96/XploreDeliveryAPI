@@ -3803,6 +3803,11 @@ class DeliveriesController extends Controller
 
         try {
             $currOrder = DetalleDelivery::where('idDetalle', $orderId);
+            if($request->form['observaciones'] != null){
+                $currOrder->update([
+                    'observaciones' => $request->form['observaciones']
+                ]);
+            }
 
             if (isset($request->form['idOpcionExtra'])) {
                 $exist = ExtraChargesOrders::where('idDetalle', $orderId)
@@ -3816,7 +3821,6 @@ class DeliveriesController extends Controller
                         ->first();
 
                     $currOrder->update([
-
                         'cargosExtra' => $currOrder->get()->first()->cargosExtra + $ecOption->costo,
                         'cTotal' => $currOrder->get()->first()->cTotal + $ecOption->costo
                     ]);
