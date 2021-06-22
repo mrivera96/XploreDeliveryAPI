@@ -47,7 +47,7 @@ class DeliveriesController extends Controller
     {
         try {
             if (Auth::user()->idPerfil == 1 || Auth::user()->idPerfil == 9) {
-                $delivery = Delivery::with(['usuario', 'estado', 'detalle.conductor',
+                $delivery = Delivery::with(['usuario', 'estado', 'detalle.conductor', 'detalle.auxiliar',
                     'detalle.estado', 'detalle.photography', 'detalle.delivery',
                     'detalle.extraCharges.extracharge', 'detalle.extraCharges.option'])
                     ->where('idDelivery', $request->id)
