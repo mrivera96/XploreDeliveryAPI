@@ -3,15 +3,21 @@
 namespace App\Http\Controllers;
 
 use App\BillingData;
+use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class BillingDataController extends Controller
 {
-    public function billingReport(){
+    public function billingReport(Request $request){
+        $request->validate(['form'=>'required']);
         try {
-            $invoices = BillingData::with(['delivery.cliente'])->get();
+            $form = $request->form;
+            $initDate = new Carbon(date('Y-m-d', strtotime($form['initDate'])) . ' 00:00:00');
+            $finDate = new Carbon(date('Y-m-d', strtotime($form['finDate'])) . ' 23:59:59');
+            $invoices = BillingData::with(['delivery.cliente'])
+                ->whereBetween('fechaFacturacion',[$initDate,$finDate])->get();
 
             return response()->json(
                 [
