@@ -53,6 +53,16 @@ class DeliveriesController extends Controller
                     ->where('idDelivery', $request->id)
                     ->with(['category.surcharges', 'detalle'])
                     ->get()->first();
+
+                /*$sameAddressDeliveries = Delivery::with(['usuario', 'estado', 'detalle.conductor', 'detalle.auxiliar',
+                    'detalle.estado', 'detalle.photography', 'detalle.delivery',
+                    'detalle.extraCharges.extracharge', 'detalle.extraCharges.option'])
+                    ->where('dirRecogida', $delivery->dirRecogida)
+                    ->whereBetween('fechaReserva',[date('Y-m-d', strtotime($delivery->fechaReserva. '- 7 days')).' 00:00:00', date('Y-m-d', strtotime($delivery->fechaReserva)).' 23:59:59'])
+                    ->orWhereBetween('fechaReserva',[date('Y-m-d', strtotime($delivery->fechaReserva)).' 00:00:00', date('Y-m-d', strtotime($delivery->fechaReserva. '+ 7 days')).' 23:59:59'])
+                    ->where('dirRecogida', $delivery->dirRecogida)
+                    ->with(['category.surcharges', 'detalle'])
+                    ->get();*/
             } else {
                 $delivery = Delivery::with(['estado', 'detalle.conductor', 'detalle.extraCharges', 'detalle.estado', 'detalle.photography', 'category'])
                     ->where('idCliente', Auth::user()->idCliente)->where('idDelivery', $request->id)
@@ -76,13 +86,15 @@ class DeliveriesController extends Controller
             return response()->json(
                 [
                     'error' => 0,
-                    'data' => $delivery
+                    'data' => $delivery,
+                    /*'sameAddress' => $sameAddressDeliveries ?? null,
+                    'initDate' => new Carbon(date('Y-m-d', strtotime($delivery->fechaNoFormatted. '- 7 days')).' 00:00:00'),//new Carbon(date('Y-m-d', strtotime($delivery->fechaNoFormatted)). 'T00:00:00'),
+                    'finDate' => new Carbon(date('Y-m-d', strtotime($delivery->fechaNoFormatted)).' 23:59:59')//new Carbon(date('Y-m-d', strtotime($delivery->fechaNoFormatted. '- 7 days')). 'T23:59:59')*/
                 ],
                 200
             );
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), array(
-                'User' => Auth::user()->nomUsuario,
                 'context' => $ex->getTrace()
             ));
             return response()->json(
@@ -3067,6 +3079,18 @@ class DeliveriesController extends Controller
                             $nSurValFact->save();
                         }
 
+                    }else{
+                        $nSurValFact = new OrderSurchargeFactValues();
+                        $nSurValFact->idDetalle = $lastOrderId;
+                        $nSurValFact->tYK = 0.00;
+                        $nSurValFact->cobVehiculo = 0.00;
+                        $nSurValFact->servChofer = 0.00;
+                        $nSurValFact->recCombustible = 0.00;
+                        $nSurValFact->cobTransporte = 0.00;
+                        $nSurValFact->isv = 0.00;
+                        $nSurValFact->tasaTuris = 0.00;
+                        $nSurValFact->gastosReembolsables = 0.00;
+                        $nSurValFact->save();
                     }
 
                 }
@@ -3087,7 +3111,6 @@ class DeliveriesController extends Controller
                 );
             } catch (Exception $ex) {
                 Log::error($ex->getMessage(), array(
-                    'User' => Auth::user()->nomUsuario,
                     'context' => $ex->getTrace()
                 ));
                 return response()->json(
