@@ -3079,7 +3079,7 @@ class DeliveriesController extends Controller
                             $nSurValFact->save();
                         }
 
-                    }else{
+                    } else {
                         $nSurValFact = new OrderSurchargeFactValues();
                         $nSurValFact->idDetalle = $lastOrderId;
                         $nSurValFact->tYK = 0.00;
@@ -3826,10 +3826,20 @@ class DeliveriesController extends Controller
 
         try {
             $currOrder = DetalleDelivery::where('idDetalle', $orderId);
-            if($request->form['observaciones'] != null){
+            if ($request->form['observaciones'] != null) {
                 $currOrder->update([
                     'observaciones' => $request->form['observaciones']
                 ]);
+            }
+
+            if ($currOrder->get()->first()->refNumber != null) {
+                return response()->json(
+                    [
+                        'error' => 1,
+                        'message' => 'No se puede agregar el cargo extra porque el envío seleccionado ya se encuentra facturado.'
+                    ],
+                    500
+                );
             }
 
             if (isset($request->form['idOpcionExtra'])) {
