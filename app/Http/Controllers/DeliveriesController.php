@@ -3353,7 +3353,7 @@ class DeliveriesController extends Controller
 
 
             if (
-                Auth::user()->idPerfil != 1 && $time < $todaySchedule->inicio || Auth::user()->idPerfil != 1 &&
+                Auth::user()->idPerfil == 8 && $time < $todaySchedule->inicio || Auth::user()->idPerfil == 8 &&
                 $time > $todaySchedule->final
             ) {
                 return response()->json(
