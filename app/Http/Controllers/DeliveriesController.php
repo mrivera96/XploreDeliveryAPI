@@ -3868,6 +3868,22 @@ class DeliveriesController extends Controller
                     $nECOrder->idCargoExtra = $ecId;
                     $nECOrder->idDetalleOpcion = $request->form['idOpcionExtra'];
                     $nECOrder->save();
+
+                    $extrachargeItemDet = ItemDetail::where('idDetalleOpcion', $request->form['idOpcionExtra'])
+                        ->get()->first();
+                    if ($extrachargeItemDet != null) {
+                        $nSurValFact = new OrderExtrachargeFactValues();
+                        $nSurValFact->idDetalle = $orderId;
+                        $nSurValFact->tYK = $extrachargeItemDet->tYK;
+                        $nSurValFact->cobVehiculo = $extrachargeItemDet->cobVehiculo;
+                        $nSurValFact->servChofer = $extrachargeItemDet->servChofer;
+                        $nSurValFact->recCombustible = $extrachargeItemDet->recCombustible;
+                        $nSurValFact->cobTransporte = $extrachargeItemDet->cobTransporte;
+                        $nSurValFact->isv = $extrachargeItemDet->isv;
+                        $nSurValFact->tasaTuris = $extrachargeItemDet->tasaTuris;
+                        $nSurValFact->gastosReembolsables = $extrachargeItemDet->gastosReembolsables;
+                        $nSurValFact->save();
+                    }
                 }
             } else {
                 $ec = ExtraCharge::where('idCargoExtra', $ecId)
@@ -3907,6 +3923,24 @@ class DeliveriesController extends Controller
                     $nECOrder->idDetalle = $orderId;
                     $nECOrder->idCargoExtra = $ecId;
                     $nECOrder->save();
+
+
+                    $extrachargeItemDet = ItemDetail::where('idCargoExtra', $ecId)
+                        ->get()->first();
+                    if ($extrachargeItemDet != null) {
+                        $nSurValFact = new OrderExtrachargeFactValues();
+                        $nSurValFact->idDetalle = $orderId;
+                        $nSurValFact->tYK = $extrachargeItemDet->tYK;
+                        $nSurValFact->cobVehiculo = $extrachargeItemDet->cobVehiculo;
+                        $nSurValFact->servChofer = $extrachargeItemDet->servChofer;
+                        $nSurValFact->recCombustible = $extrachargeItemDet->recCombustible;
+                        $nSurValFact->cobTransporte = $extrachargeItemDet->cobTransporte;
+                        $nSurValFact->isv = $extrachargeItemDet->isv;
+                        $nSurValFact->tasaTuris = $extrachargeItemDet->tasaTuris;
+                        $nSurValFact->gastosReembolsables = $extrachargeItemDet->gastosReembolsables;
+                        $nSurValFact->save();
+                    }
+
                 }
             }
 
