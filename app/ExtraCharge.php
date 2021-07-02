@@ -22,4 +22,8 @@ class ExtraCharge extends Model
     public function ExtraCharge(){
         return $this->belongsTo('App\DetalleDelivery', 'idCargoExtra', 'idCargoExtra');
     }
+
+    public function itemDetail(){
+        return $this->belongsTo('App\ITemDetail', 'idCargoExtra', 'idCargoExtra');
+    }
 }

@@ -16,7 +16,7 @@ class ExtraChargesController extends Controller
     public function get()
     {
         try {
-            $extraCharges = ExtraCharge::with(['options'])->get();
+            $extraCharges = ExtraCharge::with(['options','itemDetail'])->get();
 
             return response()
                 ->json(
@@ -28,7 +28,6 @@ class ExtraChargesController extends Controller
                 );
         } catch (\Exception $ex) {
             Log::error($ex->getMessage(), array(
-                'User' => Auth::user()->nomUsuario,
                 'context' => $ex->getTrace()
             ));
             return response()->json(
@@ -221,6 +220,41 @@ class ExtraChargesController extends Controller
                 'tipoCargo' => $rTypeEC
             ]);
 
+            $tK = $request->form['tYK'] ?? 0;
+            $vehC = $request->form['cobVehiculo'] ?? 0;
+            $dS = $request->form['servChofer'] ?? 0;
+            $cR = $request->form['recCombustible'] ?? 0;
+            $tCob = $request->form['cobTransporte'] ?? 0;
+            $isv = $request->form['isv'] ?? 0;
+            $tr = $request->form['tasaTuris'] ?? 0;
+            $gastR = $request->form['gastosReembolsables'] ?? 0;
+
+            $currItemDetail = ItemDetail::where('idCargoExtra', $aEC->get()->first()->idCargoExtra);
+
+            if ($currItemDetail->count() > 0) {
+                $currItemDetail->update([
+                    'tYK' => $tK,
+                    'cobVehiculo' => $vehC,
+                    'servChofer' => $dS,
+                    'recCombustible' => $cR,
+                    'cobTransporte' => $tCob,
+                    'isv' => $isv,
+                    'tasaTuris' => $tr,
+                    'gastosReembolsables' => $gastR
+                ]);
+            } else {
+                $nID = new ItemDetail();
+                $nID->idCargoExtra = $aEC->get()->first()->idCargoExtra;
+                $nID->tYK = $tK;
+                $nID->cobVehiculo = $vehC;
+                $nID->servChofer = $dS;
+                $nID->recCombustible = $cR;
+                $nID->cobTransporte = $tCob;
+                $nID->isv = $isv;
+                $nID->tasaTuris = $tr;
+                $nID->gastosReembolsables = $gastR;
+                $nID->save();
+            }
 
             return response()
                 ->json(
@@ -394,7 +428,6 @@ class ExtraChargesController extends Controller
                 $nID->gastosReembolsables = $gastR;
                 $nID->save();
             }
-
 
             return response()->json([
                 'error' => 0,

@@ -3018,6 +3018,31 @@ class DeliveriesController extends Controller
                     $nDetalle->save();
 
                     $lastOrderId = DetalleDelivery::query()->max('idDetalle');
+                    if($hDelivery->prioridad == 1){
+                        $priorityId = 16;
+                        $nECOrder = new ExtraChargesOrders();
+                        $nECOrder->idDetalle = $nDetalle->idDetalle;
+                        $nECOrder->idCargoExtra = $priorityId;
+                        $nECOrder->save();
+
+                        $extrachargeItemDet = ItemDetail::where('idCargoExtra', $priorityId)
+                            ->get()->first();
+
+                        if ($extrachargeItemDet != null) {
+                            $nSurValFact = new OrderExtrachargeFactValues();
+                            $nSurValFact->idDetalle = $lastOrderId;
+                            $nSurValFact->tYK = $extrachargeItemDet->tYK;
+                            $nSurValFact->cobVehiculo = $extrachargeItemDet->cobVehiculo;
+                            $nSurValFact->servChofer = $extrachargeItemDet->servChofer;
+                            $nSurValFact->recCombustible = $extrachargeItemDet->recCombustible;
+                            $nSurValFact->cobTransporte = $extrachargeItemDet->cobTransporte;
+                            $nSurValFact->isv = $extrachargeItemDet->isv;
+                            $nSurValFact->tasaTuris = $extrachargeItemDet->tasaTuris;
+                            $nSurValFact->gastosReembolsables = $extrachargeItemDet->gastosReembolsables;
+                            $nSurValFact->save();
+                        }
+                    }
+
                     if (isset($detalle['extras'])) {
                         foreach ($detalle['extras'] as $exCharge) {
                             $nECOrder = new ExtraChargesOrders();
