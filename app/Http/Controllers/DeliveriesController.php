@@ -4341,6 +4341,16 @@ class DeliveriesController extends Controller
             $ordToUp = DetalleDelivery::where('idDetalle', $order);
             $delivery = Delivery::where('idDelivery', $ordToUp->get()->first()->idDelivery);
 
+            if ($ordToUp->get()->first()->refNumber != null) {
+                return response()->json(
+                    [
+                        'error' => 1,
+                        'message' => 'No se puede cambiar la dirección del envío porque ya se encuentra facturado.'
+                    ],
+                    500
+                );
+            }
+
             //restar valores antiguos
             $nSurch = $delivery->get()->first()->recargos - $ordToUp->get()->first()->recargo;
             $nTotal = $delivery->get()->first()->total - $ordToUp->get()->first()->cTotal;
