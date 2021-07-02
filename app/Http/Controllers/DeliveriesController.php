@@ -4359,6 +4359,38 @@ class DeliveriesController extends Controller
                 'cTotal' => $request->form['cTotal'] + $ordToUp->get()->first()->cargosExtra
             ]);
 
+
+            if ($request->form['idRecargo'] != null) {
+                $surchargeItemDet = ItemDetail::where('idRecargo', $request->form['idRecargo'])
+                    ->get()->first();
+                if ($surchargeItemDet != null) {
+                    $nSurValFact = OrderSurchargeFactValues::where('idDetalle', $order);
+                    $nSurValFact->update([
+                        'tYK' => $surchargeItemDet->tYK,
+                        'cobVehiculo' => $surchargeItemDet->cobVehiculo,
+                        'servChofer' => $surchargeItemDet->servChofer,
+                        'recCombustible' => $surchargeItemDet->recCombustible,
+                        'cobTransporte' => $surchargeItemDet->cobTransporte,
+                        'isv' => $surchargeItemDet->isv,
+                        'tasaTuris' => $surchargeItemDet->tasaTuris,
+                        'gastosReembolsables' => $surchargeItemDet->gastosReembolsables,
+                    ]);
+                }
+
+            } else {
+                $nSurValFact = OrderSurchargeFactValues::where('idDetalle', $order);
+                $nSurValFact->update([
+                    'tYK' => 0.00,
+                    'cobVehiculo' => 0.00,
+                    'servChofer' => 0.00,
+                    'recCombustible' => 0.00,
+                    'cobTransporte' => 0.00,
+                    'isv' => 0.00,
+                    'tasaTuris' => 0.00,
+                    'gastosReembolsables' => 0.00,
+                ]);
+            }
+
             $delivery->update([
                 'recargos' => $delivery->get()->first()->recargos + $request->form['recargo'],
                 'total' => $delivery->get()->first()->total + $request->form['cTotal'] + $ordToUp->get()->first()->cargosExtra
