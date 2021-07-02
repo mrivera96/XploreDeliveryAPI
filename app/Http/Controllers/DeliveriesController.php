@@ -2991,6 +2991,10 @@ class DeliveriesController extends Controller
                     $nDelivery->registradoPor = Auth::user()->idUsuario;
                 }
 
+                if($hDelivery->prioridad == 1){
+                    $nDelivery->prioridad = 1;
+                }
+
                 $nDelivery->fechaRegistro = Carbon::now();
                 $nDelivery->save();
 
