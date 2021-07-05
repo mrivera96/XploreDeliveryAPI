@@ -2947,6 +2947,8 @@ class DeliveriesController extends Controller
                     ->get()
                     ->first();
 
+                $priorityCharge = ExtraCharge::where('idCargoExtra', 16)->first();
+
                 $nDelivery = new Delivery();
                 $nDelivery->nomCliente = $customerDetails->nomEmpresa;
                 $nDelivery->numIdentificacion = $customerDetails->numIdentificacion;
@@ -2991,8 +2993,11 @@ class DeliveriesController extends Controller
                     $nDelivery->registradoPor = Auth::user()->idUsuario;
                 }
 
-                if($hDelivery->prioridad == 1){
-                    $nDelivery->prioridad = 1;
+                if ($hDelivery['prioridad'] == true) {
+                    $nDelivery->prioritaria = 1;
+                    $totalPriorityExtraCharges = $priorityCharge->costo * sizeof($deliveryOrders);
+                    $nDelivery->cargosExtra += $totalPriorityExtraCharges;
+                    $nDelivery->total = $nDelivery->tarifaBase + $nDelivery->recargos + $nDelivery->cargosExtra;
                 }
 
                 $nDelivery->fechaRegistro = Carbon::now();
@@ -3019,10 +3024,15 @@ class DeliveriesController extends Controller
                     $nDetalle->instrucciones = $this->characterReplace($detalle['instrucciones']);
                     $nDetalle->coordsDestino = $detalle['coordsDestino'];
                     $nDetalle->idRecargo = $detalle['idRecargo'];
+                    if ($hDelivery['prioridad'] == true) {
+                        $priorityExtraCharges = $priorityCharge->costo;
+                        $nDetalle->cargosExtra += $priorityExtraCharges;
+                        $nDetalle->cTotal = $nDetalle->tarifaBase + $nDetalle->recargo + $nDetalle->cargosExtra;
+                    }
                     $nDetalle->save();
 
                     $lastOrderId = DetalleDelivery::query()->max('idDetalle');
-                    if($hDelivery->prioridad == 1){
+                    if ($hDelivery['prioridad'] == true) {
                         $priorityId = 16;
                         $nECOrder = new ExtraChargesOrders();
                         $nECOrder->idDetalle = $nDetalle->idDetalle;
@@ -3045,6 +3055,7 @@ class DeliveriesController extends Controller
                             $nSurValFact->gastosReembolsables = $extrachargeItemDet->gastosReembolsables;
                             $nSurValFact->save();
                         }
+
                     }
 
                     if (isset($detalle['extras'])) {
@@ -3075,7 +3086,6 @@ class DeliveriesController extends Controller
                             }
                         }
                     }
-
 
                     if ($itemDet != null) {
                         $nValFact = new OrderFactValues();

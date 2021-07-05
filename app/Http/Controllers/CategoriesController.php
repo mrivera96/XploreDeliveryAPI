@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Category;
+use App\ExtraCharge;
 use App\RateCustomer;
 use App\RecargoDelivery;
 use Carbon\Carbon;
@@ -521,13 +522,16 @@ class CategoriesController extends Controller
                             array_push($ratesToShow, $rate);
                         }
                     } else {
-                        if ($rate->idTipoTarifa == 3) {
+                        if ($rate->idTipoTarifa == 3 && $rate->idCliente == 1) {
                             array_push($ratesToShow, $rate);
                         }
                     }
                 }
                 $category->ratesToShow = $ratesToShow;
             }
+
+            $priorityEC = ExtraCharge::where('idCargoExtra', 16)->first();
+
             return response()->json([
                 'error' => 0,
                 'data' => $categories,
@@ -536,13 +540,14 @@ class CategoriesController extends Controller
                 'routingCategories' => $routingCategories,
                 'demand' => null/*'HORARIO NAVIDEÑO: Estimado cliente, comunicamos que el día 24 de Diciembre atenderemos pedidos en horario especial de 08:00am a 3:00pm; el 25 de Diciembre nuestra plataforma permanecerá cerrada. ¡Feliz Navidad!'*/ /* 'Estimado cliente, comunicamos que estamos experimentando una alta demanda en todas nuestras
                 categorías y mayor tráfico en la ciudad debido a la temporada.
-                Agradecemos de antemano su comprensión ante cualquier atraso o inconveniente.' */
+                Agradecemos de antemano su comprensión ante cualquier atraso o inconveniente.' */,
+                'priority' => $priorityEC
             ], 200);
         } catch (Exception $ex) {
             Log::error($ex->getMessage(), ['context' => $ex->getTrace()]);
             return response()->json([
                 'error' => 1,
-                'message' => 'Ocurrió un error al cargar los datos' 
+                'message' => 'Ocurrió un error al cargar los datos'
             ], 500);
         }
     }

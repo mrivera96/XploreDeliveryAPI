@@ -14,7 +14,7 @@ class AddPriorityToTblDeliveries extends Migration
     public function up()
     {
         Schema::table('tblDeliveries', function (Blueprint $table) {
-            $table->tinyInteger('prioridad')->default(2);
+            $table->boolean('prioritaria')->default(false);
         });
     }
 
@@ -26,7 +26,7 @@ class AddPriorityToTblDeliveries extends Migration
     public function down()
     {
         Schema::table('tblDeliveries', function (Blueprint $table) {
-            $table->dropColumn('prioridad');
+            $table->dropColumn('prioritaria');
         });
     }
 }
