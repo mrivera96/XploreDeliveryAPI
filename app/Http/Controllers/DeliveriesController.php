@@ -4441,6 +4441,7 @@ class DeliveriesController extends Controller
             }
 
             $delivery->update([
+                'idRecargo' => $request->form['idRecargo'],
                 'recargos' => $delivery->get()->first()->recargos + $request->form['recargo'],
                 'total' => $delivery->get()->first()->total + $request->form['cTotal'] + $ordToUp->get()->first()->cargosExtra
             ]);

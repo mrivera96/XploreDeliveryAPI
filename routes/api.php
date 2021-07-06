@@ -247,6 +247,13 @@ Route::group(['prefix' => 'admins'], function () {
             Route::post('create', 'RestrictionController@create');
             Route::post('update', 'RestrictionController@update');
         });
+
+        //Rutas Terminos y condiciones
+        Route::group(['prefix' => 'termsConditions'], function () {
+            Route::post('get', 'TermsConditionsController@get');
+            Route::post('create', 'TermsConditionsController@create');
+            Route::post('update', 'TermsConditionsController@update');
+        });
     });
 });
 
